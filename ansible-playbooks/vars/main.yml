@@ -1,0 +1,7 @@
+---
+security_ssh_port: 666
+# Antigen / ZSH vars
+antigen_install_oh_my_zsh: yes
+ansible_ssh_user: rbw
+
+username: rbw

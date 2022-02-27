@@ -1,0 +1,12 @@
+---
+wireguard_address: "10.8.0.101/24"
+wireguard_allowed_ips: ""
+wireguard_endpoint: "host1.domain.tld"
+wireguard_persistent_keepalive: "30"
+wireguard_save_config: "true"
+wireguard_unmanaged_peers:
+  client.example.com:
+    public_key: 
+    allowed_ips: 192.168.68.0/32
+    endpoint: 192.168.60.1:51820
+    persistent_keepalive: 25

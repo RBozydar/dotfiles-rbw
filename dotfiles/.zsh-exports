@@ -1,0 +1,13 @@
+export PATH=$HOME/bin:/usr/local/bin:$PATH
+export PATH=$HOME/.local/bin:$PATH
+
+# conda
+  . /usr/local/anaconda/etc/profile.d/conda.sh
+  conda activate base
+#  conda zsh completions
+  zstyle ':completion::complete:*' use-cache 1
+
+# completions
+zstyle ':completion:*' completer _expand _complete _ignored _correct _approximate
+zstyle ':completion:*' matcher-list 'm:{[:lower:]}={[:upper:]} m:{[:lower:][:upper:]}={[:upper:][:lower:]} l:|=* r:|=*' 'm:{[:lower:]}={[:upper:]} r:|[._-]=** r:|=**' '' 'm:{[:lower:][:upper:]}={[:upper:][:lower:]}'
+zstyle :compinstall filename '/home/rbw/.zshrc'

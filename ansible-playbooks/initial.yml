@@ -1,0 +1,139 @@
+- hosts: all
+
+  vars_files:
+    - vars/main.yml
+
+  # pre_tasks:
+  # - name: Update apt cache if needed
+  #   become: yes
+  #   ansible.builtin.package:
+
+  #     update_cache: true
+  #     cache_valid_time: 3600
+  
+  # - name: Upgrade all packages
+  #   become: yes
+  #   ansible.builtin.package:
+
+  #     name: "*"
+  #     state: latest
+
+  # - name: Ensure Universe Repo is enabled
+  #   apt_repository:
+  #     repo: deb http://archive.ubuntu.com/ubuntu focal universe
+  #     state: present
+  #     update_cache: true
+
+  # roles:
+  #   - role: gantsign.antigen
+  #     users:
+  #       - username: rbw
+  #         antigen_libraries:
+  #           - name: oh-my-zsh
+  #         antigen_theme:
+  #           name: agnoster
+  #         antigen_bundles:
+  #           - name: git
+  #           - name: common-aliases
+  #           - name: docker
+  #           - name: zsh-syntax-highlighting
+  #             url: zsh-users/zsh-syntax-highlighting
+  #           - name: zsh-completions
+  #             url: zsh-users/zsh-completions
+  #           - name: zsh-autosuggestions
+  #             url: zsh-users/zsh-autosuggestions
+  #   - role: geerlingguy.docker
+  #     docker_users: rbw
+  #   - role : geerlingguy.security
+
+
+  tasks:
+  # - name: Ensure git is installed
+  #   become: yes
+  #   ansible.builtin.package:
+  #     name: git
+  #     state: present
+
+  # - name: Ensure curl is installed
+  #   become: yes
+  #   ansible.builtin.package:
+  #     name: curl
+  #     state: present
+
+  # - name: Ensure wget is installed
+  #   become: yes
+  #   ansible.builtin.package:
+  #     name: wget
+  #     state: present
+
+  # - name: Ensure FiraCode is installed
+  #   become: yes
+  #   ansible.builtin.package:
+  #     name: fonts-firacode
+  #     state: present
+
+  # - name: Ensure MC is installed
+  #   become: yes
+  #   ansible.builtin.package:
+  #     name: mc
+  #     state: present
+
+  # - name: Ensure Python is installed
+  #   become: yes
+  #   ansible.builtin.package:
+  #     name: python3
+  #     state: present
+  
+  # - name: Ensure PIP is installed
+  #   become: yes
+  #   ansible.builtin.package:
+  #     name: python3-pip
+  #     state: present
+
+  # - name: Ensure OpenSSH Server is installed
+  #   become: yes
+  #   ansible.builtin.package:
+  #     name: openssh-server
+  #     state: present
+
+  # - name: Ensure OpenSSH Client is installed
+  #   become: yes
+  #   ansible.builtin.package:
+  #     name: openssh-client
+  #     state: present
+
+  # - name: Ensure Samba is installed
+  #   become: yes
+  #   ansible.builtin.package:
+  #     name: samba
+  #     state: present
+  
+  # - name: Ensure NFS Common is installed
+  #   become: yes
+  #   ansible.builtin.package:
+  #     name: nfs-common
+  #     state: present
+
+  # - name: Ensure NFS kernel is installed
+  #   become: yes
+  #   ansible.builtin.package:
+  #     name: nfs-kernel-server
+  #     state: present
+
+  # - name: Ensure Build Essentials are installed
+  #   become: yes
+  #   ansible.builtin.package:
+  #     name: build-essential
+  #     state: present
+
+  # - name: Ensure nmap is installed
+  #   become: yes
+  #   ansible.builtin.package:
+  #     name: nmap
+  #     state: present
+
+  - name: Symlink .zshrc
+    ansible.builtin.file:
+      src: "$HOME/repo/dotfiles-rbw/.zshrc"
+      dest: $HOME/.zshrc
+      state: link
