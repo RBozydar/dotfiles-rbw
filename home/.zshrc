@@ -15,7 +15,7 @@ HISTSIZE=1000000
 SAVEHIST=1000000
 
 source $HOME/.zsh_aliases
-source $HOME/.zsh_expots
+source $HOME/.zsh_exports
 
 #startx
 if [[ ! $DISPLAY && $XDG_VTNR -eq 1 ]]; then
