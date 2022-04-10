@@ -11,8 +11,8 @@ COMPLETION_WAITING_DOTS="true"
 # History
 HIST_STAMPS="yyyy-mm-dd"
 HISTFILE=~/.histfile
-HISTSIZE=1000000
-SAVEHIST=1000000
+HISTSIZE=10000000
+SAVEHIST=10000000
 
 source $HOME/.zsh_aliases
 source $HOME/.zsh_exports
