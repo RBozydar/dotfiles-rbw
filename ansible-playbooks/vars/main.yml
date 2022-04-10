@@ -5,3 +5,7 @@ antigen_install_oh_my_zsh: yes
 ansible_ssh_user: rbw
 
 username: rbw
+
+zshrc_home: $HOME/.zshrc
+zshrc_repo: $HOME/repo/dotfiles/home/.zshrc
+home_repo: $HOME/repo/dotfiles/home
