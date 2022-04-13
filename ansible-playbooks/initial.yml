@@ -143,10 +143,11 @@
   - name: Clone & pull dotfiles
     ansible.builtin.git:
       repo: git@github.com:RBozydar/dotfiles-rbw.git
+      version: main
       dest: $HOME/repo/dotfiles
       single_branch: yes
       update: yes
-      version: main
+      accept_hostkey: yes
 
 # remove existing file? compare maybe and only then
   - name: Register current state of .zshrc
