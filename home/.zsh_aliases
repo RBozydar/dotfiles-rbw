@@ -18,8 +18,6 @@ alias aptsrch="apt-cache search"
 # IP addresses
 alias ip="dig +short myip.opendns.com @resolver1.opendns.com"
 alias ipl="hostname -I"
-alias ips="ifconfig -a | grep -o 'inet6\? \(addr:\)\?\s\?\(\(\([0-9]\+\.\)\{3\}[0-9]\+\)\|[a-fA-F0-9:]\+\)' | awk '{ sub(/inet6? (addr:)? ?/, \"\"); pr>
-
 
 # Prevent ZSH from throwing autocorrect for weird-looking Sass commands
 alias sass='nocorrect sass'
