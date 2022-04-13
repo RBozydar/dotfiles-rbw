@@ -173,14 +173,14 @@
 
   - name: Symlink .zsh_aliases
     ansible.builtin.file:
-      src: $HOME_REPO/.zsh_aliases
+      src: $HOME/repo/dotfiles/home/.zsh_aliases
       dest: $HOME/.zsh_aliases
       state: link
       force: yes
   
   - name: Symlink .zsh_exports
     ansible.builtin.file:
-      src: $HOME_REPO/.zsh_exports
+      src: $HOME/repo/dotfiles/home/.zsh_exports
       dest: $HOME/.zsh_exports
       state: link
       force: yes
