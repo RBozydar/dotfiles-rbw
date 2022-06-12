@@ -2,7 +2,8 @@ export PATH=$HOME/bin:/usr/local/bin:$PATH
 export PATH=$HOME/.local/bin:$PATH
 
 # conda
-  . /usr/local/anaconda/etc/profile.d/conda.sh
+  .  ~/miniconda3/etc/profile.d/conda.sh
+  # . /usr/local/anaconda/etc/profile.d/conda.sh
   conda activate base
 #  conda zsh completions
   zstyle ':completion::complete:*' use-cache 1
