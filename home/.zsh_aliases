@@ -1,4 +1,4 @@
-lias reload="source ~/.zshrc"
+alias reload="source ~/.zshrc"
 alias rr="rm -rf"
 
 #config aliases
