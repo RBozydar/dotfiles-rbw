@@ -13,23 +13,31 @@
 
 
 
-# Terminate any currently running instances
-killall -q polybar
+# # Terminate any currently running instances
+# killall -q polybar
 
-# Pause while killall completes
-while pgrep -u $UID -x polybar > /dev/null; do sleep 1; done
+# # Pause while killall completes
+# while pgrep -u $UID -x polybar > /dev/null; do sleep 1; done
+
+# for m in $(polybar --list-monitors | cut -d":" -f1); do
+#     MONITOR=$m polybar --reload example &
+# done
+# else
+#   polybar --reload top -c ~/.config/polybar/config &
+# fi
+
+# # Launch bar(s)
+# #polybar topDP -q &
+# polybar topDVI -q &
+# #polybar botDP -q &
+# polybar botDVI -q &
+# echo "polybars launched..."
+
+
+pkill polybar
+polybar -r main &
 
 for m in $(polybar --list-monitors | cut -d":" -f1); do
-    MONITOR=$m polybar --reload example &
+    MONITOR=$m polybar --reload main &
 done
-else
-  polybar --reload top -c ~/.config/polybar/config &
-fi
-
-# Launch bar(s)
-#polybar topDP -q &
-polybar topDVI -q &
-#polybar botDP -q &
-polybar botDVI -q &
-echo "polybars launched..."
 

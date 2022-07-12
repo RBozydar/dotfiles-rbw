@@ -15,7 +15,6 @@ margin-bottom = 0
 margin-top = 0
                                                       
 [colors]
-; {{{
 black    = ${xrdb:color0}
 red      = ${xrdb:color1}
 green    = ${xrdb:color2}
@@ -82,9 +81,9 @@ modules-right = temperature OpenCorsair memory cpu
 #wired-network system-nvidia-smi
 
 # connected to nVidia
-[bar/topDVI]
+[bar/top]
 inherit = bar/base
-monitor = DVI-D-1
+monitor = ${env:MONITOR:}
 
 modules-left = ${bar/top.modules-left}
 modules-center = ${bar/top.modules-center}
@@ -92,28 +91,15 @@ modules-right = ${bar/top.modules-right}
 
 tray-position = right
 
-[bar/topDP]
-inherit = bar/base
-monitor = DP-1
-modules-left = ${bar/top.modules-left}
-modules-center = ${bar/top.modules-center}
-modules-right = ${bar/top.modules-right}
 
-[bar/botDP]
+[bar/bot]
 inherit = bar/base
-monitor = DP-1
+monitor = ${env:MONITOR:}
 bottom = true
 modules-center = ${bar/bottom.modules-center}
 modules-left = ${bar/bottom.modules-left}
 modules-right = ${bar/bottom.modules-right}
 
-[bar/botDVI]
-inherit = bar/base
-monitor = DVI-D-1
-bottom = true
-modules-center = ${bar/bottom.modules-center}
-modules-left = ${bar/bottom.modules-left}
-modules-right = ${bar/bottom.modules-right}
 
 # I3                
 
