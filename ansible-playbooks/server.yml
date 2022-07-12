@@ -1,0 +1,19 @@
+- hosts: all
+
+  vars_files:
+    - vars/main.yml
+
+  tasks:
+  - name: Make sure repo dir exists
+    ansible.builtin.file:
+      state: directory
+      dest: $HOME/repo
+
+  - name: Clone test-traefik into repo/test-traefik
+    ansible.builtin.git:
+      repo: git@github.com:RBozydar/test-traefik.git
+      version: raspi
+      dest: $HOME/repo/test-traefik
+      single_branch: yes
+      update: yes
+      accept_hostkey: yes
