@@ -1,0 +1,288 @@
+[settings]
+compositing-background = source
+compositing-foreground = over
+compositing-overline = over
+compositing-underline = over
+compositing-border = over
+
+[global/wm]
+; Adjust the _NET_WM_STRUT_PARTIAL top value
+;   Used for top aligned bars
+margin-bottom = 0
+
+; Adjust the _NET_WM_STRUT_PARTIAL bottom value
+;   Used for bottom aligned bars
+margin-top = 0
+                                                      
+[colors]
+; {{{
+black    = ${xrdb:color0}
+red      = ${xrdb:color1}
+green    = ${xrdb:color2}
+yellow   = ${xrdb:color3}
+blue     = ${xrdb:color4}
+magenta  = ${xrdb:color5}
+cyan     = ${xrdb:color6}
+white    = ${xrdb:color7}
+brblack  = ${xrdb:color8}
+brred    = ${xrdb:color9}
+brgreen  = ${xrdb:color10}
+bryellow = ${xrdb:color11}
+brblue   = ${xrdb:color12}
+brmagenta= ${xrdb:color13}
+brcyan   = ${xrdb:color14}
+brwhite  = ${xrdb:color15}
+fg = 
+bg = 
+
+[bar/base]
+enable-ipc = true
+width = 100%
+height = 30
+
+font-0 = FiraCode-Retina:size:12;2
+font-1 = Weather Icons:size=12;1
+font-3 = "Font Awesome 5 Free:style=Regular:pixelsize=8;1"
+font-4 = "Font Awesome 5 Free:style=Solid:pixelsize=8;1"
+font-5 = "Font Awesome 5 Brands:pixelsize=8;1"
+#background: #ff0000
+#foreground: #c5c8c6
+
+#transparent
+background = #00000000
+foreground = #ccffffff
+
+#separator = |
+wm-restack = i3
+
+border-size = 0
+padding-left = 2
+padding-right = 1
+
+module-margin-left = 3
+module-margin-right = 2
+
+underline-size = 5
+overline-size = 3
+
+[bar/top]
+
+modules-left = i3
+modules-center = title
+modules-right =  alsa openweathermap-fullfeatured date
+
+#Modules disabled
+# now_playing pulseaudio
+
+[bar/bottom]
+bottom = true
+modules-center = mpd
+modules-left = wired-network info-ssh-sessions
+modules-right = temperature OpenCorsair memory cpu
+#wired-network system-nvidia-smi
+
+# connected to nVidia
+[bar/topDVI]
+inherit = bar/base
+monitor = DVI-D-1
+
+modules-left = ${bar/top.modules-left}
+modules-center = ${bar/top.modules-center}
+modules-right = ${bar/top.modules-right}
+
+tray-position = right
+
+[bar/topDP]
+inherit = bar/base
+monitor = DP-1
+modules-left = ${bar/top.modules-left}
+modules-center = ${bar/top.modules-center}
+modules-right = ${bar/top.modules-right}
+
+[bar/botDP]
+inherit = bar/base
+monitor = DP-1
+bottom = true
+modules-center = ${bar/bottom.modules-center}
+modules-left = ${bar/bottom.modules-left}
+modules-right = ${bar/bottom.modules-right}
+
+[bar/botDVI]
+inherit = bar/base
+monitor = DVI-D-1
+bottom = true
+modules-center = ${bar/bottom.modules-center}
+modules-left = ${bar/bottom.modules-left}
+modules-right = ${bar/bottom.modules-right}
+
+# I3                
+
+[module/i3]
+type = internal/i3
+format =  <label-state> <label-mode>
+
+label-focused = %name% %icon%
+label-unfocused = %name% %icon%
+#label-visible = %name
+label-urgent = %name% %icon%
+label-mode = %mode% %icon%
+
+wrapping-scroll = true
+pin-workspaces = true
+strip-wsnumbers = true
+index-sort = true
+
+ws-icon-0 = 1
+ws-icon-1 = 
+ws-icon-2 = ♛
+ws-icon-3 = ♛
+ws-icon-4 = 
+
+label-dimmed-underline = $ffffff
+
+label-indicator-padding = 0
+label-indicator-background = #BBBBBB
+label-indicator-underline = #FF0000
+
+label-focused-foreground = #f3f3f3
+label-focused-background = #3f3f3f
+label-focused-underline = #cc6666
+label-focused-font = 4
+label-focused-padding = 4
+
+
+label-unfocused-underline = #bfbfbf
+label-unfocused-font = 4
+label-unfocused-padding = 4
+
+
+label-urgent-foreground = #000000
+label-urgent-background = #bd2c40
+label-urgent-underline = #9b0a20
+label-urgent-font = 4
+label-urgent-padding = 4
+
+
+label-visible-foreground = #55ffffff
+label-visible-font = 4
+label-visible-padding = 4
+label-visible-underline = #85e085
+
+
+
+[module/alsa]
+type = internal/alsa
+master-soundcard = default
+speaker-soundcard = default
+headphone-soundcard = default
+master-mixer = Master
+mapped = true
+interval = 5
+
+format-volume = <label-volume>
+label-volume = %percentage%
+label-muted = 🔇 muted
+label-muted-foreground = #c5c8c6
+
+[module/cpu]
+type = internal/cpu
+interval = 1.0
+format-prefix = " "
+label = %percentage%%
+
+[module/memory]
+type = internal/memory
+interval = 2
+
+format = <label>
+label = %gb_used%/%gb_free%
+
+
+[module/date]
+type = internal/date
+interval = 1.0
+date = %A %Y-%m-%d%
+time = %H:%M:%S
+
+label = %date% %time%
+label-font = 3
+label-foreground = #ffffff
+
+[module/wired-network]
+type = internal/network
+interface = enp0s31f6
+interval = 1
+
+#format-connected-prefix = " "
+#format-connected-underline = #cc66ff
+label-connected = %local_ip% ↘ %downspeed% ↗ %upspeed%
+
+[module/title]
+type = internal/xwindow
+label = %title%
+label-maxlen = 75
+
+
+[module/temperature]
+type = internal/temperature
+interval = 0.5
+thermal-zone = 0
+label =    %temperature-c%
+
+[module/openweathermap-fullfeatured]
+type = custom/script
+exec = /home/rbw/Instalki/dotfiles/polybar-scripts/openweathermap-fullfeatured/openweathermap-fullfeatured.sh
+interval = 600
+label-font = 2
+
+
+#[module/pulseaudio-rofi-output]
+#type = custom/script
+#exec = /home/rbw/Instalki/dotfiles/polybar-scriptspulseaudio-rofi/#pulseaudio-rofi.sh --output_volume_listener
+#tail = true
+#click-right = ~/polybar-scripts/pulseaudio-rofi.sh --output
+#click-left = ~/polybar-scripts/pulseaudio-rofi.sh --mute
+#scroll-up =  ~/polybar-scripts/pulseaudio-rofi.sh --volume_up
+#scroll-down = ~/polybar-scripts/pulseaudio-rofi.sh --#volume_down
+
+; [module/system-nvidia-smi]
+; type = custom/script
+; exec = /home/rbw/Instalki/dotfiles/polybar-scripts/system-nvidia-smi/system-nvidia-smi.sh
+; interval = 10
+
+[module/pulseaudio]
+type = internal/pulseaudio
+sink = @DEFAULT_SINK@
+use-ui-max = false
+interval = 5
+
+format-volume = <label-volume>
+label-volume = %percentage%
+format-muted = <label-muted>
+label-muted = muted
+#label-muted-foreground = #666
+
+[module/mpd]
+type = internal/mpd
+host = 127.0.0.1
+port = 9999
+interval = 1
+
+format-online = <icon-play> <icon-pause> <icon-prev> <icon-next> <label-song> <label-time> 
+label-song = %artist% - %title%
+label-time = %elapsed% / %total%
+icon-play = P
+icon-pause = ⏸
+icon-prev = ⏮
+icon-next = ⏭
+
+; [module/info-ssh-sessions]
+; type = custom/script
+; exec = /home/rbw/Instalki/dotfiles/polybar-scripts/info-ssh-sessions.sh
+; interval = 5
+
+; [module/OpenCorsair]
+; type = custom/script
+; exec = sudo /home/rbw/Instalki/dotfiles/polybar-scripts/OpenCorsairLink-info.sh
+; interval = 1
+

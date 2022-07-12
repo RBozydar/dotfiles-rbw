@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+
+killall polybar
+sleep 2 &
+
+# Polybar
+# nVidia only
+polybar topDP -q &
+polybar topDVI -q &
+polybar botDP -q &
+polybar botDVI -q &
+
+# iGPU only
+#polybar botIPS -q &
+#polybar botDP2 -q &
+#polybar topIPS -q &
+#polybar topDP2 -q &
+
+# nitrogen
+nitrogen --restore &
+
+#nohup mopidy &
+#nohup deluged &
+#nohup deluge-web &
+
