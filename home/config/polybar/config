@@ -68,16 +68,19 @@ overline-size = 3
 
 modules-left = i3
 modules-center = title
-modules-right =  alsa openweathermap-fullfeatured date
+modules-right =  alsa date
+; openweathermap-fullfeatured date
 
 #Modules disabled
 # now_playing pulseaudio
 
 [bar/base_bottom]
 bottom = true
-modules-center = mpd
-modules-left = wired-network info-ssh-sessions
-modules-right = temperature OpenCorsair memory cpu
+; modules-center = mpd
+modules-left = wired-network 
+; info-ssh-sessions
+modules-right = temperature memory cpu
+; OpenCorsair memory cpu
 #wired-network system-nvidia-smi
 
 # connected to nVidia
