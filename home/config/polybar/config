@@ -92,7 +92,7 @@ modules-right = ${bar/base_top.modules-right}
 tray-position = right
 
 
-[bar/botom]
+[bar/bottom]
 inherit = bar/base
 monitor = ${env:MONITOR:}
 bottom = true
