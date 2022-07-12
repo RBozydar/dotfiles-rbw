@@ -40,7 +40,7 @@ width = 100%
 height = 30
 
 font-0 = FiraCode-Retina:size:12;2
-font-1 = Weather Icons:size=12;1
+; font-1 = Weather Icons:size=12;1
 font-3 = "Font Awesome 5 Free:style=Regular:pixelsize=8;1"
 font-4 = "Font Awesome 5 Free:style=Solid:pixelsize=8;1"
 font-5 = "Font Awesome 5 Brands:pixelsize=8;1"
@@ -53,6 +53,7 @@ foreground = #ccffffff
 
 #separator = |
 wm-restack = i3
+override-redirect = false
 
 border-size = 0
 padding-left = 2
@@ -170,13 +171,14 @@ interval = 5
 
 format-volume = <label-volume>
 label-volume = %percentage%
-label-muted = 🔇 muted
+label-muted = muted
+# ; 🔇
 label-muted-foreground = #c5c8c6
 
 [module/cpu]
 type = internal/cpu
 interval = 1.0
-format-prefix = " "
+; format-prefix = ""
 label = %percentage%%
 
 [module/memory]
@@ -216,7 +218,7 @@ label-maxlen = 75
 type = internal/temperature
 interval = 0.5
 thermal-zone = 0
-label =    %temperature-c%
+label = %temperature-c%
 
 [module/openweathermap-fullfeatured]
 type = custom/script
