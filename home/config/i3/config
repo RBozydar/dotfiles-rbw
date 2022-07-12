@@ -1,7 +1,7 @@
 set $mod Mod1
 
-#font pango:monospace 8
-font pango:DejaVu Sans Mono 8
+font pango:monospace 8
+# font pango:DejaVu Sans Mono 8
 
 # Use Mouse+$mod to drag floating windows to their wanted position
 floating_modifier $mod
