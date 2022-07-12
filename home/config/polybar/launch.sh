@@ -35,7 +35,8 @@
 
 
 pkill polybar
-polybar -r main &
+polybar -r top &
+polybar -r bottom &
 
 for m in $(polybar --list-monitors | cut -d":" -f1); do
     for bar in top bottom; do
