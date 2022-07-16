@@ -99,6 +99,12 @@
       name: openssh-server
       state: present
 
+  - name: Copy SSH public keys from Github
+    ansible.posix.authorized_key:
+      user: rbw
+      state: present
+      key: https://github.com/rbozydar.keys
+
   - name: Ensure OpenSSH Client is installed
     become: yes
     ansible.builtin.package:
