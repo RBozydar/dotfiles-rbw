@@ -97,3 +97,6 @@
       dest: /usr/share/xsessions/plasma-i3.desktop
       state: link
       force: yes
+
+# TODO:
+# ssh key agent for Plasma

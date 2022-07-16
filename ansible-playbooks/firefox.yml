@@ -1,0 +1,38 @@
+- hosts: all
+
+  vars_files:
+    - vars/main.yml
+
+  tasks:
+  - name: Ensure FireFox PPA is available
+    become: yes
+    ansible.builtin.apt_repository:
+      repo: ppa:mozillateam/ppa
+      state: present
+      update_cache: true
+
+  - name: Remove Snap FireFox
+    become: yes
+    community.general.snap:
+      name: firefox
+      state: absent
+
+
+  # - name: Set Firefox priority
+  #   ansible.builtin.shell: |
+  #     echo '
+  #     Package: *
+  #     Pin: release o=LP-PPA-mozillateam
+  #     Pin-Priority: 1001
+  #     ' | sudo tee /etc/apt/preferences.d/mozilla-firefox
+  
+  # - name: Ensure Firefox will be updated from PPA
+  #   ansible.builtin.shell: |
+  #     echo 'Unattended-Upgrade::Allowed-Origins::
+   "LP-PPA-mozillateam:${distro_codename}";' | 
+   sudo tee /etc/apt/apt.conf.d/51unattended-upgrades-firefox
+
+  # - name: Install FireFox from PPA
+  #   ansible.builtin.package:
+  #     name: firefox
+  #     state: present
