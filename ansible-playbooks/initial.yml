@@ -191,3 +191,17 @@
       dest: $HOME/.zsh_exports
       state: link
       force: yes
+
+  - name: Symlink gitconfig
+    ansible.builtin.file:
+      src: $HOME/repo/dotfiles/home/.gitconfig
+      dest: $HOME/.gitconfig
+      state: link
+      force: yes
+
+  - name: Symlink git_ingore global
+    ansible.builtin.file:
+      src: $HOME/repo/dotfiles/home/.gitignore_global
+      dest: $HOME/.gitignore_global
+      state: link
+      force: yes
