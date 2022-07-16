@@ -1,0 +1,99 @@
+- hosts: all
+
+  vars_files:
+    - vars/main.yml
+
+  pre_tasks:
+  
+  - name: Update apt cache if needed
+    become: yes
+    ansible.builtin.package:
+
+      update_cache: true
+      cache_valid_time: 1
+  
+  - name: Pull latest dotfiles
+    ansible.builtin.git:
+      repo: git@github.com:RBozydar/dotfiles-rbw.git
+      version: main
+      dest: $HOME/repo/dotfiles
+      single_branch: yes
+      update: yes
+      accept_hostkey: yes
+  
+  tasks:
+  - name: Install i3-gaps
+    become: yes
+    ansible.builtin.package:
+      name: i3-gaps
+      state: present
+  
+  - name: Install polybar
+    become: yes
+    ansible.builtin.package:
+      name: polybar
+      state: present
+  
+  - name: Install rofi
+    become: yes
+    ansible.builtin.package:
+      name: rofi
+      state: present
+
+  - name: Install Compton
+    become: yes
+    ansible.builtin.package:
+      name: compton
+      state: present
+
+  - name: Install Dunst
+    become: yes
+    ansible.builtin.package:
+      name: dunst
+      state: present
+
+  - name: Create i3 config folder
+    ansible.builtin.file:
+      state: directory
+      dest: $HOME/.config/i3/
+  
+  - name: Create polybar config folder
+    ansible.builtin.file:
+      state: directory
+      dest: $HOME/.config/polybar/
+
+  - name: Symlink i3 config
+    ansible.builtin.file:
+      src: $HOME/repo/dotfiles/home/config/i3/config
+      dest: $HOME/.config/i3/config
+      state: link
+      force: yes
+  
+  - name: Symlink polybar config
+    ansible.builtin.file:
+      src: $HOME/repo/dotfiles/home/config/polybar/config
+      dest: $HOME/.config/polybar/config
+      state: link
+      force: yes
+
+  - name: Symlink polybar launch.sh
+    ansible.builtin.file:
+      src: $HOME/repo/dotfiles/home/config/polybar/launch.sh
+      dest: $HOME/.config/polybar/launch.sh
+      state: link
+      force: yes
+  
+  # for Plasma >= 5.25
+  # - name: Symlink plasma-i3.service
+  #   ansible.builtin.file:
+  #     src: $HOME/repo/dotfiles/home/config/plasma/plasma-i3.service
+  #     dest: $HOME/.config/systemd/user/plasma-i3.service
+  #     state: link
+  #     force: yes
+
+  - name: Symlink plasma-i3.service
+    ansible.builtin.file:
+      src: $HOME/repo/dotfiles/home/config/plasma/plasma-i3.desktop
+      dest: /usr/share/xsessions/plasma-i3.desktop
+      state: link
+      force: yes
