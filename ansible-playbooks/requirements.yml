@@ -1,7 +1,12 @@
 ---
-- src: geerlingguy.docker
-- src: geerlingguy.security
-- src: andrewrothstein.miniconda
-- src: githubixx.ansible_role_wireguard
-- src: gantsign.antigen
-- src: gantsign.visual-studio-code
+roles:
+  - src: geerlingguy.docker
+  # - src: geerlingguy.security
+  - src: https://github.com/RBozydar/ansible-role-security
+  - src: andrewrothstein.miniconda
+  - src: githubixx.ansible_role_wireguard
+  - src: gantsign.antigen
+  - src: gantsign.visual-studio-code
+
+collections:
+  - kewlfft.aur

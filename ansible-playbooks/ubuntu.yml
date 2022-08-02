@@ -1,0 +1,30 @@
+- hosts: arch
+  vars_files:
+    - vars/main.yml
+    - vars/packages.yml
+  roles:
+    - role: geerlingguy.docker
+      become: yes
+      docker_users: rbw
+
+  tasks:
+  - name: Upgrade all packages
+    become: yes
+    ansible.builtin.package:
+      name: "*"
+      state: latest
+
+  - name: Update apt cache if needed
+    become: yes
+    ansible.builtin.package:
+      update_cache: true
+      # cache_valid_time: 3600
+  
+
+
+  - name: Ensure Universe Repo is enabled
+    become: yes
+    apt_repository:
+      repo: deb http://archive.ubuntu.com/ubuntu focal universe
+      state: present
+      update_cache: true

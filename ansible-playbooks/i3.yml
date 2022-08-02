@@ -1,59 +1,8 @@
-- hosts: arch
-
-  vars_files:
-    - vars/main.yml
-
-  pre_tasks:
-  
-  # - name: Update apt cache if needed
-  #   become: yes
-  #   ansible.builtin.package:
-  #     update_cache: true
-  
-  - name: Pull latest dotfiles
-    ansible.builtin.git:
-      repo: git@github.com:RBozydar/dotfiles-rbw.git
-      version: main
-      dest: $HOME/repo/dotfiles
-      single_branch: yes
-      update: yes
-      accept_hostkey: yes
-  
-  tasks:
-  - name: Install i3-gaps
+---  
+  - name: Install packages
     become: yes
     ansible.builtin.package:
-      name: i3-gaps
-      state: present
-  
-  - name: Install polybar
-    become: yes
-    ansible.builtin.package:
-      name: polybar
-      state: present
-  
-  - name: Install rofi
-    become: yes
-    ansible.builtin.package:
-      name: rofi
-      state: present
-
-  - name: Install picom
-    become: yes
-    ansible.builtin.package:
-      name: picom
-      state: present
-
-  - name: Install Dunst
-    become: yes
-    ansible.builtin.package:
-      name: dunst
-      state: present
-
-  - name: Install nitrogen
-    become: yes
-    ansible.builtin.package:
-      name: nitrogen
+      name: "{{ base_packages }}"
       state: present
 
   - name: Remove i3 config folder if exists
@@ -89,21 +38,3 @@
       dest: $HOME/.config/wallpapers
       state: link
       force: yes
-  # for Plasma >= 5.25
-  # - name: Symlink plasma-i3.service
-  #   ansible.builtin.file:
-  #     src: $HOME/repo/dotfiles/home/config/plasma/plasma-i3.service
-  #     dest: $HOME/.config/systemd/user/plasma-i3.service
-  #     state: link
-  #     force: yes
-
-  # - name: Copy plasma-i3.service
-  #   become: yes
-  #   ansible.builtin.copy:
-  #     src: /home/rbw/repo/dotfiles/home/config/plasma/plasma-i3.desktop
-  #     dest: /usr/share/xsessions/plasma-i3.desktop
-  #     remote_src: yes
-  #     force: yes
-
-# TODO:
-# ssh key agent for Plasma
