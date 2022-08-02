@@ -5,10 +5,8 @@ sleep 2 &
 
 # Polybar
 # nVidia only
-polybar topDP -q &
-polybar topDVI -q &
-polybar botDP -q &
-polybar botDVI -q &
+polybar top -q &
+polybar bottom -q &
 
 # iGPU only
 #polybar botIPS -q &
