@@ -1,16 +1,14 @@
-- hosts: all
+- hosts: arch
 
   vars_files:
     - vars/main.yml
 
   pre_tasks:
   
-  - name: Update apt cache if needed
-    become: yes
-    ansible.builtin.package:
-
-      update_cache: true
-      cache_valid_time: 1
+  # - name: Update apt cache if needed
+  #   become: yes
+  #   ansible.builtin.package:
+  #     update_cache: true
   
   - name: Pull latest dotfiles
     ansible.builtin.git:
@@ -40,10 +38,10 @@
       name: rofi
       state: present
 
-  - name: Install Compton
+  - name: Install picom
     become: yes
     ansible.builtin.package:
-      name: compton
+      name: picom
       state: present
 
   - name: Install Dunst
@@ -58,20 +56,16 @@
       name: nitrogen
       state: present
 
-  - name: Create i3 config folder
+  - name: Remove i3 config folder if exists
     ansible.builtin.file:
-      state: directory
-      dest: $HOME/.config/i3/
-  
-  - name: Create polybar config folder
-    ansible.builtin.file:
-      state: directory
-      dest: $HOME/.config/polybar/
+      path: $HOME/.config/i3
+      state: absent
 
-  - name: Symlink i3 config
+
+  - name: Symlink i3 config folder
     ansible.builtin.file:
-      src: $HOME/repo/dotfiles/home/config/i3/config
-      dest: $HOME/.config/i3/config
+      src: $HOME/repo/dotfiles/home/config/i3
+      dest: $HOME/.config/i3
       state: link
       force: yes
   
@@ -103,12 +97,13 @@
   #     state: link
   #     force: yes
 
-  - name: Copy plasma-i3.service
-    become: yes
-    ansible.builtin.copy:
-      src: $HOME/repo/dotfiles/home/config/plasma/plasma-i3.desktop
-      dest: /usr/share/xsessions/plasma-i3.desktop
-      force: yes
+  # - name: Copy plasma-i3.service
+  #   become: yes
+  #   ansible.builtin.copy:
+  #     src: /home/rbw/repo/dotfiles/home/config/plasma/plasma-i3.desktop
+  #     dest: /usr/share/xsessions/plasma-i3.desktop
+  #     remote_src: yes
+  #     force: yes
 
 # TODO:
 # ssh key agent for Plasma

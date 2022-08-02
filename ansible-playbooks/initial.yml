@@ -1,29 +1,30 @@
-- hosts: all
+- hosts: arch
 
   vars_files:
     - vars/main.yml
 
   pre_tasks:
-  - name: Update apt cache if needed
-    become: yes
-    ansible.builtin.package:
-
-      update_cache: true
-      cache_valid_time: 3600
+  # - name: Update apt cache if needed
+  #   become: yes
+  #   ansible.builtin.package:
+  #     update_cache: true
+  #     # cache_valid_time: 3600
   
   - name: Upgrade all packages
     become: yes
-    ansible.builtin.package:
+    # ansible.builtin.package:
+    #   name: "*"
+    #   state: latest
+    community.general.pacman:
+      update_cache: yes
+      upgrade: yes
 
-      name: "*"
-      state: latest
-
-  - name: Ensure Universe Repo is enabled
-    become: yes
-    apt_repository:
-      repo: deb http://archive.ubuntu.com/ubuntu focal universe
-      state: present
-      update_cache: true
+  # - name: Ensure Universe Repo is enabled
+  #   become: yes
+  #   apt_repository:
+  #     repo: deb http://archive.ubuntu.com/ubuntu focal universe
+  #     state: present
+  #     update_cache: true
 
   roles:
     - role: gantsign.antigen
@@ -43,11 +44,11 @@
               url: zsh-users/zsh-completions
             - name: zsh-autosuggestions
               url: zsh-users/zsh-autosuggestions
-    - role: geerlingguy.docker
-      become: yes
-      docker_users: rbw
-    - role : geerlingguy.security
-      become: yes
+    # - role: geerlingguy.docker
+    #   become: yes
+    #   docker_users: rbw
+    # - role : geerlingguy.security
+    #   become: yes
 
 
   tasks:
@@ -72,7 +73,8 @@
   - name: Ensure FiraCode is installed
     become: yes
     ansible.builtin.package:
-      name: fonts-firacode
+      # name: fonts-firacode
+      name: ttf-fira-code
       state: present
 
   - name: Ensure MC is installed
@@ -90,13 +92,15 @@
   - name: Ensure PIP is installed
     become: yes
     ansible.builtin.package:
-      name: python3-pip
+      # name: python3-pip
+      name: python-pip
       state: present
 
   - name: Ensure OpenSSH Server is installed
     become: yes
     ansible.builtin.package:
-      name: openssh-server
+      # name: openssh-server
+      name: openssh
       state: present
 
   - name: Copy SSH public keys from Github
@@ -105,11 +109,12 @@
       state: present
       key: https://github.com/rbozydar.keys
 
-  - name: Ensure OpenSSH Client is installed
-    become: yes
-    ansible.builtin.package:
-      name: openssh-client
-      state: present
+  # not on Arch
+  # - name: Ensure OpenSSH Client is installed
+  #   become: yes
+  #   ansible.builtin.package:
+  #     name: openssh-client
+  #     state: present
 
   - name: Ensure Samba is installed
     become: yes
@@ -117,22 +122,25 @@
       name: samba
       state: present
   
-  - name: Ensure NFS Common is installed
-    become: yes
-    ansible.builtin.package:
-      name: nfs-common
-      state: present
+  # not on arch
+  # - name: Ensure NFS Common is installed
+  #   become: yes
+  #   ansible.builtin.package:
+  #     name: nfs-common
+  #     state: present
 
   - name: Ensure NFS kernel is installed
     become: yes
     ansible.builtin.package:
-      name: nfs-kernel-server
+      # name: nfs-kernel-server
+      name: nfs-utils
       state: present
 
   - name: Ensure Build Essentials are installed
     become: yes
     ansible.builtin.package:
-      name: build-essential
+      # name: build-essential # base-devel on Arch
+      name: base-devel
       state: present
 
   - name: Ensure nmap is installed
@@ -140,6 +148,31 @@
     ansible.builtin.package:
       name: nmap
       state: present
+
+  - name: Ensure Meson is installed
+    become: yes
+    ansible.builtin.package:
+      name: meson
+      state: present
+
+  - name: Ensure ninja is installed
+    become: yes
+    ansible.builtin.package:
+      # name: ninja-build
+      name: ninja
+      state: present
+
+  - name: Ensure scrot is installed
+    become: yes
+    ansible.builtin.package:
+      name: scrot
+      state: present
+
+  # - name: Ensure picom is installed
+  #   become: yes
+  #   ansible.builtin.package:
+  #     name: picom
+  #     state: present
 
   - name: Create repo folder
     ansible.builtin.file:
