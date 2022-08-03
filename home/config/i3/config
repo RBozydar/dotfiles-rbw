@@ -156,8 +156,9 @@ bindsym $mod+r mode "resize"
 
 # startup file
 exec_always --no-startup-id "$HOME/.config/i3/startup"
-#exec --no-startup-id $HOME/.config/polybar/launch.sh
-exec --no-startup-id compton
+exec --no-startup-id $HOME/.config/polybar/launch.sh
+exec_always --no-startup-id pkill picom; picom --no-use-damage
+exec_always --no-startup-id pkill dunst; dunst
 
 # no borders
 for_window [class="^.*"] border pixel 0
