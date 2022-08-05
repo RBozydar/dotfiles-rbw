@@ -3,26 +3,26 @@
     - vars/main.yml
     - vars/packages.yml
   
-  # roles:
-  #   - role: gantsign.antigen
-  #     users:
-  #       - username: rbw
-  #         antigen_libraries:
-  #           - name: oh-my-zsh
-  #         antigen_theme:
-  #           name: agnoster
-  #         antigen_bundles:
-  #           - name: git
-  #           - name: common-aliases
-  #           - name: docker
-  #           - name: zsh-syntax-highlighting
-  #             url: zsh-users/zsh-syntax-highlighting
-  #           - name: zsh-completions
-  #             url: zsh-users/zsh-completions
-  #           - name: zsh-autosuggestions
-  #             url: zsh-users/zsh-autosuggestions
-  #   - role : ansible-role-security
-  #     become: yes
+  roles:
+    - role: gantsign.antigen
+      users:
+        - username: rbw
+          antigen_libraries:
+            - name: oh-my-zsh
+          antigen_theme:
+            name: agnoster
+          antigen_bundles:
+            - name: git
+            - name: common-aliases
+            - name: docker
+            - name: zsh-syntax-highlighting
+              url: zsh-users/zsh-syntax-highlighting
+            - name: zsh-completions
+              url: zsh-users/zsh-completions
+            - name: zsh-autosuggestions
+              url: zsh-users/zsh-autosuggestions
+    - role : ansible-role-security
+      become: yes
 
   tasks:
   - name: Init
