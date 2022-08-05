@@ -3,7 +3,7 @@ all:
     arch:
       hosts:
         arch:
-          ansible_host: 192.168.0.105
+          ansible_host: 192.168.0.118
     dev:
       hosts:
         dev1:
