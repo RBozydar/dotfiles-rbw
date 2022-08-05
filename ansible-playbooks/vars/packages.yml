@@ -44,7 +44,7 @@ i3_packages:
     - dunst
     - nitrogen
     - feh
-    - pywal
+    - python-pywal
 
 aur_packages:
     - visual-studio-code-bin
