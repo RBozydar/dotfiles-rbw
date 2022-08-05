@@ -2,7 +2,7 @@
   - name: Install packages
     become: yes
     ansible.builtin.package:
-      name: "{{ base_packages }}"
+      name: "{{ i3_packages }}"
       state: present
 
   - name: Remove i3 config folder if exists
