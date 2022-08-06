@@ -10,6 +10,16 @@ base_packages:
     - scrot
     - picom
     - emacs
+    - tmux
+    - rsync
+    - tar
+    - unrar
+    - neofetch
+    - zip
+    - gnome-disk-utility
+    - ntfs-3g
+    - parted
+    - exfat-utils
 
 ubuntu_packages:
     - build-essential
@@ -22,19 +32,60 @@ ubuntu_packages:
     - fonts-firacode
 
 arch_packages:
+    # audio
+    - alacritty
+    - pipewire-media-session
+    - pipewire
+    - pipewire-alsa
+    - pipewire-pulse
+    - pavucontrol
+    - alsa-util
+    - playerctl
+    - volumeicon
+    - pamixer
+    - pulseaudio-bluetooth
+    # browser
     - firefox
+    - chromium
+    # deluge
     - deluge
     - deluge-gtk
+    # theme
     - arc-gtk-theme
-    - chromium
+    # docker
     - docker
     - docker-compose
+    # dev
     - base-devel
     - ninja
+    # file sharing
     - nfs-utils
     - openssh
     - python-pip
+    # fonts
     - ttf-fira-code
+    - ttfs-font-awesome
+    - ttf-dejavu
+    - noto-fonts
+    # utils
+    - vlc
+    - tar
+    - rsync
+    - wireguard-tools
+    # network
+    - wpa_supplicant
+    - networkmanager
+    - network-manager-applet
+    - bluez
+    - bluez-utils
+    - dhcpcd
+    - gtk3
+    - gtk4
+    - gtk2
+    # secrets
+    - gnome-keyring
+    - libsecret
+
 
 i3_packages:
     - i3-gaps
@@ -50,3 +101,7 @@ aur_packages:
     - visual-studio-code-bin
     # curl -sS https://download.spotify.com/debian/pubkey_5E3C45D7B312C643.gpg | gpg --import -
 #     - spotify
+    - httpdirfs
+    - ttf-ms-win11-auto
+    - dhcpcd-ui
+    - nerd-fonts-inter

@@ -38,3 +38,32 @@
       dest: $HOME/.config/wallpapers
       state: link
       force: yes
+
+  - name: Symlink picom
+    ansible.builtin.file:
+      src: $HOME/repo/dotfiles/home/config/picom
+      dest: $HOME/.config/picom
+      state: link
+      force: yes
+
+  - name: Clone polybar-scripts repo
+    ansible.builtin.git:
+      repo: https://github.com/polybar/polybar-scripts
+      version: main
+      dest: $HOME/repo/polybar-scripts
+      single_branch: yes
+      update: yes
+
+  - name: Symlink polybar-scripts inside polybar-config
+    ansible.builtin.file:
+      src: $HOME/repo/polybar-scripts
+      dest: $HOME/.config/polybar-scripts
+      state: link
+      force: yes
+
+  - name: Symlink rofi config
+    ansible.builtin.file:
+      src: $HOME/repo/dotfiles/home/config/rofi
+      dest: $HOME/.config/rofi
+      state: link
+      force: yes
