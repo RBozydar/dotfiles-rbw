@@ -13,4 +13,5 @@ zstyle ':completion:*' completer _expand _complete _ignored _correct _approximat
 zstyle ':completion:*' matcher-list 'm:{[:lower:]}={[:upper:]} m:{[:lower:][:upper:]}={[:upper:][:lower:]} l:|=* r:|=*' 'm:{[:lower:]}={[:upper:]} r:|[._-]=** r:|=**' '' 'm:{[:lower:][:upper:]}={[:upper:][:lower:]}'
 zstyle :compinstall filename '/home/rbw/.zshrc'
 
-export GTK_THEME=Arc-Dark
+# export GTK_THEME=Arc-Dark
+export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR/ssh-agent.socket"

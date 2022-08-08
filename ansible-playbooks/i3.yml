@@ -49,10 +49,10 @@
   - name: Clone polybar-scripts repo
     ansible.builtin.git:
       repo: https://github.com/polybar/polybar-scripts
-      version: main
+      version: master
       dest: $HOME/repo/polybar-scripts
-      single_branch: yes
-      update: yes
+      # single_branch: yes
+      # update: yes
 
   - name: Symlink polybar-scripts inside polybar-config
     ansible.builtin.file:

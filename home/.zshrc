@@ -21,3 +21,5 @@ source $HOME/.zsh_exports
 if [[ ! $DISPLAY && $XDG_VTNR -eq 1 ]]; then
   exec startx
 fi
+
+eval $(keychain --eval --quiet id_ed25519 id_rsa)

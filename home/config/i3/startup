@@ -1,15 +1,15 @@
 #!/usr/bin/env bash
 
-killall polybar
-sleep 2 &
+# killall polybar
+# sleep 2 &
 
 # Polybar
 # nVidia only
-for m in $(polybar --list-monitors | cut -d":" -f1); do
-    for bar in top bottom; do
-    MONITOR=$m polybar --reload $bar &
-    done
-done
+# for m in $(polybar --list-monitors | cut -d":" -f1); do
+#     for bar in top bottom; do
+#     MONITOR=$m polybar --reload $bar &
+#     done
+# done
 # iGPU only
 #polybar botIPS -q &
 #polybar botDP2 -q &
@@ -22,4 +22,3 @@ nitrogen --restore &
 #nohup mopidy &
 #nohup deluged &
 #nohup deluge-web &
-

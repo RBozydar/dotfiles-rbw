@@ -18,14 +18,14 @@
       state: directory
       dest: $HOME/repo
   
-  - name: Clone & pull dotfiles
-    ansible.builtin.git:
-      repo: git@github.com:RBozydar/dotfiles-rbw.git
-      version: main
-      dest: $HOME/repo/dotfiles
-      single_branch: yes
-      update: yes
-      accept_hostkey: yes
+  # - name: Clone & pull dotfiles
+  #   ansible.builtin.git:
+  #     repo: git@github.com:RBozydar/dotfiles-rbw.git
+  #     version: main
+  #     dest: $HOME/repo/dotfiles
+  #     single_branch: yes
+  #     update: yes
+  #     # accept_hostkey: yes
 
 # remove existing file? compare maybe and only then
   - name: Register current state of .zshrc
@@ -88,7 +88,7 @@
   - name: Symlink gtk-3.0 config
     ansible.builtin.file:
       src: $HOME/repo/dotfiles/home/config/gtk-3.0
-      dest: $HOME/.config/gtk3-.0
+      dest: $HOME/.config/gtk-3.0
       state: link
       force: yes
 

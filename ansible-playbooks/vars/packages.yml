@@ -34,16 +34,16 @@ ubuntu_packages:
 arch_packages:
     # audio
     - alacritty
-    - pipewire-media-session
+    # - pipewire-media-session
+    - wireplumber
     - pipewire
     - pipewire-alsa
     - pipewire-pulse
     - pavucontrol
-    - alsa-util
+    - alsa-utils
     - playerctl
     - volumeicon
     - pamixer
-    - pulseaudio-bluetooth
     # browser
     - firefox
     - chromium
@@ -64,27 +64,36 @@ arch_packages:
     - python-pip
     # fonts
     - ttf-fira-code
-    - ttfs-font-awesome
+    - ttf-font-awesome
     - ttf-dejavu
     - noto-fonts
     # utils
     - vlc
     - tar
     - rsync
-    - wireguard-tools
     # network
+    - wireguard-tools
+    - resolvconf
+    - intel-ucode
     - wpa_supplicant
     - networkmanager
     - network-manager-applet
     - bluez
     - bluez-utils
     - dhcpcd
+    - bind
+    # ui
     - gtk3
     - gtk4
     - gtk2
     # secrets
     - gnome-keyring
     - libsecret
+    # display
+    - arandr
+    - keychain
+    - nautilus
+    - xorg-xev
 
 
 i3_packages:
@@ -103,5 +112,7 @@ aur_packages:
 #     - spotify
     - httpdirfs
     - ttf-ms-win11-auto
-    - dhcpcd-ui
+    # - dhcpcd-ui
     - nerd-fonts-inter
+    - moka-icon-theme-git
+    - faba-icon-theme-git\
