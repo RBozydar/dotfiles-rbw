@@ -20,6 +20,7 @@ base_packages:
     - ntfs-3g
     - parted
     - exfat-utils
+    - jq
 
 ubuntu_packages:
     - build-essential
@@ -34,7 +35,6 @@ ubuntu_packages:
 arch_packages:
     # audio
     - alacritty
-    # - pipewire-media-session
     - wireplumber
     - pipewire
     - pipewire-alsa
@@ -80,7 +80,7 @@ arch_packages:
     - network-manager-applet
     - bluez
     - bluez-utils
-    - dhcpcd
+    - dhcpcdt
     - bind
     # ui
     - gtk3
@@ -94,6 +94,15 @@ arch_packages:
     - keychain
     - nautilus
     - xorg-xev
+    - iperf3
+    # misc
+    - liquidctl
+    # gpu drivers
+    - nvidia
+    - nvidia-utils
+    - libva-utils
+    - libva-intel-driver
+    - linux-firmware
 
 
 i3_packages:
