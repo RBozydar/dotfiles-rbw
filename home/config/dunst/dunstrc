@@ -188,6 +188,6 @@
 
 [Spotify]
 appname = Spotify
-format = "Now Playing\n%s\n%b"
+format = "%s\n%b"
 ; new_icon = Spotify
 ; timeout = 0
