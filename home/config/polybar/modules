@@ -115,7 +115,11 @@ time = %H:%M:%S
 
 label = %date% %time%
 label-font = 0
-label-foreground = #ffffff
+; label-foreground = #ffffff
+;format-background = #ddffffff
+format-background = #88000000
+;format-foreground = #333
+format-padding = 1
 
 [module/wired-network]
 type = internal/network
@@ -226,3 +230,9 @@ format-underline = #1db954
 click-left = playerctl --player=spotify play-pause 
 click-right = playerctl --player=spotify next 
 click-middle = playerctl --player=spotify previous 
+
+[module/power_usage]
+type = custom/script
+interval = 1
+format = <label>W
+exec = python ~/.config/polybar/scripts/liquid_export.py
