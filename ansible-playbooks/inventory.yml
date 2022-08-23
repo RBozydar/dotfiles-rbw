@@ -9,6 +9,10 @@ all:
         dev1:
           ansible_host: 192.168.0.140
           # ansible_host: 34.116.244.218
+    ubuntu:
+      hosts:
+        b27:
+          ansible_host: 192.168.0.119
   vars:
     ansible_ssh_user:
       rbw

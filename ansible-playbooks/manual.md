@@ -33,3 +33,6 @@ Fix timezone with Windows
 ```
 timedatectl set-local-rtc 1 --adjust-system-clock
 ```
+
+fstab
+u300318@u300318.your-storagebox.de:/home /mnt/hetzner fuse.sshfs noauto,x-systemd.automount,_netdev,users,IdentityFile=/home/rbw/.ssh/borg,allow_other,reconnect 0 0

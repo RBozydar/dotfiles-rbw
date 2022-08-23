@@ -8,19 +8,19 @@ base_packages:
     - nmap
     - meson
     - scrot
-    - picom
-    - emacs
     - tmux
     - rsync
     - tar
     - unrar
     - neofetch
     - zip
-    - gnome-disk-utility
     - ntfs-3g
-    - parted
     - exfat-utils
     - jq
+    - cifs-utils
+    - sshfs
+    - iperf3
+    - lm-sensors
 
 ubuntu_packages:
     - build-essential
@@ -31,6 +31,13 @@ ubuntu_packages:
     - openssh-server
     - python3-pip
     - fonts-firacode
+    - wireguard
+    - resolvconf
+
+ubuntu_gui_packages:
+    - emacs
+    - parted
+    - gnome-disk-utility
 
 arch_packages:
     # audio
@@ -62,6 +69,7 @@ arch_packages:
     - nfs-utils
     - openssh
     - python-pip
+    - python
     # fonts
     - ttf-fira-code
     - ttf-font-awesome
@@ -71,6 +79,8 @@ arch_packages:
     - vlc
     - tar
     - rsync
+    - flameshot
+    - scrot
     # network
     - wireguard-tools
     - resolvconf
@@ -80,8 +90,10 @@ arch_packages:
     - network-manager-applet
     - bluez
     - bluez-utils
+    - blueman
     - dhcpcdt
     - bind
+    - wavemon
     # ui
     - gtk3
     - gtk4
@@ -94,15 +106,17 @@ arch_packages:
     - keychain
     - nautilus
     - xorg-xev
-    - iperf3
+    - xorg-xwininfo
+    - picom
     # misc
     - liquidctl
-    # gpu drivers
+    # drivers
     - nvidia
     - nvidia-utils
     - libva-utils
     - libva-intel-driver
     - linux-firmware
+    - amd-ucode
 
 
 i3_packages:
@@ -124,4 +138,5 @@ aur_packages:
     # - dhcpcd-ui
     - nerd-fonts-inter
     - moka-icon-theme-git
-    - faba-icon-theme-git\
+    - faba-icon-theme-git
+    - google-cloud-sdk

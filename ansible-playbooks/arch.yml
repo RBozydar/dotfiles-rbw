@@ -40,3 +40,24 @@
       name: rbw
       groups: docker
       append: true
+
+  - name: Symlink alacritty config folder
+    ansible.builtin.file:
+      src: $HOME/repo/dotfiles/home/config/alacritty
+      dest: $HOME/.config/alacritty
+      state: link
+      force: yes
+
+  - name: Symlink gtk-3.0 config
+    ansible.builtin.file:
+      src: $HOME/repo/dotfiles/home/config/gtk-3.0
+      dest: $HOME/.config/gtk-3.0
+      state: link
+      force: yes
+
+  - name: Symlink gtkrc for gt2k
+    ansible.builtin.file:
+      src: $HOME/repo/dotfiles/home/.gtkrc-2.0
+      dest: $HOME/.gtkrc-2.0
+      state: link
+      force: yes

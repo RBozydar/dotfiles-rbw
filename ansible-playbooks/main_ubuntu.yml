@@ -1,0 +1,50 @@
+- hosts: ubuntu
+  vars_files:
+    - vars/main.yml
+    - vars/packages.yml
+
+  pre_tasks:
+    - name: Ensure Universe Repo is enabled
+      become: yes
+      apt_repository:
+        repo: deb http://archive.ubuntu.com/ubuntu focal universe
+        state: present
+        update_cache: true
+
+    - name: Upgrade all packages
+      become: yes
+      ansible.builtin.package:
+        name: "*"
+        state: latest
+  
+  roles:
+    # - role: gantsign.antigen
+    #   users:
+    #     - username: rbw
+    #       antigen_libraries:
+    #         - name: oh-my-zsh
+    #       antigen_theme:
+    #         name: agnoster
+    #       antigen_bundles:
+    #         - name: git
+    #         - name: common-aliases
+    #         - name: docker
+    #         - name: zsh-syntax-highlighting
+    #           url: zsh-users/zsh-syntax-highlighting
+    #         - name: zsh-completions
+    #           url: zsh-users/zsh-completions
+    #         - name: zsh-autosuggestions
+    #           url: zsh-users/zsh-autosuggestions
+    - role : ansible-role-security
+      become: yes
+    - role: andrewrothstein.miniconda
+    - role: geerlingguy.docker
+      become: yes
+      docker_users: rbw
+
+  tasks:
+  - name: init
+    ansible.builtin.include_tasks: initial.yml
+  - name: ubuntu
+    ansible.builtin.include_tasks: ubuntu.yml
+  # - name: conda init
