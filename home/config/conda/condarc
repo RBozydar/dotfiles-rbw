@@ -1,0 +1,11 @@
+channels:
+  - conda-forge
+  - defaults
+channel_priority: strict
+changeps1: False
+create_default_packages:
+  - pip
+  - ipython
+  - ipykernel
+repodata_threads: 4
+verify_threads: 4

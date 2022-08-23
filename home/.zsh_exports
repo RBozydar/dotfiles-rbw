@@ -15,3 +15,5 @@ zstyle :compinstall filename '/home/rbw/.zshrc'
 
 # export GTK_THEME=Arc-Dark
 export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR/ssh-agent.socket"
+
+export BROWSER=/usr/bin/firefox
