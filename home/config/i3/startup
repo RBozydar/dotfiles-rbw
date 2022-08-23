@@ -18,6 +18,7 @@
 
 # nitrogen
 nitrogen --restore &
+nm-applet &
 
 #nohup mopidy &
 #nohup deluged &

@@ -1,0 +1,4 @@
+#!/bin/zsh
+i3-msg 'workspace 1; exec /usr/bin/firefox'sleep 4
+i3-msg 'workspace 2; exec /usr/bin/alacritty'sleep 2
+i3-msg 'workspace 10; exec /usr/bin/spotify'sleep 3

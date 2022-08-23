@@ -1,6 +1,6 @@
 set $mod Mod4
 
-font pango:Fira Code Retina 8
+font pango:Fira Code Retina 12
 # font pango:DejaVu Sans Mono 8
 
 # Use Mouse+$mod to drag floating windows to their wanted position
@@ -13,7 +13,8 @@ bindsym $mod+Return exec alacritty
 bindsym $mod+Shift+q kill
 
 # Rofi
-bindsym $mod+d exec "rofi -show-icons -modi combi -show combi -combi-modi run,drun -theme Arc-Dark"
+# bindsym $mod+d exec "rofi -show-icons -modi combi -show combi -combi-modi run,drun -theme Arc-Dark"
+bindsym $mod+d exec --no-startup-id ~/.config/rofi/launchers/type-6/launcher.sh
 bindsym F12 exec rofi -show-icons -show window -theme Arc-Dark
 
 # Assume you are on workspace "1: www" and switch to "2: IM" using mod+2 
@@ -106,6 +107,15 @@ set $ws8 "8"
 set $ws9 "9"
 set $ws10 "10"
 
+# workspaces on monitors
+workspace $ws1 output primary
+workspace $ws2 output primary
+workspace $ws3 output primary
+workspace $ws4 output primary
+workspace $ws5 output primary
+workspace $ws6 output DP-0
+workspace $ws10 output DP-0
+
 # switch to workspace
 bindsym $mod+1 workspace $ws1
 bindsym $mod+2 workspace $ws2
@@ -151,8 +161,8 @@ mode "resize" {
 
         # same bindings, but for the arrow keys
         bindsym Left resize shrink width 10 px or 10 ppt
-        bindsym Down resize grow height 10 px or 10 ppt
-        bindsym Up resize shrink height 10 px or 10 ppt
+        bindsym Up resize grow height 10 px or 10 ppt
+        bindsym Down resize shrink height 10 px or 10 ppt
         bindsym Right resize grow width 10 px or 10 ppt
 
         # back to normal: Enter or Escape or $mod+r
@@ -166,8 +176,12 @@ bindsym $mod+r mode "resize"
 # startup file
 exec_always --no-startup-id "$HOME/.config/i3/startup"
 exec_always --no-startup-id $HOME/.config/polybar/launch.sh
-exec_always --no-startup-id pkill picom; picom --no-use-damage
+exec_always --no-startup-id pkill picom; picom --no-use-damage --experimental-backends --backend glx
 exec_always --no-startup-id pkill dunst; dunst
+exec --no-startup-id i3-msg 'workspace1; exec /usr/bin/firefox'
+exec --no-startup-id i3-msg 'workspace 2; exec /usr/bin/alacritty'
+exec --no-startup-id i3-msg 'workspace 10; exec /usr/bin/spotify'
+# exec /etc/usr/bin/startup
 # exec --no-startup-id 
 
 
@@ -177,12 +191,15 @@ default_border pixel 0
 default_floating_border pixel 0
 
 # special properties
-for_window [class="^Pavucontrol$"] floating enable
+for_window [class="^Pavucontrol$"] floating enable, move position mouse, sticky enable
 
 set $default_gaps_inner 5
 set $default_gaps_outer 5
 gaps inner $default_gaps_outer
 gaps outer $default_gaps_inner
+# to deal with polybar
+gaps top 25
+gaps bottom 25
 
 # Plasma compatibility improvements
 for_window [title="Desktop — Plasma"] kill; floating enable; border none
