@@ -1,10 +1,28 @@
 export PATH=$HOME/bin:/usr/local/bin:$PATH
 export PATH=$HOME/.local/bin:$PATH
 export DEFAULT_USER=rbw
+
+# >>> conda initialize >>>
+# !! Contents within this block are managed by 'conda init' !!
+__conda_setup="$('/home/rbw/mambaforge/bin/conda' 'shell.zsh' 'hook' 2> /dev/null)"
+if [ $? -eq 0 ]; then
+    eval "$__conda_setup"
+else
+    if [ -f "/home/rbw/mambaforge/etc/profile.d/conda.sh" ]; then
+        . "/home/rbw/mambaforge/etc/profile.d/conda.sh"
+    else
+        export PATH="/home/rbw/mambaforge/bin:$PATH"
+    fi
+fi
+unset __conda_setup
+
+if [ -f "/home/rbw/mambaforge/etc/profile.d/mamba.sh" ]; then
+    . "/home/rbw/mambaforge/etc/profile.d/mamba.sh"
+fi
+# <<< conda initialize <<<
 # conda
 #  .  ~/miniconda3/etc/profile.d/conda.sh
-  . /usr/local/anaconda/etc/profile.d/conda.sh
-  conda activate base
+#  conda activate base
 #  conda zsh completions
   zstyle ':completion::complete:*' use-cache 1
 
@@ -17,3 +35,4 @@ zstyle :compinstall filename '/home/rbw/.zshrc'
 export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR/ssh-agent.socket"
 
 export BROWSER=/usr/bin/firefox
+

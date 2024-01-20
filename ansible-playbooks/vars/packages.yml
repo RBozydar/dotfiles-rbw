@@ -65,6 +65,8 @@ arch_packages:
     # dev
     - base-devel
     - ninja
+    - clang
+    - cmake
     # file sharing
     - nfs-utils
     - openssh

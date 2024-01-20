@@ -1,6 +1,6 @@
 alias reload="source ~/.zshrc"
 alias rr="rm -rf"
-
+alias conda="mamba"
 #config aliases
 alias i3config="gedit ~/.config/i3/config"
 alias zshconfig="gedit ~/.zshrc"

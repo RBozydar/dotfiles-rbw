@@ -14,9 +14,8 @@ HISTFILE=~/.histfile
 HISTSIZE=10000000
 SAVEHIST=10000000
 
-source $HOME/.zsh_aliases
 source $HOME/.zsh_exports
-
+source $HOME/.zsh_aliases
 #startx
 if [[ ! $DISPLAY && $XDG_VTNR -eq 1 ]]; then
   exec startx
