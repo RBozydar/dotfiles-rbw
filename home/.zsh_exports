@@ -1,6 +1,8 @@
 export PATH=$HOME/bin:/usr/local/bin:$PATH
 export PATH=$HOME/.local/bin:$PATH
-
+export DAGSTER_HOME=$HOME/repo/wina_julii/dbt/doliovini/winajulii
+export DISPLAY=:0
+export DBT_GCP_SA=/home/rbw/.config/gcp/dolio-bq.json
 # conda
   .  ~/miniconda3/etc/profile.d/conda.sh
   # . /usr/local/anaconda/etc/profile.d/conda.sh
