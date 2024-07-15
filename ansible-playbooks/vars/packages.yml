@@ -1,0 +1,127 @@
+base_packages:
+    - git
+    - curl
+    - wget
+    - mc
+    - python3
+    - samba
+    - nmap
+    - meson
+    - scrot
+    - picom
+    - emacs
+    - tmux
+    - rsync
+    - tar
+    - unrar
+    - neofetch
+    - zip
+    - gnome-disk-utility
+    - ntfs-3g
+    - parted
+    - exfat-utils
+    - jq
+
+ubuntu_packages:
+    - build-essential
+    - nfs-kernel-server
+    - nfs-common
+    - ninja-build
+    - openssh-client 
+    - openssh-server
+    - python3-pip
+    - fonts-firacode
+
+arch_packages:
+    # audio
+    - alacritty
+    - wireplumber
+    - pipewire
+    - pipewire-alsa
+    - pipewire-pulse
+    - pavucontrol
+    - alsa-utils
+    - playerctl
+    - volumeicon
+    - pamixer
+    # browser
+    - firefox
+    - chromium
+    # deluge
+    - deluge
+    - deluge-gtk
+    # theme
+    - arc-gtk-theme
+    # docker
+    - docker
+    - docker-compose
+    # dev
+    - base-devel
+    - ninja
+    # file sharing
+    - nfs-utils
+    - openssh
+    - python-pip
+    # fonts
+    - ttf-fira-code
+    - ttf-font-awesome
+    - ttf-dejavu
+    - noto-fonts
+    # utils
+    - vlc
+    - tar
+    - rsync
+    # network
+    - wireguard-tools
+    - resolvconf
+    - intel-ucode
+    - wpa_supplicant
+    - networkmanager
+    - network-manager-applet
+    - bluez
+    - bluez-utils
+    - dhcpcdt
+    - bind
+    # ui
+    - gtk3
+    - gtk4
+    - gtk2
+    # secrets
+    - gnome-keyring
+    - libsecret
+    # display
+    - arandr
+    - keychain
+    - nautilus
+    - xorg-xev
+    - iperf3
+    # misc
+    - liquidctl
+    # gpu drivers
+    - nvidia
+    - nvidia-utils
+    - libva-utils
+    - libva-intel-driver
+    - linux-firmware
+
+
+i3_packages:
+    - i3-gaps
+    - polybar
+    - rofi
+    - picom
+    - dunst
+    - nitrogen
+    - feh
+    - python-pywal
+
+aur_packages:
+    - visual-studio-code-bin
+    # curl -sS https://download.spotify.com/debian/pubkey_5E3C45D7B312C643.gpg | gpg --import -
+#     - spotify
+    - httpdirfs
+    - ttf-ms-win11-auto
+    # - dhcpcd-ui
+    - nerd-fonts-inter
+    - moka-icon-theme-git
+    - faba-icon-theme-git\

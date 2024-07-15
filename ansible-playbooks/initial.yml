@@ -1,153 +1,31 @@
-- hosts: all
-
-  vars_files:
-    - vars/main.yml
-
-  pre_tasks:
-  - name: Update apt cache if needed
+---
+  - name: Install base packages
     become: yes
     ansible.builtin.package:
-
-      update_cache: true
-      cache_valid_time: 3600
+      name: "{{ base_packages }}"
+      state: present
+    tags:
+      - packages
   
-  - name: Upgrade all packages
-    become: yes
-    ansible.builtin.package:
-
-      name: "*"
-      state: latest
-
-  - name: Ensure Universe Repo is enabled
-    become: yes
-    apt_repository:
-      repo: deb http://archive.ubuntu.com/ubuntu focal universe
+  - name: Copy SSH public keys from Github
+    ansible.posix.authorized_key:
+      user: rbw
       state: present
-      update_cache: true
-
-  roles:
-    - role: gantsign.antigen
-      users:
-        - username: rbw
-          antigen_libraries:
-            - name: oh-my-zsh
-          antigen_theme:
-            name: agnoster
-          antigen_bundles:
-            - name: git
-            - name: common-aliases
-            - name: docker
-            - name: zsh-syntax-highlighting
-              url: zsh-users/zsh-syntax-highlighting
-            - name: zsh-completions
-              url: zsh-users/zsh-completions
-            - name: zsh-autosuggestions
-              url: zsh-users/zsh-autosuggestions
-    - role: geerlingguy.docker
-      become: yes
-      docker_users: rbw
-    - role : geerlingguy.security
-      become: yes
-
-
-  tasks:
-  - name: Ensure git is installed
-    become: yes
-    ansible.builtin.package:
-      name: git
-      state: present
-
-  - name: Ensure curl is installed
-    become: yes
-    ansible.builtin.package:
-      name: curl
-      state: present
-
-  - name: Ensure wget is installed
-    become: yes
-    ansible.builtin.package:
-      name: wget
-      state: present
-
-  - name: Ensure FiraCode is installed
-    become: yes
-    ansible.builtin.package:
-      name: fonts-firacode
-      state: present
-
-  - name: Ensure MC is installed
-    become: yes
-    ansible.builtin.package:
-      name: mc
-      state: present
-
-  - name: Ensure Python is installed
-    become: yes
-    ansible.builtin.package:
-      name: python3
-      state: present
-  
-  - name: Ensure PIP is installed
-    become: yes
-    ansible.builtin.package:
-      name: python3-pip
-      state: present
-
-  - name: Ensure OpenSSH Server is installed
-    become: yes
-    ansible.builtin.package:
-      name: openssh-server
-      state: present
-
-  - name: Ensure OpenSSH Client is installed
-    become: yes
-    ansible.builtin.package:
-      name: openssh-client
-      state: present
-
-  - name: Ensure Samba is installed
-    become: yes
-    ansible.builtin.package:
-      name: samba
-      state: present
-  
-  - name: Ensure NFS Common is installed
-    become: yes
-    ansible.builtin.package:
-      name: nfs-common
-      state: present
-
-  - name: Ensure NFS kernel is installed
-    become: yes
-    ansible.builtin.package:
-      name: nfs-kernel-server
-      state: present
-
-  - name: Ensure Build Essentials are installed
-    become: yes
-    ansible.builtin.package:
-      name: build-essential
-      state: present
-
-  - name: Ensure nmap is installed
-    become: yes
-    ansible.builtin.package:
-      name: nmap
-      state: present
+      key: https://github.com/rbozydar.keys
 
   - name: Create repo folder
     ansible.builtin.file:
       state: directory
       dest: $HOME/repo
   
-  - name: Clone & pull dotfiles
-    ansible.builtin.git:
-      repo: git@github.com:RBozydar/dotfiles-rbw.git
-      version: main
-      dest: $HOME/repo/dotfiles
-      single_branch: yes
-      update: yes
-      accept_hostkey: yes
+  # - name: Clone & pull dotfiles
+  #   ansible.builtin.git:
+  #     repo: git@github.com:RBozydar/dotfiles-rbw.git
+  #     version: main
+  #     dest: $HOME/repo/dotfiles
+  #     single_branch: yes
+  #     update: yes
+  #     # accept_hostkey: yes
 
 # remove existing file? compare maybe and only then
   - name: Register current state of .zshrc
@@ -183,5 +61,40 @@
     ansible.builtin.file:
       src: $HOME/repo/dotfiles/home/.zsh_exports
       dest: $HOME/.zsh_exports
+      state: link
+      force: yes
+
+  - name: Symlink gitconfig
+    ansible.builtin.file:
+      src: $HOME/repo/dotfiles/home/.gitconfig
+      dest: $HOME/.gitconfig
+      state: link
+      force: yes
+
+  - name: Symlink git_ingore global
+    ansible.builtin.file:
+      src: $HOME/repo/dotfiles/home/.gitignore_global
+      dest: $HOME/.gitignore_global
+      state: link
+      force: yes
+
+  - name: Symlink alacritty
+    ansible.builtin.file:
+      src: $HOME/repo/dotfiles/home/config/alacritty
+      dest: $HOME/.config/alacritty
+      state: link
+      force: yes
+
+  - name: Symlink gtk-3.0 config
+    ansible.builtin.file:
+      src: $HOME/repo/dotfiles/home/config/gtk-3.0
+      dest: $HOME/.config/gtk-3.0
+      state: link
+      force: yes
+
+  - name: Symlink gtkrc for gt2k
+    ansible.builtin.file:
+      src: $HOME/repo/dotfiles/home/.gtkrc-2.0
+      dest: $HOME/.gtkrc-2.0
       state: link
       force: yes

@@ -1,0 +1,69 @@
+---  
+  - name: Install packages
+    become: yes
+    ansible.builtin.package:
+      name: "{{ i3_packages }}"
+      state: present
+
+  - name: Remove i3 config folder if exists
+    ansible.builtin.file:
+      path: $HOME/.config/i3
+      state: absent
+
+
+  - name: Symlink i3 config folder
+    ansible.builtin.file:
+      src: $HOME/repo/dotfiles/home/config/i3
+      dest: $HOME/.config/i3
+      state: link
+      force: yes
+  
+  - name: Symlink polybar config folder
+    ansible.builtin.file:
+      src: $HOME/repo/dotfiles/home/config/polybar
+      dest: $HOME/.config/polybar
+      state: link
+      force: yes
+
+  - name: Symlink Dunst config folder
+    ansible.builtin.file:
+      src: $HOME/repo/dotfiles/home/config/dunst
+      dest: $HOME/.config/dunst
+      state: link
+      force: yes
+
+  - name: Symlink wallpapers folder
+    ansible.builtin.file:
+      src: $HOME/repo/dotfiles/wallpapers
+      dest: $HOME/.config/wallpapers
+      state: link
+      force: yes
+
+  - name: Symlink picom
+    ansible.builtin.file:
+      src: $HOME/repo/dotfiles/home/config/picom
+      dest: $HOME/.config/picom
+      state: link
+      force: yes
+
+  - name: Clone polybar-scripts repo
+    ansible.builtin.git:
+      repo: https://github.com/polybar/polybar-scripts
+      version: master
+      dest: $HOME/repo/polybar-scripts
+      # single_branch: yes
+      # update: yes
+
+  - name: Symlink polybar-scripts inside polybar-config
+    ansible.builtin.file:
+      src: $HOME/repo/polybar-scripts
+      dest: $HOME/.config/polybar-scripts
+      state: link
+      force: yes
+
+  - name: Symlink rofi config
+    ansible.builtin.file:
+      src: $HOME/repo/dotfiles/home/config/rofi
+      dest: $HOME/.config/rofi
+      state: link
+      force: yes
