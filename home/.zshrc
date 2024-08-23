@@ -28,8 +28,5 @@ if [ -f '/home/rbw/google-cloud-sdk/path.zsh.inc' ]; then . '/home/rbw/google-cl
 # The next line enables shell command completion for gcloud.
 if [ -f '/home/rbw/google-cloud-sdk/completion.zsh.inc' ]; then . '/home/rbw/google-cloud-sdk/completion.zsh.inc'; fi
 
-if [ -z "$SSH_AUTH_SOCK" ] ; then
-    eval `ssh-agent -s`
-    ssh-add
-fi
-eval $(keychain --eval --quiet id_ed25519 id_rsa)
+eval `ssh-agent -s`
+ssh-add
