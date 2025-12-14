@@ -7,5 +7,5 @@ ansible_ssh_user: rbw
 username: rbw
 
 zshrc_home: $HOME/.zshrc
-zshrc_repo: $HOME/repo/dotfiles/home/.zshrc
-home_repo: $HOME/repo/dotfiles/home
+zshrc_repo: $HOME/repo/dotfiles-rbw/home/.zshrc
+home_repo: $HOME/repo/dotfiles-rbw/home

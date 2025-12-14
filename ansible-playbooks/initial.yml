@@ -44,7 +44,7 @@
 
   - name: Symlink .zshrc
     ansible.builtin.file:
-      src: $HOME/repo/dotfiles/home/.zshrc
+      src: $HOME/repo/dotfiles-rbw/home/.zshrc
       dest: $HOME/.zshrc
       state: link
       force: yes
@@ -52,49 +52,49 @@
 
   - name: Symlink .zsh_aliases
     ansible.builtin.file:
-      src: $HOME/repo/dotfiles/home/.zsh_aliases
+      src: $HOME/repo/dotfiles-rbw/home/.zsh_aliases
       dest: $HOME/.zsh_aliases
       state: link
       force: yes
   
   - name: Symlink .zsh_exports
     ansible.builtin.file:
-      src: $HOME/repo/dotfiles/home/.zsh_exports
+      src: $HOME/repo/dotfiles-rbw/home/.zsh_exports
       dest: $HOME/.zsh_exports
       state: link
       force: yes
 
   - name: Symlink gitconfig
     ansible.builtin.file:
-      src: $HOME/repo/dotfiles/home/.gitconfig
+      src: $HOME/repo/dotfiles-rbw/home/.gitconfig
       dest: $HOME/.gitconfig
       state: link
       force: yes
 
   - name: Symlink git_ingore global
     ansible.builtin.file:
-      src: $HOME/repo/dotfiles/home/.gitignore_global
+      src: $HOME/repo/dotfiles-rbw/home/.gitignore_global
       dest: $HOME/.gitignore_global
       state: link
       force: yes
 
-  - name: Symlink alacritty
-    ansible.builtin.file:
-      src: $HOME/repo/dotfiles/home/config/alacritty
-      dest: $HOME/.config/alacritty
-      state: link
-      force: yes
+  # - name: Symlink alacritty
+  #   ansible.builtin.file:
+  #     src: $HOME/repo/dotfiles-rbw/home/config/alacritty
+  #     dest: $HOME/.config/alacritty
+  #     state: link
+  #     force: yes
 
   - name: Symlink gtk-3.0 config
     ansible.builtin.file:
-      src: $HOME/repo/dotfiles/home/config/gtk-3.0
+      src: $HOME/repo/dotfiles-rbw/home/config/gtk-3.0
       dest: $HOME/.config/gtk-3.0
       state: link
       force: yes
 
   - name: Symlink gtkrc for gt2k
     ansible.builtin.file:
-      src: $HOME/repo/dotfiles/home/.gtkrc-2.0
+      src: $HOME/repo/dotfiles-rbw/home/.gtkrc-2.0
       dest: $HOME/.gtkrc-2.0
       state: link
       force: yes

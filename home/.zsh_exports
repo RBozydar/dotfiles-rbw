@@ -4,13 +4,9 @@ export DAGSTER_HOME=$HOME/repo/wina_julii/dbt/doliovini/winajulii
 export DISPLAY=:0
 export DBT_GCP_SA=/home/rbw/.config/gcp/dolio-bq.json
 export DEFAULT_USER=rbw
-# conda
-#  .  ~/miniconda3/etc/profile.d/conda.sh
-  . /usr/local/anaconda/etc/profile.d/conda.sh
-  conda activate base
-#  conda zsh completions
-  zstyle ':completion::complete:*' use-cache 1
-
+export PATH=${PATH}:/usr/local/cuda-13.0/bin
+zstyle ':completion::complete:*' use-cache 1
+export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/usr/local/cuda-13.0/lib64
 # completions
 zstyle ':completion:*' completer _expand _complete _ignored _correct _approximate
 zstyle ':completion:*' matcher-list 'm:{[:lower:]}={[:upper:]} m:{[:lower:][:upper:]}={[:upper:][:lower:]} l:|=* r:|=*' 'm:{[:lower:]}={[:upper:]} r:|[._-]=** r:|=**' '' 'm:{[:lower:][:upper:]}={[:upper:][:lower:]}'

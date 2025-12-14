@@ -9,17 +9,17 @@ base_packages:
     - meson
     - scrot
     - picom
-    - emacs
+    # - emacs
     - tmux
     - rsync
     - tar
     - unrar
     - neofetch
     - zip
-    - gnome-disk-utility
-    - ntfs-3g
-    - parted
-    - exfat-utils
+    # - gnome-disk-utility
+    # - ntfs-3g
+    # - parted
+    # - exfat-utils
     - jq
 
 ubuntu_packages:

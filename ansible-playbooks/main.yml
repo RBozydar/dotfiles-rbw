@@ -21,15 +21,15 @@
               url: zsh-users/zsh-completions
             - name: zsh-autosuggestions
               url: zsh-users/zsh-autosuggestions
-    - role : ansible-role-security
-      become: yes
-    - role: andrewrothstein.miniconda
+    # - role : ansible-role-security
+    #   become: yes
+    # - role: andrewrothstein.miniconda
 
   tasks:
   - name: Init
     ansible.builtin.include_tasks: initial.yml
-  - name: arch
-    ansible.builtin.include_tasks: arch.yml
-  - name: i3
-    ansible.builtin.include_tasks: i3.yml
+  # - name: ubuntu
+  #   ansible.builtin.include_tasks: ubuntu.yml
+  # - name: i3
+  #   ansible.builtin.include_tasks: i3.yml
   # - name: conda init
