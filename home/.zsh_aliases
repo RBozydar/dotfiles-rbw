@@ -1,17 +1,17 @@
 alias reload="source ~/.zshrc"
 alias rr="rm -rf"
-
+alias restart_deluge="cd ~/repo/how-to-setup-deluge-with-protonvpn-portforward && docker compose down && docker compose up -d"
 #config aliases
 alias i3config="gedit ~/.config/i3/config"
 alias zshconfig="gedit ~/.zshrc"
 alias polycfg="gedit ~/.config/polybar/config"
-
+alias yt-dlp="yt-dlp --remux-video mkv --embed-metadata --embed-info-json"
 # apt aliases
 alias install="sudo apt-get -y install"
-#alias install="sudo pacman -Syu"
+# alias install="sudo pacman -Syu"
 alias update="sudo apt update"
 #alias update="sudo pacman -Syu"
-alias upgrade="sudo apt upgrade"
+ alias upgrade="sudo apt upgrade"
 alias upx="sudo apt update && sudo apt upgrade"
 alias purge="sudo apt-get purge"
 alias aptsrch="apt-cache search"
