@@ -23,3 +23,16 @@ if [[ ! $DISPLAY && $XDG_VTNR -eq 1 ]]; then
 fi
 
 eval $(keychain --eval --quiet id_ed25519 id_rsa)
+# fnm
+FNM_PATH="/home/rbw/.local/share/fnm"
+if [ -d "$FNM_PATH" ]; then
+  export PATH="/home/rbw/.local/share/fnm:$PATH"
+  eval "`fnm env`"
+fi
+
+# fnm
+FNM_PATH="/home/rbw/.local/share/fnm"
+if [ -d "$FNM_PATH" ]; then
+  export PATH="$FNM_PATH:$PATH"
+  eval "`fnm env`"
+fi
