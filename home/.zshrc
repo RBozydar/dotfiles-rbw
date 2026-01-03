@@ -29,8 +29,8 @@ if [ -f '/home/rbw/google-cloud-sdk/path.zsh.inc' ]; then . '/home/rbw/google-cl
 # The next line enables shell command completion for gcloud.
 if [ -f '/home/rbw/google-cloud-sdk/completion.zsh.inc' ]; then . '/home/rbw/google-cloud-sdk/completion.zsh.inc'; fi
 
-eval `ssh-agent -s`
-ssh-add
+# Use keychain to manage ssh-agent across sessions
+eval $(keychain --eval --quiet --agents ssh id_ed25519)
 
 # >>> conda initialize >>>
 # !! Contents within this block are managed by 'conda init' !!
