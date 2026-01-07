@@ -19,5 +19,3 @@ user = RBozydar
 [credential "https://gist.github.com"]
 	helper = 
 	helper = !/usr/bin/gh auth git-credential
-[url "git@github.com:"]
-	insteadOf = https://github.com/
