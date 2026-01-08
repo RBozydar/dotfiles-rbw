@@ -1,0 +1,232 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(gh:*)",
+      "Bash(git:*)",
+      "Bash(cat:*)",
+      "Bash(ls:*)",
+      "Bash(grep:*)",
+      "Bash(tree:*)",
+      "Bash(wc:*)",
+      "Bash(cut:*)",
+      "Bash(sort:*)",
+      "Bash(mkdir:*)",
+      "Bash(git checkout:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(git pull:*)",
+      "Bash(git fetch:*)",
+      "Bash(git show:*)",
+      "Bash(git merge:*)",
+      "Bash(git merge-base:*)",
+      "Bash(git branch:*)",
+      "Bash(git log:*)",
+      "Bash(git diff:*)",
+      "Bash(git status:*)",
+      "Bash(git stash:*)",
+      "Bash(git worktree:*)",
+      "Bash(gh pr api:*)",
+      "Bash(gh pr create:*)",
+      "Bash(gh pr view:*)",
+      "Bash(gh pr checks:*)",
+      "Bash(gh pr merge:*)",
+      "Bash(gh run list:*)",
+      "Bash(gh run view:*)",
+      "Bash(gh search:*)",
+      "Bash(gh release create:*)",
+      "Bash(gh release view:*)",
+      "Bash(gh release list:*)",
+      "Bash(make fmt:*)",
+      "Bash(make lint:*)",
+      "Bash(make typecheck:*)",
+      "Bash(make test:*)",
+      "Bash(make ci:*)",
+      "Bash(make coverage:*)",
+      "Bash(uv sync:*)",
+      "Bash(uv add:*)",
+      "Bash(uv remove:*)",
+      "Bash(uv lock:*)",
+      "Bash(uv tree:*)",
+      "Bash(uv venv:*)",
+      "Bash(uv build:*)",
+      "Bash(uv run pytest:*)",
+      "Bash(uv run mypy:*)",
+      "Bash(uv run ruff:*)",
+      "Bash(uv pip list:*)",
+      "Bash(uv pip show:*)",
+      "Bash(uv pip check:*)",
+      "Bash(uvx ruff:*)",
+      "Bash(uvx pyright:*)",
+      "Bash(uvx pre-commit:*)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "WebFetch(domain:docs.pydantic.dev)",
+      "WebFetch(domain:docs.litellm.ai)",
+      "WebFetch(domain:docs.astral.sh)",
+      "WebFetch(domain:pypi.org)",
+      "Skill(core:plan_review)",
+      "Skill(core:workflows:work)",
+      "Skill(core:agent-native-architecture)",
+      "Skill(core:compound-docs)",
+      "Skill(core:create-agent-skills)",
+      "Skill(core:file-todos)",
+      "Skill(core:git-ship)",
+      "Skill(core:git-worktree)",
+      "Skill(core:skill-creator)",
+      "Skill(core:compound-docs)",
+      "mcp__plugin_core_context7__resolve-library-id",
+      "mcp__plugin_core_context7__query-docs"
+    ]
+  },
+  "model": "opus",
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/plugins/marketplaces/rbw-claude-code/plugins/core/hooks/check-hooks-sync.sh",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/plugins/marketplaces/rbw-claude-code/plugins/conventional-commits/hooks/conventional_commits.py",
+            "timeout": 10
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/plugins/marketplaces/rbw-claude-code/plugins/enforce-uv/hooks/enforce_uv.py",
+            "timeout": 30
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/plugins/marketplaces/rbw-claude-code/plugins/gemini-model-guard/hooks/check-gemini-model.py",
+            "timeout": 5
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/plugins/marketplaces/rbw-claude-code/plugins/gh-api-guard/hooks/check-gh-api.py",
+            "timeout": 5
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/plugins/marketplaces/rbw-claude-code/plugins/git-safety-guard/hooks/git_safety_guard.py",
+            "timeout": 10
+          }
+        ]
+      },
+      {
+        "matcher": "Read",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/plugins/marketplaces/rbw-claude-code/plugins/protect-env/hooks/protect_env.py",
+            "timeout": 10
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/plugins/marketplaces/rbw-claude-code/plugins/safety-guard/hooks/safety_guard_bash.py",
+            "timeout": 10
+          }
+        ]
+      },
+      {
+        "matcher": "Read",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/plugins/marketplaces/rbw-claude-code/plugins/safety-guard/hooks/safety_guard_read.py",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/plugins/marketplaces/rbw-claude-code/plugins/python-format/hooks/format_python.py",
+            "timeout": 60
+          }
+        ]
+      },
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/plugins/marketplaces/rbw-claude-code/plugins/python-typecheck/hooks/typecheck.py",
+            "timeout": 120
+          }
+        ]
+      },
+      {
+        "matcher": "Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/plugins/marketplaces/rbw-claude-code/plugins/test-reminder/hooks/test_reminder.py",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  },
+  "statusLine": {
+    "type": "command",
+    "command": "bunx -y ccstatusline@latest",
+    "padding": 0
+  },
+  "enabledPlugins": {
+    "pyright-lsp@claude-plugins-official": true,
+    "conventional-commits@rbw-claude-code": true,
+    "core@rbw-claude-code": true,
+    "enforce-uv@rbw-claude-code": true,
+    "protect-env@rbw-claude-code": true,
+    "python-backend@rbw-claude-code": true,
+    "python-format@rbw-claude-code": true,
+    "python-typecheck@rbw-claude-code": true,
+    "test-reminder@rbw-claude-code": true,
+    "git-safety-guard@rbw-claude-code": true,
+    "safety-guard@rbw-claude-code": true,
+    "gh-api-guard@rbw-claude-code": true,
+    "gemini-model-guard@rbw-claude-code": true
+  },
+  "alwaysThinkingEnabled": true
+}
