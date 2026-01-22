@@ -15,7 +15,7 @@ alias update="sudo apt update"
 alias upx="sudo apt update && sudo apt upgrade"
 alias purge="sudo apt-get purge"
 alias aptsrch="apt-cache search"
-
+alias history="fc -li 1"
 
 # IP addresses
 alias ip="dig +short myip.opendns.com @resolver1.opendns.com"

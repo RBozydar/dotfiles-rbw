@@ -9,6 +9,8 @@ export PATH=$PATH:/usr/local/go/bin:$HOME/go/bin
 export ZSH_TMUX_AUTOSTART=true
 export SEARXNG_BASE_URL=https://searxng.local.bozydar.me
 source /home/rbw/.zsh_secrets
+export ENABLE_LSP_TOOL=1
+export CLAUDE_ENABLE_LSP_TOOL=1
 # conda
 #  .  ~/miniconda3/etc/profile.d/conda.sh
 #  . /usr/local/anaconda/etc/profile.d/conda.sh
@@ -26,3 +28,11 @@ export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR/ssh-agent.socket"
 # llama.cpp CUDA build
 export PATH="/mnt/ml_models/llama_cpp_compiled/cuda/bin:$PATH"
 export LD_LIBRARY_PATH="/mnt/ml_models/llama_cpp_compiled/cuda/lib:$LD_LIBRARY_PATH"
+
+function y() {
+	local tmp="$(mktemp -t "yazi-cwd.XXXXXX")" cwd
+	command yazi "$@" --cwd-file="$tmp"
+	IFS= read -r -d '' cwd < "$tmp"
+	[ "$cwd" != "$PWD" ] && [ -d "$cwd" ] && builtin cd -- "$cwd"
+	rm -f -- "$tmp"
+}
