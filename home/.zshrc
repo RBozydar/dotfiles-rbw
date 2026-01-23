@@ -22,7 +22,7 @@ if [[ ! $DISPLAY && $XDG_VTNR -eq 1 ]]; then
   exec startx
 fi
 
-eval $(keychain --eval --quiet id_ed25519 id_rsa)
+eval $(keychain --eval --quiet id_ed25519)
 # fnm
 FNM_PATH="/home/rbw/.local/share/fnm"
 if [ -d "$FNM_PATH" ]; then
@@ -36,3 +36,15 @@ if [ -d "$FNM_PATH" ]; then
   export PATH="$FNM_PATH:$PATH"
   eval "`fnm env`"
 fi
+
+# Auto-start tmux on SSH login
+if [[ -z "$TMUX" ]] && [[ -n "$SSH_CONNECTION" ]]; then
+  tmux attach-session -t ssh_tmux || tmux new-session -s ssh_tmux
+fi
+
+# bun completions
+[ -s "/home/rbw/.bun/_bun" ] && source "/home/rbw/.bun/_bun"
+
+# bun
+export BUN_INSTALL="$HOME/.bun"
+export PATH="$BUN_INSTALL/bin:$PATH"
