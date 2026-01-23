@@ -1,6 +1,20 @@
 export PATH=$HOME/bin:/usr/local/bin:$PATH
 export PATH=$HOME/.local/bin:$PATH
+export DAGSTER_HOME=$HOME/repo/wina_julii/dbt/doliovini/winajulii
+export DISPLAY=:0
+export DBT_GCP_SA=/home/rbw/.config/gcp/dolio-bq.json
 export DEFAULT_USER=rbw
+export HF_HOME=/mnt/ml_models
+export PATH=$PATH:/usr/local/go/bin:$HOME/go/bin
+export ZSH_TMUX_AUTOSTART=true
+export SEARXNG_BASE_URL=https://searxng.local.bozydar.me
+source /home/rbw/.zsh_secrets
+export ENABLE_LSP_TOOL=1
+export CLAUDE_ENABLE_LSP_TOOL=1
+# conda
+#  .  ~/miniconda3/etc/profile.d/conda.sh
+#  . /usr/local/anaconda/etc/profile.d/conda.sh
+#  conda activate base
 #  conda zsh completions
   zstyle ':completion::complete:*' use-cache 1
 
@@ -11,3 +25,14 @@ zstyle :compinstall filename '/home/rbw/.zshrc'
 
 # export GTK_THEME=Arc-Dark
 export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR/ssh-agent.socket"
+# llama.cpp CUDA build
+export PATH="/mnt/ml_models/llama_cpp_compiled/cuda/bin:$PATH"
+export LD_LIBRARY_PATH="/mnt/ml_models/llama_cpp_compiled/cuda/lib:$LD_LIBRARY_PATH"
+
+function y() {
+	local tmp="$(mktemp -t "yazi-cwd.XXXXXX")" cwd
+	command yazi "$@" --cwd-file="$tmp"
+	IFS= read -r -d '' cwd < "$tmp"
+	[ "$cwd" != "$PWD" ] && [ -d "$cwd" ] && builtin cd -- "$cwd"
+	rm -f -- "$tmp"
+}
