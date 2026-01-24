@@ -1,0 +1,17 @@
+set constantshow
+set autoindent
+set mouse
+set historylog
+set matchbrackets "(<[{)>]}"
+set smarthome
+set tabsize 4
+set tabstospaces
+include "/usr/share/nano/python.nanorc"
+include "/usr/share/nano/sh.nanorc"
+syntax "python" "\\.py$"
+header "^#!.*/(env +)?python[-0-9._]*( |$)"
+magic "Python script"
+comment "#"
+color
+linter ruff
+
