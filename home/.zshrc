@@ -68,7 +68,6 @@ export LD_LIBRARY_PATH=/usr/local/cuda-13.0/lib64:$LD_LIBRARY_PATH
 fpath+=~/.zfunc; autoload -Uz compinit; compinit
 
 zstyle ':completion:*' menu select
-
 antigen bundle tmux
 # Auto-start tmux on SSH login
 if [[ -z "$TMUX" ]] && [[ -n "$SSH_CONNECTION" ]]; then
