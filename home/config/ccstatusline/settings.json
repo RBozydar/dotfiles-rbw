@@ -28,7 +28,8 @@
       {
         "id": "7",
         "type": "git-worktree",
-        "color": "yellow"
+        "color": "yellow",
+        "rawValue": false
       },
       {
         "id": "d2e5ceee-b267-4bd6-aabd-38a2703dca6c",

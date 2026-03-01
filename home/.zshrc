@@ -62,7 +62,6 @@ eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 fpath+=~/.zfunc; autoload -Uz compinit; compinit
 
 zstyle ':completion:*' menu select
-
 antigen bundle tmux
 # Auto-start tmux on SSH login
 if [[ -z "$TMUX" ]] && [[ -n "$SSH_CONNECTION" ]]; then
