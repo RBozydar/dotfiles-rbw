@@ -32,24 +32,18 @@ if [ -f '/home/rbw/google-cloud-sdk/completion.zsh.inc' ]; then . '/home/rbw/goo
 # Use keychain to manage ssh-agent across sessions
 eval $(keychain --eval --quiet --agents ssh id_ed25519)
 
-# >>> conda initialize >>>
-# !! Contents within this block are managed by 'conda init' !!
-__conda_setup="$('/home/rbw/mambaforge/bin/conda' 'shell.zsh' 'hook' 2> /dev/null)"
+# >>> mamba initialize >>>
+# !! Contents within this block are managed by 'mamba shell init' !!
+export MAMBA_EXE='/home/rbw/miniforge3/bin/mamba';
+export MAMBA_ROOT_PREFIX='/home/rbw/miniforge3';
+__mamba_setup="$("$MAMBA_EXE" shell hook --shell zsh --root-prefix "$MAMBA_ROOT_PREFIX" 2> /dev/null)"
 if [ $? -eq 0 ]; then
-    eval "$__conda_setup"
+    eval "$__mamba_setup"
 else
-    if [ -f "/home/rbw/mambaforge/etc/profile.d/conda.sh" ]; then
-        . "/home/rbw/mambaforge/etc/profile.d/conda.sh"
-    else
-        export PATH="/home/rbw/mambaforge/bin:$PATH"
-    fi
+    alias mamba="$MAMBA_EXE"  # Fallback on help from mamba activate
 fi
-unset __conda_setup
-
-if [ -f "/home/rbw/mambaforge/etc/profile.d/mamba.sh" ]; then
-    . "/home/rbw/mambaforge/etc/profile.d/mamba.sh"
-fi
-# <<< conda initialize <<<
+unset __mamba_setup
+# <<< mamba initialize <<<
 
 
 # fnm
@@ -62,8 +56,8 @@ fi
 eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 
 # CUDA Configuration
-export PATH=/usr/local/cuda-13.0/bin:$PATH
-export LD_LIBRARY_PATH=/usr/local/cuda-13.0/lib64:$LD_LIBRARY_PATH
+# export PATH=/usr/local/cuda-13.0/bin:$PATH
+# export LD_LIBRARY_PATH=/usr/local/cuda-13.0/lib64:$LD_LIBRARY_PATH
 
 fpath+=~/.zfunc; autoload -Uz compinit; compinit
 
@@ -85,3 +79,5 @@ export PATH="$BUN_INSTALL/bin:$PATH"
 # qlty
 export QLTY_INSTALL="$HOME/.qlty"
 export PATH="$QLTY_INSTALL/bin:$PATH"
+
+

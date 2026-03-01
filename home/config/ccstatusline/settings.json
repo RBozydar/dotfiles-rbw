@@ -5,31 +5,30 @@
       {
         "id": "1",
         "type": "model",
-        "color": "cyan"
+        "color": "cyan",
+        "rawValue": true
       },
       {
         "id": "3",
         "type": "context-length",
-        "color": "brightBlack"
+        "color": "brightBlack",
+        "rawValue": true
       },
       {
         "id": "5b950912-10a8-4270-84d5-504cf8e6a4df",
-        "type": "context-percentage-usable"
+        "type": "context-percentage-usable",
+        "rawValue": true
       },
       {
         "id": "5",
         "type": "git-branch",
-        "color": "magenta"
+        "color": "magenta",
+        "rawValue": false
       },
       {
         "id": "7",
         "type": "git-worktree",
         "color": "yellow"
-      },
-      {
-        "id": "b6701f59-aaaf-4a8b-a319-66c72763ef72",
-        "type": "block-timer",
-        "backgroundColor": "bgBrightCyan"
       },
       {
         "id": "d2e5ceee-b267-4bd6-aabd-38a2703dca6c",
@@ -45,7 +44,7 @@
       }
     ]
   ],
-  "flexMode": "full-minus-40",
+  "flexMode": "full",
   "compactThreshold": 60,
   "colorLevel": 2,
   "defaultPadding": " ",
