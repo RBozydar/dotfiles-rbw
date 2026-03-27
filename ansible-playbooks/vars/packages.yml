@@ -19,7 +19,7 @@ base_packages:
     - gnome-disk-utility
     - ntfs-3g
     - parted
-    - exfat-utils
+    # - exfat-utils
     - jq
 
 ubuntu_packages:

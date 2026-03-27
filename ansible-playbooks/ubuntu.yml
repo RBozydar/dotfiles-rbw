@@ -1,4 +1,4 @@
-- hosts: arch
+- hosts: ubuntu
   vars_files:
     - vars/main.yml
     - vars/packages.yml
@@ -20,11 +20,16 @@
       update_cache: true
       # cache_valid_time: 3600
   
-
-
-  - name: Ensure Universe Repo is enabled
+  - name: Ensure ubuntu specific packages are installed
     become: yes
-    apt_repository:
-      repo: deb http://archive.ubuntu.com/ubuntu focal universe
+    ansible.builtin.package:
+      name: "{{ ubuntu_packages }}"
       state: present
-      update_cache: true
+
+
+  # - name: Ensure Universe Repo is enabled
+  #   become: yes
+  #   apt_repository:
+  #     repo: deb http://archive.ubuntu.com/ubuntu focal universe
+  #     state: present
+  #     update_cache: true
