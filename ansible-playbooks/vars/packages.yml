@@ -23,13 +23,43 @@ base_packages:
     - jq
 
 ubuntu_packages:
+    # build
     - build-essential
+    - cmake
+    - ninja-build
+    - pkg-config
+    - libssl-dev
+    - libomp-dev
+    - libopenblas-dev
+    # dev
+    - python3-pip
+    - zsh
+    - ffmpeg
+    - pandoc
+    # networking
     - nfs-kernel-server
     - nfs-common
-    - ninja-build
-    - openssh-client 
+    - openssh-client
     - openssh-server
-    - python3-pip
+    # monitoring
+    - btop
+    - htop
+    - nvtop
+    - ncdu
+    - duf
+    - iftop
+    - iotop
+    - powertop
+    - fio
+    - traceroute
+    - ethtool
+    - iperf3
+    - mesa-utils
+    # security
+    - openssl
+    - fail2ban
+    - unattended-upgrades
+    # fonts
     - fonts-firacode
 
 arch_packages:

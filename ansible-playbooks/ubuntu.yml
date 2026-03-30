@@ -1,30 +1,44 @@
-- hosts: arch
+- hosts: ubuntu
   vars_files:
     - vars/main.yml
     - vars/packages.yml
   roles:
     - role: geerlingguy.docker
       become: yes
-      docker_users: rbw
+      docker_users:
+        - rbw
 
   tasks:
+  - name: Update apt cache
+    become: yes
+    ansible.builtin.apt:
+      update_cache: true
+      cache_valid_time: 3600
+
   - name: Upgrade all packages
     become: yes
-    ansible.builtin.package:
-      name: "*"
-      state: latest
+    ansible.builtin.apt:
+      upgrade: dist
 
-  - name: Update apt cache if needed
+  - name: Install ubuntu packages
     become: yes
-    ansible.builtin.package:
-      update_cache: true
-      # cache_valid_time: 3600
-  
-
-
-  - name: Ensure Universe Repo is enabled
-    become: yes
-    apt_repository:
-      repo: deb http://archive.ubuntu.com/ubuntu focal universe
+    ansible.builtin.apt:
+      name: "{{ ubuntu_packages }}"
       state: present
-      update_cache: true
+    tags:
+      - packages
+
+  - name: GH CLI
+    ansible.builtin.include_tasks: tasks/gh-cli.yml
+    tags:
+      - gh-cli
+
+  - name: Glow
+    ansible.builtin.include_tasks: tasks/glow.yml
+    tags:
+      - glow
+
+  - name: NVIDIA CUDA
+    ansible.builtin.include_tasks: tasks/nvidia-cuda.yml
+    tags:
+      - nvidia
