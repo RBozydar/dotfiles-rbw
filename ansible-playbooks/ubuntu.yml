@@ -42,3 +42,33 @@
     ansible.builtin.include_tasks: tasks/nvidia-cuda.yml
     tags:
       - nvidia
+
+  - name: Homebrew
+    ansible.builtin.include_tasks: tasks/homebrew.yml
+    tags:
+      - homebrew
+
+  - name: Go
+    ansible.builtin.include_tasks: tasks/golang.yml
+    tags:
+      - golang
+
+  - name: Rust
+    ansible.builtin.include_tasks: tasks/rustup.yml
+    tags:
+      - rust
+
+  - name: Version managers (fnm, uv, bun)
+    ansible.builtin.include_tasks: tasks/version-managers.yml
+    tags:
+      - version-managers
+
+  - name: Symlinks
+    ansible.builtin.include_tasks: tasks/symlinks.yml
+    tags:
+      - symlinks
+
+  - name: Tmux TPM
+    ansible.builtin.include_tasks: tasks/tmux.yml
+    tags:
+      - tmux

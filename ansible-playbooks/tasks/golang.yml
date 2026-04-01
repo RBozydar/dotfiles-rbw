@@ -1,0 +1,37 @@
+---
+- name: Check if Go is installed
+  ansible.builtin.stat:
+    path: /usr/local/go/bin/go
+  register: go_installed
+
+- name: Get latest Go version
+  when: not go_installed.stat.exists
+  ansible.builtin.uri:
+    url: https://go.dev/VERSION?m=text
+    return_content: true
+  register: go_latest
+
+- name: Download Go
+  when: not go_installed.stat.exists
+  ansible.builtin.get_url:
+    url: "https://go.dev/dl/{{ go_latest.content.split('\n')[0] }}.linux-amd64.tar.gz"
+    dest: /tmp/go.tar.gz
+
+- name: Install Go to /usr/local
+  when: not go_installed.stat.exists
+  become: yes
+  ansible.builtin.unarchive:
+    src: /tmp/go.tar.gz
+    dest: /usr/local
+    remote_src: true
+
+- name: Install Go tools
+  become: yes
+  become_user: "{{ username }}"
+  ansible.builtin.command:
+    cmd: /usr/local/go/bin/go install {{ item }}
+  environment:
+    GOPATH: "/home/{{ username }}/go"
+    PATH: "/usr/local/go/bin:{{ ansible_env.PATH }}"
+  loop:
+    - mvdan.cc/sh/v3/cmd/shfmt@latest

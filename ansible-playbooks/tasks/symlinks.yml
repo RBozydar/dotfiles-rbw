@@ -1,0 +1,125 @@
+---
+# Shell
+- name: Symlink .zshrc
+  ansible.builtin.file:
+    src: "{{ home_repo }}/.zshrc"
+    dest: "$HOME/.zshrc"
+    state: link
+    force: yes
+
+- name: Symlink .zsh_aliases
+  ansible.builtin.file:
+    src: "{{ home_repo }}/.zsh_aliases"
+    dest: "$HOME/.zsh_aliases"
+    state: link
+    force: yes
+
+- name: Symlink .zsh_exports
+  ansible.builtin.file:
+    src: "{{ home_repo }}/.zsh_exports"
+    dest: "$HOME/.zsh_exports"
+    state: link
+    force: yes
+
+- name: Symlink .zsh_utils_git-worktree
+  ansible.builtin.file:
+    src: "{{ home_repo }}/utils/git-worktree.zsh"
+    dest: "$HOME/.zsh_utils_git-worktree"
+    state: link
+    force: yes
+
+# Git
+- name: Symlink .gitconfig
+  ansible.builtin.file:
+    src: "{{ home_repo }}/.gitconfig"
+    dest: "$HOME/.gitconfig"
+    state: link
+    force: yes
+
+- name: Symlink .gitignore_global
+  ansible.builtin.file:
+    src: "{{ home_repo }}/.gitignore_global"
+    dest: "$HOME/.gitignore_global"
+    state: link
+    force: yes
+
+# Editors
+- name: Symlink .nanorc
+  ansible.builtin.file:
+    src: "{{ home_repo }}/.nanorc"
+    dest: "$HOME/.nanorc"
+    state: link
+    force: yes
+
+# Terminal
+- name: Symlink .tmux.conf
+  ansible.builtin.file:
+    src: "{{ home_repo }}/.tmux.conf"
+    dest: "$HOME/.tmux.conf"
+    state: link
+    force: yes
+
+- name: Symlink tmux custom modules
+  ansible.builtin.file:
+    src: "{{ home_repo }}/.tmux"
+    dest: "$HOME/.tmux-custom"
+    state: link
+    force: yes
+
+- name: Symlink alacritty config
+  ansible.builtin.file:
+    src: "{{ home_repo }}/config/alacritty"
+    dest: "$HOME/.config/alacritty"
+    state: link
+    force: yes
+
+# App configs
+- name: Symlink btop config
+  ansible.builtin.file:
+    src: "{{ home_repo }}/config/btop"
+    dest: "$HOME/.config/btop"
+    state: link
+    force: yes
+
+- name: Symlink gh config
+  ansible.builtin.file:
+    src: "{{ home_repo }}/config/gh"
+    dest: "$HOME/.config/gh"
+    state: link
+    force: yes
+
+- name: Symlink pip config
+  ansible.builtin.file:
+    src: "{{ home_repo }}/config/pip"
+    dest: "$HOME/.config/pip"
+    state: link
+    force: yes
+
+- name: Symlink htop config
+  ansible.builtin.file:
+    src: "{{ home_repo }}/config/htop"
+    dest: "$HOME/.config/htop"
+    state: link
+    force: yes
+
+- name: Symlink mc config
+  ansible.builtin.file:
+    src: "{{ home_repo }}/config/mc"
+    dest: "$HOME/.config/mc"
+    state: link
+    force: yes
+
+# GTK
+- name: Symlink gtk-3.0 config
+  ansible.builtin.file:
+    src: "{{ home_repo }}/config/gtk-3.0"
+    dest: "$HOME/.config/gtk-3.0"
+    state: link
+    force: yes
+
+- name: Symlink .gtkrc-2.0
+  ansible.builtin.file:
+    src: "{{ home_repo }}/.gtkrc-2.0"
+    dest: "$HOME/.gtkrc-2.0"
+    state: link
+    force: yes

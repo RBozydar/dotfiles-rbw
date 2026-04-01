@@ -1,0 +1,22 @@
+---
+- name: Check if rustup is installed
+  ansible.builtin.stat:
+    path: "/home/{{ username }}/.cargo/bin/rustup"
+  register: rustup_installed
+
+- name: Install rustup
+  when: not rustup_installed.stat.exists
+  become: yes
+  become_user: "{{ username }}"
+  ansible.builtin.shell:
+    cmd: curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain stable
+
+- name: Install cargo packages
+  become: yes
+  become_user: "{{ username }}"
+  ansible.builtin.command:
+    cmd: "/home/{{ username }}/.cargo/bin/cargo install {{ item }}"
+  environment:
+    PATH: "/home/{{ username }}/.cargo/bin:{{ ansible_env.PATH }}"
+  loop:
+    - colgrep

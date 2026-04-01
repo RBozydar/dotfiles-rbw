@@ -62,6 +62,25 @@ ubuntu_packages:
     # fonts
     - fonts-firacode
 
+brew_packages:
+    - ast-grep
+    - fd
+    - ffmpeg
+    - fzf
+    - imagemagick
+    - jq
+    - lazydocker
+    - lazygit
+    - poppler
+    - resvg
+    - ripgrep
+    - sevenzip
+    - yazi
+    - zoxide
+
+brew_casks:
+    - font-symbols-only-nerd-font
+
 arch_packages:
     # audio
     - alacritty

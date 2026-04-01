@@ -1,0 +1,37 @@
+---
+- name: Check if Homebrew is installed
+  ansible.builtin.stat:
+    path: /home/linuxbrew/.linuxbrew/bin/brew
+  register: brew_installed
+
+- name: Install Homebrew
+  when: not brew_installed.stat.exists
+  become: yes
+  become_user: "{{ username }}"
+  ansible.builtin.shell:
+    cmd: /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+  environment:
+    NONINTERACTIVE: "1"
+
+- name: Add Homebrew taps
+  become: yes
+  become_user: "{{ username }}"
+  community.general.homebrew_tap:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - jesseduffield/lazydocker
+
+- name: Install Homebrew formulae
+  become: yes
+  become_user: "{{ username }}"
+  community.general.homebrew:
+    name: "{{ brew_packages }}"
+    state: present
+
+- name: Install Homebrew casks
+  become: yes
+  become_user: "{{ username }}"
+  community.general.homebrew_cask:
+    name: "{{ brew_casks }}"
+    state: present

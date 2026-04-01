@@ -1,0 +1,49 @@
+---
+# fnm (Fast Node Manager)
+- name: Check if fnm is installed
+  ansible.builtin.stat:
+    path: "/home/{{ username }}/.local/share/fnm/fnm"
+  register: fnm_installed
+
+- name: Install fnm
+  when: not fnm_installed.stat.exists
+  become: yes
+  become_user: "{{ username }}"
+  ansible.builtin.shell:
+    cmd: curl -fsSL https://fnm.vercel.app/install | bash -s -- --skip-shell
+
+- name: Install default Node version via fnm
+  become: yes
+  become_user: "{{ username }}"
+  ansible.builtin.shell:
+    cmd: >
+      eval "$(/home/{{ username }}/.local/share/fnm/fnm env)" &&
+      fnm install --lts
+  args:
+    executable: /bin/bash
+
+# uv (Python package manager)
+- name: Check if uv is installed
+  ansible.builtin.stat:
+    path: "/home/{{ username }}/.local/bin/uv"
+  register: uv_installed
+
+- name: Install uv
+  when: not uv_installed.stat.exists
+  become: yes
+  become_user: "{{ username }}"
+  ansible.builtin.shell:
+    cmd: curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# bun
+- name: Check if bun is installed
+  ansible.builtin.stat:
+    path: "/home/{{ username }}/.bun/bin/bun"
+  register: bun_installed
+
+- name: Install bun
+  when: not bun_installed.stat.exists
+  become: yes
+  become_user: "{{ username }}"
+  ansible.builtin.shell:
+    cmd: curl -fsSL https://bun.sh/install | bash
