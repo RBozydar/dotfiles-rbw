@@ -1,4 +1,9 @@
 {
+  "fileSuggestion": {
+    "type": "command",
+    "command": "~/.claude/file-suggestion.sh"
+  },
+  "cleanupPeriodDays": 90,
   "permissions": {
     "allow": [
       "Bash(gh:*)",
@@ -74,12 +79,38 @@
       "Skill(core:git-ship)",
       "Skill(core:git-worktree)",
       "Skill(core:skill-creator)",
-      "Skill(core:compound-docs)",
       "mcp__plugin_core_context7__resolve-library-id",
-      "mcp__plugin_core_context7__query-docs"
-    ]
+      "mcp__plugin_core_context7__query-docs",
+      "Bash(uv run python:*)",
+      "Bash(python3:*)",
+      "Bash(gemini -p:*)",
+      "Bash(pytest:*)",
+      "Bash(xargs:*)",
+      "WebSearch",
+      "WebFetch(domain:docs.tavily.com)",
+      "Skill(plan_review)",
+      "Bash(find:*)",
+      "Bash(git -C:*)",
+      "Bash(make:*)",
+      "Bash(echo:*)",
+      "Bash(done)",
+      "WebFetch(domain:superfastpython.com)",
+      "mcp__plugin_compound-engineering_context7__resolve-library-id",
+      "mcp__plugin_compound-engineering_context7__query-docs",
+      "Bash(python -m pytest:*)",
+      "WebFetch(domain:cookbook.openai.com)",
+      "Bash(jq -r '.[] | \"\"**\\\\\\(.user.login\\)** on `\\\\\\(.path\\):\\\\\\(.line // .original_line\\)`:\\\\n\\\\\\(.body\\)\\\\n---\"\"')",
+      "WebFetch(domain:www.python-httpx.org)",
+      "WebFetch(domain:cheatsheetseries.owasp.org)",
+      "Bash(uv run pyright:*)",
+      "Bash(while read f)",
+      "Bash(do echo \"$f\")",
+      "WebFetch(domain:oclif.io)",
+      "WebFetch(domain:zod.dev)",
+      "WebFetch(domain:www.npmjs.com)"
+    ],
+    "defaultMode": "default"
   },
-  "model": "opus",
   "hooks": {
     "SessionStart": [
       {
@@ -99,7 +130,27 @@
         "hooks": [
           {
             "type": "command",
-            "command": "~/.claude/plugins/marketplaces/rbw-claude-code/plugins/conventional-commits/hooks/conventional_commits.py",
+            "command": "~/.claude/plugins/marketplaces/rbw-claude-code/plugins/guards/security/safety-guard/hooks/safety_guard_bash.py",
+            "timeout": 10
+          }
+        ]
+      },
+      {
+        "matcher": "Read",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/plugins/marketplaces/rbw-claude-code/plugins/guards/security/safety-guard/hooks/safety_guard_read.py",
+            "timeout": 10
+          }
+        ]
+      },
+      {
+        "matcher": "Read",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/plugins/marketplaces/rbw-claude-code/plugins/guards/security/protect-env/hooks/protect_env.py",
             "timeout": 10
           }
         ]
@@ -109,7 +160,57 @@
         "hooks": [
           {
             "type": "command",
-            "command": "~/.claude/plugins/marketplaces/rbw-claude-code/plugins/enforce-uv/hooks/enforce_uv.py",
+            "command": "~/.claude/plugins/marketplaces/rbw-claude-code/plugins/guards/security/protect-env/hooks/protect_env.py",
+            "timeout": 10
+          }
+        ]
+      },
+      {
+        "matcher": "Grep",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/plugins/marketplaces/rbw-claude-code/plugins/guards/security/protect-env/hooks/protect_env.py",
+            "timeout": 10
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/plugins/marketplaces/rbw-claude-code/plugins/guards/security/git-safety-guard/hooks/git_safety_guard.py",
+            "timeout": 10
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/plugins/marketplaces/rbw-claude-code/plugins/guards/security/gh-api-guard/hooks/check-gh-api.py",
+            "timeout": 5
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/plugins/marketplaces/rbw-claude-code/plugins/guards/policy/gemini-model-guard/hooks/check-gemini-model.py",
+            "timeout": 5
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/plugins/marketplaces/rbw-claude-code/plugins/guards/policy/enforce-uv/hooks/enforce_uv.py",
             "timeout": 30
           }
         ]
@@ -119,57 +220,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "~/.claude/plugins/marketplaces/rbw-claude-code/plugins/gemini-model-guard/hooks/check-gemini-model.py",
-            "timeout": 5
-          }
-        ]
-      },
-      {
-        "matcher": "Bash",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "~/.claude/plugins/marketplaces/rbw-claude-code/plugins/gh-api-guard/hooks/check-gh-api.py",
-            "timeout": 5
-          }
-        ]
-      },
-      {
-        "matcher": "Bash",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "~/.claude/plugins/marketplaces/rbw-claude-code/plugins/git-safety-guard/hooks/git_safety_guard.py",
-            "timeout": 10
-          }
-        ]
-      },
-      {
-        "matcher": "Read",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "~/.claude/plugins/marketplaces/rbw-claude-code/plugins/protect-env/hooks/protect_env.py",
-            "timeout": 10
-          }
-        ]
-      },
-      {
-        "matcher": "Bash",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "~/.claude/plugins/marketplaces/rbw-claude-code/plugins/safety-guard/hooks/safety_guard_bash.py",
-            "timeout": 10
-          }
-        ]
-      },
-      {
-        "matcher": "Read",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "~/.claude/plugins/marketplaces/rbw-claude-code/plugins/safety-guard/hooks/safety_guard_read.py",
+            "command": "~/.claude/plugins/marketplaces/rbw-claude-code/plugins/guards/policy/conventional-commits/hooks/conventional_commits.py",
             "timeout": 10
           }
         ]
@@ -177,12 +228,12 @@
     ],
     "PostToolUse": [
       {
-        "matcher": "Write|Edit",
+        "matcher": "Write",
         "hooks": [
           {
             "type": "command",
-            "command": "~/.claude/plugins/marketplaces/rbw-claude-code/plugins/python-format/hooks/format_python.py",
-            "timeout": 60
+            "command": "~/.claude/plugins/marketplaces/rbw-claude-code/plugins/guards/quality/test-reminder/hooks/test_reminder.py",
+            "timeout": 10
           }
         ]
       },
@@ -191,18 +242,18 @@
         "hooks": [
           {
             "type": "command",
-            "command": "~/.claude/plugins/marketplaces/rbw-claude-code/plugins/python-typecheck/hooks/typecheck.py",
+            "command": "~/.claude/plugins/marketplaces/rbw-claude-code/plugins/guards/quality/python-typecheck/hooks/typecheck.py",
             "timeout": 120
           }
         ]
       },
       {
-        "matcher": "Write",
+        "matcher": "Write|Edit",
         "hooks": [
           {
             "type": "command",
-            "command": "~/.claude/plugins/marketplaces/rbw-claude-code/plugins/test-reminder/hooks/test_reminder.py",
-            "timeout": 10
+            "command": "~/.claude/plugins/marketplaces/rbw-claude-code/plugins/guards/quality/python-format/hooks/format_python.py",
+            "timeout": 60
           }
         ]
       }
@@ -226,7 +277,9 @@
     "git-safety-guard@rbw-claude-code": true,
     "safety-guard@rbw-claude-code": true,
     "gh-api-guard@rbw-claude-code": true,
-    "gemini-model-guard@rbw-claude-code": true
+    "gemini-model-guard@rbw-claude-code": true,
+    "clean-code-guard@rbw-claude-code": true
   },
-  "alwaysThinkingEnabled": true
+  "alwaysThinkingEnabled": true,
+  "effortLevel": "high"
 }

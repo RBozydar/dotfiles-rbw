@@ -41,3 +41,9 @@
     state: present
   environment:
     PATH: "/home/linuxbrew/.linuxbrew/bin:{{ ansible_env.PATH }}"
+
+- name: Install yazi plugins
+  become: yes
+  become_user: "{{ username }}"
+  ansible.builtin.command:
+    cmd: /home/linuxbrew/.linuxbrew/bin/ya pkg add yazi-rs/plugins:piper

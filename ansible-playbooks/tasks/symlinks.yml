@@ -109,6 +109,42 @@
     state: link
     force: yes
 
+# Yazi
+- name: Symlink yazi.toml
+  ansible.builtin.file:
+    src: "{{ home_repo }}/config/yazi.toml"
+    dest: "$HOME/.config/yazi.toml"
+    state: link
+    force: yes
+
+- name: Symlink yazi config dir
+  ansible.builtin.file:
+    src: "{{ home_repo }}/config/yazi"
+    dest: "$HOME/.config/yazi"
+    state: link
+    force: yes
+
+# ccstatusline
+- name: Symlink ccstatusline config
+  ansible.builtin.file:
+    src: "{{ home_repo }}/config/ccstatusline"
+    dest: "$HOME/.config/ccstatusline"
+    state: link
+    force: yes
+
+# Claude Code
+- name: Ensure ~/.claude directory exists
+  ansible.builtin.file:
+    path: "$HOME/.claude"
+    state: directory
+
+- name: Symlink Claude Code settings.json
+  ansible.builtin.file:
+    src: "{{ home_repo }}/config/claude/settings.json"
+    dest: "$HOME/.claude/settings.json"
+    state: link
+    force: yes
+
 # GTK
 - name: Symlink gtk-3.0 config
   ansible.builtin.file:
