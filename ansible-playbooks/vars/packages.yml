@@ -31,6 +31,7 @@ ubuntu_packages:
     - libssl-dev
     - libomp-dev
     - libopenblas-dev
+    - unzip
     # dev
     - python3-pip
     - zsh

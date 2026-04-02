@@ -15,12 +15,8 @@
 - name: Install default Node version via fnm
   become: yes
   become_user: "{{ username }}"
-  ansible.builtin.shell:
-    cmd: >
-      eval "$(/home/{{ username }}/.local/share/fnm/fnm env)" &&
-      fnm install --lts
-  args:
-    executable: /bin/bash
+  ansible.builtin.command:
+    cmd: "/home/{{ username }}/.local/share/fnm/fnm install --lts"
 
 # uv (Python package manager)
 - name: Check if uv is installed
