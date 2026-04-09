@@ -19,9 +19,9 @@ source $HOME/.zsh_exports
 source $HOME/.zsh_utils_git-worktree
 
 #startx
-if [[ ! $DISPLAY && $XDG_VTNR -eq 1 ]]; then
-  exec startx
-fi
+#if [[ ! $DISPLAY && $XDG_VTNR -eq 1 ]]; then
+#  exec startx
+#fi
 
 ## The next line updates PATH for the Google Cloud SDK.
 if [ -f '/home/rbw/google-cloud-sdk/path.zsh.inc' ]; then . '/home/rbw/google-cloud-sdk/path.zsh.inc'; fi
@@ -30,7 +30,9 @@ if [ -f '/home/rbw/google-cloud-sdk/path.zsh.inc' ]; then . '/home/rbw/google-cl
 if [ -f '/home/rbw/google-cloud-sdk/completion.zsh.inc' ]; then . '/home/rbw/google-cloud-sdk/completion.zsh.inc'; fi
 
 # Use keychain to manage ssh-agent across sessions
-eval $(keychain --eval --quiet --agents ssh id_ed25519)
+#if command -v keychain >/dev/null 2>&1; then
+#  eval $(keychain --eval --quiet --agents ssh id_ed25519)
+#fi
 
 # >>> conda initialize >>>
 # !! Contents within this block are managed by 'conda init' !!
@@ -53,13 +55,15 @@ fi
 
 
 # fnm
-FNM_PATH="/home/rbw/.local/share/fnm"
+FNM_PATH="$HOME/.local/share/fnm"
 if [ -d "$FNM_PATH" ]; then
   export PATH="$FNM_PATH:$PATH"
-  eval "`fnm env`"
+  eval "$(fnm env --use-on-cd --shell zsh)"
 fi
 
-eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+if [ -x /home/linuxbrew/.linuxbrew/bin/brew ]; then
+  eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+fi
 
 # CUDA Configuration
 export PATH=/usr/local/cuda-13.0/bin:$PATH
