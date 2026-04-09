@@ -42,8 +42,18 @@
   environment:
     PATH: "/home/linuxbrew/.linuxbrew/bin:{{ ansible_env.PATH }}"
 
-- name: Install yazi plugins
+- name: Register yazi piper plugin
   become: yes
   become_user: "{{ username }}"
   ansible.builtin.command:
     cmd: /home/linuxbrew/.linuxbrew/bin/ya pkg add yazi-rs/plugins:piper
+  register: yazi_plugin_result
+  changed_when: "'already exists' not in yazi_plugin_result.stderr"
+  failed_when: "yazi_plugin_result.rc != 0 and 'already exists' not in yazi_plugin_result.stderr"
+
+- name: Install yazi plugins
+  become: yes
+  become_user: "{{ username }}"
+  ansible.builtin.command:
+    cmd: /home/linuxbrew/.linuxbrew/bin/ya pkg install
+  changed_when: true
