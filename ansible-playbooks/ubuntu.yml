@@ -28,6 +28,11 @@
     tags:
       - packages
 
+  - name: Codex sandbox prerequisites
+    ansible.builtin.include_tasks: tasks/codex-sandbox.yml
+    tags:
+      - codex-sandbox
+
   - name: GH CLI
     ansible.builtin.include_tasks: tasks/gh-cli.yml
     tags:

@@ -84,3 +84,8 @@ export PATH="$BUN_INSTALL/bin:$PATH"
 # qlty
 export QLTY_INSTALL="$HOME/.qlty"
 export PATH="$QLTY_INSTALL/bin:$PATH"
+
+# hf download
+hfdl() { local repo="$1"; shift; hf download "$repo" --local-dir "./${repo##*/}" "$@"; }
+export JAVA_HOME=/home/rbw/repo/ReasonIR/synthetic_data_generation/jdk-23.0.1
+export JVM_PATH=/home/rbw/repo/ReasonIR/synthetic_data_generation/jdk-23.0.1/lib/server/libjvm.so

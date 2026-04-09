@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(command -v:*)",
+      "Bash(tmux show-options:*)",
+      "Bash(tmux show-option:*)",
+      "Bash(/usr/bin/tmux:*)",
+      "Bash(apt list:*)",
+      "Bash(tmux -S /tmp/test-tmux show-environment:*)",
+      "Bash(~/.tmux/plugins/tmux-cpu/scripts/cpu_percentage.sh:*)",
+      "Bash(~/.tmux/plugins/tmux-cpu/scripts/ram_percentage.sh:*)",
+      "Bash(xxd:*)"
+    ]
+  }
+}

@@ -57,6 +57,8 @@ ubuntu_packages:
     - iperf3
     - mesa-utils
     # security
+    - apparmor
+    - apparmor-profiles
     - openssl
     - fail2ban
     - unattended-upgrades
