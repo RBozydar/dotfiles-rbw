@@ -1,12 +1,14 @@
 - hosts: localhost
+  gather_facts: true
   vars_files:
     - vars/main.yml
     - vars/packages.yml
   
   roles:
     - role: gantsign.antigen
+      when: enable_antigen_role | bool
       users:
-        - username: rbw
+        - username: "{{ username }}"
           antigen_libraries:
             - name: oh-my-zsh
           antigen_theme:
@@ -22,14 +24,21 @@
             - name: zsh-autosuggestions
               url: zsh-users/zsh-autosuggestions
     - role : ansible-role-security
+      when: enable_security_role | bool
       become: yes
     - role: andrewrothstein.miniconda
+      when: enable_miniconda_role | bool
 
   tasks:
   - name: Init
     ansible.builtin.include_tasks: initial.yml
-  - name: arch
+  - name: Ubuntu
+    ansible.builtin.include_tasks: ubuntu.yml
+    when: ansible_os_family == 'Debian'
+  - name: Arch Linux
     ansible.builtin.include_tasks: arch.yml
+    when: ansible_os_family == 'Archlinux'
   - name: i3
     ansible.builtin.include_tasks: i3.yml
+    when: enable_i3 | bool
   # - name: conda init

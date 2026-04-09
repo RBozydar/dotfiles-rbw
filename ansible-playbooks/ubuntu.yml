@@ -1,3 +1,4 @@
+---
 - hosts: ubuntu
   vars_files:
     - vars/main.yml
@@ -9,21 +10,23 @@
         - rbw
 
   tasks:
-  - name: Update apt cache
-    become: yes
-    ansible.builtin.apt:
-      update_cache: true
-      cache_valid_time: 3600
-
   - name: Upgrade all packages
     become: yes
     ansible.builtin.apt:
-      upgrade: dist
+      name: "*"
+      state: latest
+      update_cache: true
 
-  - name: Install ubuntu packages
+  - name: Ensure Ubuntu-specific packages are installed
     become: yes
-    ansible.builtin.apt:
+    ansible.builtin.package:
       name: "{{ ubuntu_packages }}"
+      state: present
+
+  - name: Ensure Universe repository is enabled
+    become: yes
+    ansible.builtin.apt_repository:
+      repo: "deb http://archive.ubuntu.com/ubuntu {{ ansible_distribution_release }} universe"
       state: present
     tags:
       - packages

@@ -7,42 +7,42 @@
 
   - name: Remove i3 config folder if exists
     ansible.builtin.file:
-      path: $HOME/.config/i3
+      path: "{{ user_home }}/.config/i3"
       state: absent
 
 
   - name: Symlink i3 config folder
     ansible.builtin.file:
-      src: $HOME/repo/dotfiles/home/config/i3
-      dest: $HOME/.config/i3
+      src: "{{ repo_root }}/home/config/i3"
+      dest: "{{ user_home }}/.config/i3"
       state: link
       force: yes
   
   - name: Symlink polybar config folder
     ansible.builtin.file:
-      src: $HOME/repo/dotfiles/home/config/polybar
-      dest: $HOME/.config/polybar
+      src: "{{ repo_root }}/home/config/polybar"
+      dest: "{{ user_home }}/.config/polybar"
       state: link
       force: yes
 
   - name: Symlink Dunst config folder
     ansible.builtin.file:
-      src: $HOME/repo/dotfiles/home/config/dunst
-      dest: $HOME/.config/dunst
+      src: "{{ repo_root }}/home/config/dunst"
+      dest: "{{ user_home }}/.config/dunst"
       state: link
       force: yes
 
   - name: Symlink wallpapers folder
     ansible.builtin.file:
-      src: $HOME/repo/dotfiles/wallpapers
-      dest: $HOME/.config/wallpapers
+      src: "{{ repo_root }}/wallpapers"
+      dest: "{{ user_home }}/.config/wallpapers"
       state: link
       force: yes
 
   - name: Symlink picom
     ansible.builtin.file:
-      src: $HOME/repo/dotfiles/home/config/picom
-      dest: $HOME/.config/picom
+      src: "{{ repo_root }}/home/config/picom"
+      dest: "{{ user_home }}/.config/picom"
       state: link
       force: yes
 
@@ -50,20 +50,20 @@
     ansible.builtin.git:
       repo: https://github.com/polybar/polybar-scripts
       version: master
-      dest: $HOME/repo/polybar-scripts
+      dest: "{{ user_home }}/repo/polybar-scripts"
       # single_branch: yes
       # update: yes
 
   - name: Symlink polybar-scripts inside polybar-config
     ansible.builtin.file:
-      src: $HOME/repo/polybar-scripts
-      dest: $HOME/.config/polybar-scripts
+      src: "{{ user_home }}/repo/polybar-scripts"
+      dest: "{{ user_home }}/.config/polybar-scripts"
       state: link
       force: yes
 
   - name: Symlink rofi config
     ansible.builtin.file:
-      src: $HOME/repo/dotfiles/home/config/rofi
-      dest: $HOME/.config/rofi
+      src: "{{ repo_root }}/home/config/rofi"
+      dest: "{{ user_home }}/.config/rofi"
       state: link
       force: yes

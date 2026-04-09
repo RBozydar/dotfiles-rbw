@@ -2,10 +2,17 @@
 security_ssh_port: 666
 # Antigen / ZSH vars
 antigen_install_oh_my_zsh: yes
-ansible_ssh_user: rbw
+ansible_ssh_user: "{{ lookup('env', 'USER') }}"
 
-username: rbw
+username: "{{ lookup('env', 'USER') }}"
+user_home: "{{ lookup('env', 'HOME') }}"
+repo_root: "{{ user_home }}/repo/dotfiles-rbw"
+legacy_repo_root: "{{ user_home }}/repo/dotfiles"
+zshrc_home: "{{ user_home }}/.zshrc"
+zshrc_repo: "{{ repo_root }}/home/.zshrc"
+home_repo: "{{ repo_root }}/home"
 
-zshrc_home: $HOME/.zshrc
-zshrc_repo: $HOME/repo/dotfiles/home/.zshrc
-home_repo: $HOME/repo/dotfiles/home
+enable_antigen_role: true
+enable_security_role: false
+enable_miniconda_role: false
+enable_i3: false

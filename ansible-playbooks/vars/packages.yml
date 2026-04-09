@@ -2,6 +2,8 @@ base_packages:
     - git
     - curl
     - wget
+    - zsh
+    - keychain
     - mc
     - python3
     - samba
