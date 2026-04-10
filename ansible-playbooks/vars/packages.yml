@@ -100,7 +100,7 @@ arch_packages:
     - ffmpeg
     - pandoc
     # terminal
-    - alacritty
+    - ghostty
     - tmux
     # audio
     - wireplumber
@@ -172,7 +172,28 @@ arch_packages:
     - gtk4
     - arandr
     - nautilus
+    - thunar
+    - tumbler
+    - gvfs
     - xorg-xev
+    # hyprland ecosystem
+    - hyprlock
+    - hypridle
+    - hyprpicker
+    - hyprpaper
+    - hyprpolkitagent
+    - hyprsunset
+    - hyprland-qt-support
+    - xdg-desktop-portal-hyprland
+    - wl-clipboard
+    - cliphist
+    - swww
+    - blueman
+    - nwg-displays
+    - nwg-look
+    - quickshell
+    # math / scientific
+    - hypre
     # secrets
     - gnome-keyring
     - libsecret
