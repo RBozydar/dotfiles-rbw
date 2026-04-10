@@ -66,11 +66,6 @@
     tags:
       - rust
 
-  - name: Version managers (fnm, uv, bun)
-    ansible.builtin.include_tasks: tasks/version-managers.yml
-    tags:
-      - version-managers
-
   - name: Symlinks
     ansible.builtin.include_tasks: tasks/symlinks.yml
     tags:

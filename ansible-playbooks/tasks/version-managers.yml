@@ -2,7 +2,7 @@
 # fnm (Fast Node Manager)
 - name: Check if fnm is installed
   ansible.builtin.stat:
-    path: "/home/{{ username }}/.local/share/fnm/fnm"
+    path: "{{ user_home }}/.local/share/fnm/fnm"
   register: fnm_installed
 
 - name: Install fnm
@@ -16,12 +16,12 @@
   become: yes
   become_user: "{{ username }}"
   ansible.builtin.command:
-    cmd: "/home/{{ username }}/.local/share/fnm/fnm install --lts"
+    cmd: "{{ user_home }}/.local/share/fnm/fnm install --lts"
 
 # uv (Python package manager)
 - name: Check if uv is installed
   ansible.builtin.stat:
-    path: "/home/{{ username }}/.local/bin/uv"
+    path: "{{ user_home }}/.local/bin/uv"
   register: uv_installed
 
 - name: Install uv
@@ -34,7 +34,7 @@
 # bun
 - name: Check if bun is installed
   ansible.builtin.stat:
-    path: "/home/{{ username }}/.bun/bin/bun"
+    path: "{{ user_home }}/.bun/bin/bun"
   register: bun_installed
 
 - name: Install bun

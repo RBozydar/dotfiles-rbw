@@ -42,6 +42,11 @@
   - name: Arch Linux
     ansible.builtin.include_tasks: arch.yml
     when: ansible_os_family == 'Archlinux'
+  - name: Version managers
+    ansible.builtin.include_tasks: tasks/version-managers.yml
+    when: ansible_os_family in ['Debian', 'Archlinux']
+    tags:
+      - version-managers
   - name: i3
     ansible.builtin.include_tasks: i3.yml
     when: enable_i3 | bool
