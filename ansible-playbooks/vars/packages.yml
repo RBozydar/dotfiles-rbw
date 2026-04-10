@@ -9,17 +9,14 @@ base_packages:
     - samba
     - nmap
     - meson
-    - maim
     - tmux
     - rsync
     - tar
     - unrar
-    - fastfetch
     - zip
     - gnome-disk-utility
     - ntfs-3g
     - parted
-    - exfatprogs
     - jq
 
 ubuntu_packages:
@@ -33,7 +30,6 @@ ubuntu_packages:
     - libopenblas-dev
     - unzip
     # dev
-    - python3-pip
     - zsh
     - ffmpeg
     - pandoc
@@ -42,6 +38,7 @@ ubuntu_packages:
     - nfs-common
     - openssh-client
     - openssh-server
+    - wireguard
     # monitoring
     - btop
     - htop
@@ -59,6 +56,7 @@ ubuntu_packages:
     # security
     - apparmor
     - apparmor-profiles
+    - bubblewrap
     - openssl
     - fail2ban
     - unattended-upgrades
@@ -83,6 +81,11 @@ brew_packages:
 
 brew_casks:
     - font-symbols-only-nerd-font
+
+npm_global_packages:
+    - "@anthropic-ai/claude-code"
+    - "@google/gemini-cli"
+    - "@openai/codex"
 
 arch_packages:
     # build

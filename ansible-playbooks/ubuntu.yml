@@ -17,12 +17,6 @@
       state: latest
       update_cache: true
 
-  - name: Ensure Ubuntu-specific packages are installed
-    become: yes
-    ansible.builtin.package:
-      name: "{{ ubuntu_packages }}"
-      state: present
-
   - name: Ensure Universe repository is enabled
     become: yes
     ansible.builtin.apt_repository:
@@ -30,6 +24,12 @@
       state: present
     tags:
       - packages
+
+  - name: Ensure Ubuntu-specific packages are installed
+    become: yes
+    ansible.builtin.package:
+      name: "{{ ubuntu_packages }}"
+      state: present
 
   - name: Codex sandbox prerequisites
     ansible.builtin.include_tasks: tasks/codex-sandbox.yml
@@ -65,6 +65,11 @@
     ansible.builtin.include_tasks: tasks/rustup.yml
     tags:
       - rust
+
+  - name: Version managers (fnm, uv, bun)
+    ansible.builtin.include_tasks: tasks/version-managers.yml
+    tags:
+      - version-managers
 
   - name: Symlinks
     ansible.builtin.include_tasks: tasks/symlinks.yml

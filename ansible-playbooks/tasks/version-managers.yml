@@ -18,6 +18,29 @@
   ansible.builtin.command:
     cmd: "{{ user_home }}/.local/share/fnm/fnm install --lts"
 
+- name: Get latest installed fnm Node version
+  ansible.builtin.shell:
+    cmd: "find {{ user_home }}/.local/share/fnm/node-versions -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | sort -V | tail -n1"
+  register: fnm_default_version
+  changed_when: false
+
+- name: Set default Node version via fnm
+  when: fnm_default_version.stdout != ""
+  become: yes
+  become_user: "{{ username }}"
+  ansible.builtin.command:
+    cmd: "{{ user_home }}/.local/share/fnm/fnm default {{ fnm_default_version.stdout }}"
+
+- name: Install npm global packages
+  become: yes
+  become_user: "{{ username }}"
+  community.general.npm:
+    name: "{{ item }}"
+    executable: "{{ user_home }}/.local/share/fnm/aliases/default/bin/npm"
+    global: true
+    state: present
+  loop: "{{ npm_global_packages }}"
+
 # uv (Python package manager)
 - name: Check if uv is installed
   ansible.builtin.stat:
