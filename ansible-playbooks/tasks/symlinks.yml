@@ -21,6 +21,13 @@
     state: link
     force: yes
 
+- name: Symlink .zsh_plugins.txt
+  ansible.builtin.file:
+    src: "{{ home_repo }}/.zsh_plugins.txt"
+    dest: "{{ user_home }}/.zsh_plugins.txt"
+    state: link
+    force: yes
+
 - name: Symlink .zsh_utils_git-worktree
   ansible.builtin.file:
     src: "{{ home_repo }}/utils/git-worktree.zsh"
@@ -59,14 +66,12 @@
     state: link
     force: yes
 
-- name: Symlink alacritty config
-  ansible.builtin.file:
-    src: "{{ home_repo }}/config/alacritty"
-    dest: "{{ user_home }}/.config/alacritty"
-    state: link
-    force: yes
-
 # App configs
+- name: Remove existing btop config directory
+  ansible.builtin.file:
+    path: "{{ user_home }}/.config/btop"
+    state: absent
+
 - name: Symlink btop config
   ansible.builtin.file:
     src: "{{ home_repo }}/config/btop"
@@ -85,6 +90,11 @@
     dest: "{{ user_home }}/.config/gh/config.yml"
     state: link
     force: yes
+
+- name: Remove existing pip config directory
+  ansible.builtin.file:
+    path: "{{ user_home }}/.config/pip"
+    state: absent
 
 - name: Symlink pip config
   ansible.builtin.file:
@@ -207,9 +217,4 @@
     state: link
     force: yes
 
-- name: Symlink .gtkrc-2.0
-  ansible.builtin.file:
-    src: "{{ home_repo }}/.gtkrc-2.0"
-    dest: "{{ user_home }}/.gtkrc-2.0"
-    state: link
-    force: yes
+

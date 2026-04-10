@@ -88,17 +88,18 @@ npm_global_packages:
 
 arch_packages:
     # build
+    - acl
     - base-devel
     - cmake
     - ninja
-    - pkg-config
+    - pkgconf
     - openssl
     - unzip
     # shell & dev
     - zsh
     - python-pip
     - ffmpeg
-    - pandoc
+    - pandoc-cli
     # terminal
     - ghostty
     - tmux
@@ -118,8 +119,6 @@ arch_packages:
     # torrent
     - deluge
     - deluge-gtk
-    # theme
-    - arc-gtk-theme
     # docker
     - docker
     - docker-compose
@@ -163,7 +162,8 @@ arch_packages:
     - yazi
     # fonts
     - ttf-fira-code
-    - ttf-font-awesome
+    - otf-font-awesome
+    - ttf-nerd-fonts-symbols
     - ttf-dejavu
     - noto-fonts
     # ui & display
@@ -187,7 +187,7 @@ arch_packages:
     - xdg-desktop-portal-hyprland
     - wl-clipboard
     - cliphist
-    - swww
+    - awww
     - blueman
     - nwg-displays
     - nwg-look
@@ -209,9 +209,13 @@ arch_packages:
     - bubblewrap
     - liquidctl
     # gpu
-    - nvidia
     - nvidia-utils
+    - nvidia-container-toolkit
     - libva-utils
+    - lact
+    # filesystem
+    - httpdirfs
+    - 7zip
 
 i3_packages:
     - i3-gaps
@@ -225,15 +229,7 @@ i3_packages:
 
 aur_packages:
     - visual-studio-code-bin
-    - httpdirfs
-    - ttf-ms-win11-auto
     - nerd-fonts-inter
-    - moka-icon-theme-git
-    - faba-icon-theme-git
     # tools (replaces Homebrew on Arch)
     - ast-grep-bin
     - lazydocker-bin
-    - 7-zip
-    - ttf-nerd-fonts-symbols-only
-    # nvidia container runtime
-    - nvidia-container-toolkit

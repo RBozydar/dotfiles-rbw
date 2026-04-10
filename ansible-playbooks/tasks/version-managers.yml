@@ -39,6 +39,8 @@
     executable: "{{ user_home }}/.local/share/fnm/aliases/default/bin/npm"
     global: true
     state: present
+  environment:
+    PATH: "{{ user_home }}/.local/share/fnm/aliases/default/bin:{{ ansible_env.PATH }}"
   loop: "{{ npm_global_packages }}"
 
 # uv (Python package manager)

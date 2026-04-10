@@ -28,6 +28,13 @@
       create: yes
       validate: 'visudo -cf %s'
 
+  - name: Remove VS Code OSS (conflicts with proprietary VS Code)
+    become: yes
+    community.general.pacman:
+      name: code
+      state: absent
+    ignore_errors: yes
+
   - name: Install AUR packages
     kewlfft.aur.aur:
       name: "{{ aur_packages }}"

@@ -5,26 +5,6 @@
     - vars/packages.yml
 
   roles:
-    - role: gantsign.antigen
-      when: enable_antigen_role | bool
-      users:
-        - username: "{{ username }}"
-          antigen_libraries:
-            - name: oh-my-zsh
-          antigen_theme:
-            name: agnoster
-          antigen_bundles:
-            - name: git
-            - name: common-aliases
-            - name: docker
-            - name: fzf-tab
-              url: Aloxaf/fzf-tab
-            - name: zsh-syntax-highlighting
-              url: zsh-users/zsh-syntax-highlighting
-            - name: zsh-completions
-              url: zsh-users/zsh-completions
-            - name: zsh-autosuggestions
-              url: zsh-users/zsh-autosuggestions
     - role: geerlingguy.docker
       when: ansible_os_family == 'Debian'
       become: yes
@@ -35,15 +15,11 @@
         - enable_git_role | bool
         - ansible_os_family == 'Debian'
     - role: ansible-role-security
-      when:
-        - enable_security_role | bool
-        - ansible_os_family == 'Debian'
+      when: enable_security_role | bool
       become: yes
-    - role: andrewrothstein.miniconda
-      when: enable_miniconda_role | bool
 
   tasks:
-  # Base setup (packages, SSH, repo folder, antigenrc, zsh_secrets)
+  # Base setup (packages, SSH, repo folder, antidote, zsh_secrets)
   - name: Init
     ansible.builtin.include_tasks: initial.yml
 

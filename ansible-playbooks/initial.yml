@@ -31,37 +31,18 @@
       state: touch
       mode: '0600'
 
-  - name: Write .antigenrc
-    ansible.builtin.copy:
-      dest: "{{ user_home }}/.antigenrc"
-      mode: '0644'
-      content: |
-        ZSH_COMPLETIONS_CACHE="$HOME/.antigen/bundles/robbyrussell/oh-my-zsh/cache/completions"
-        if [[ -d "$ZSH_COMPLETIONS_CACHE" ]]; then
-            (( ${fpath[(Ie)"$ZSH_COMPLETIONS_CACHE"]} )) || fpath=("$ZSH_COMPLETIONS_CACHE" $fpath)
-        fi
-        unset ZSH_COMPLETIONS_CACHE
+  - name: Install antidote (zsh plugin manager)
+    become: yes
+    become_user: "{{ username }}"
+    ansible.builtin.git:
+      repo: https://github.com/mattmc3/antidote.git
+      dest: "{{ user_home }}/.antidote"
+      depth: 1
+      version: main
+      update: yes
 
-        source $HOME/.antigen/antigen.zsh
-
-        if [[ -d ~/.antigen-etc/use.d ]]; then
-            for i in ~/.antigen-etc/use.d/*.zsh; do
-                if [ -r $i ]; then
-                    source $i
-                fi
-            done
-            unset i
-        fi
-
-        if [[ -d ~/.antigen-etc/bundle.d ]]; then
-            for i in ~/.antigen-etc/bundle.d/*.zsh; do
-                if [ -r $i ]; then
-                    source $i
-                fi
-            done
-            unset i
-        fi
-
-        [[ -f ~/.antigen-etc/theme.zsh ]] && source ~/.antigen-etc/theme.zsh
-
-        antigen apply
+  - name: Set zsh as default shell
+    become: yes
+    ansible.builtin.user:
+      name: "{{ username }}"
+      shell: /bin/zsh

@@ -1,0 +1,24 @@
+# Oh-My-Zsh compatibility layer
+getantidote/use-omz
+
+# OMZ core libs
+ohmyzsh/ohmyzsh path:lib
+
+# OMZ plugins
+ohmyzsh/ohmyzsh path:plugins/git
+ohmyzsh/ohmyzsh path:plugins/common-aliases
+ohmyzsh/ohmyzsh path:plugins/docker
+ohmyzsh/ohmyzsh path:plugins/tmux
+
+# Theme
+ohmyzsh/ohmyzsh path:themes/agnoster.zsh-theme
+
+# Completions (fpath only, before compinit)
+zsh-users/zsh-completions path:src kind:fpath
+
+# fzf-tab (needs compinit, loaded by use-omz)
+Aloxaf/fzf-tab
+
+# Deferred loading (after prompt renders, for fast startup)
+zsh-users/zsh-autosuggestions kind:defer
+zsh-users/zsh-syntax-highlighting kind:defer
