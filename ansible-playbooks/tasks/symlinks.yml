@@ -204,6 +204,19 @@
     state: link
     force: yes
 
+# Hyprland
+- name: Remove existing hypr config directory
+  ansible.builtin.file:
+    path: "{{ user_home }}/.config/hypr"
+    state: absent
+
+- name: Symlink hypr config
+  ansible.builtin.file:
+    src: "{{ home_repo }}/config/hypr"
+    dest: "{{ user_home }}/.config/hypr"
+    state: link
+    force: yes
+
 # GTK
 - name: Ensure gtk-3.0 config directory exists
   ansible.builtin.file:
