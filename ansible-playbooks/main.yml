@@ -17,6 +17,8 @@
             - name: git
             - name: common-aliases
             - name: docker
+            - name: fzf-tab
+              url: Aloxaf/fzf-tab
             - name: zsh-syntax-highlighting
               url: zsh-users/zsh-syntax-highlighting
             - name: zsh-completions

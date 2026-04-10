@@ -69,9 +69,19 @@ fi
 export PATH=/usr/local/cuda-13.0/bin:$PATH
 export LD_LIBRARY_PATH=/usr/local/cuda-13.0/lib64:$LD_LIBRARY_PATH
 
-fpath+=~/.zfunc; autoload -Uz compinit; compinit
+fpath+=~/.zfunc
+autoload -Uz compinit
+compinit
 
-zstyle ':completion:*' menu select
+# Let fzf-tab own the completion UI instead of the built-in menu.
+zstyle ':completion:*' menu no
+zstyle ':completion:*:descriptions' format '[%d]'
+zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
+
+if command -v zoxide >/dev/null 2>&1; then
+  eval "$(zoxide init zsh --cmd cd)"
+fi
+
 antigen bundle tmux
 # Auto-start tmux on SSH login
 if [[ -z "$TMUX" ]] && [[ -n "$SSH_CONNECTION" ]]; then
