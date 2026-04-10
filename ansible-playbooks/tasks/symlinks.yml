@@ -74,15 +74,15 @@
     state: link
     force: yes
 
-- name: Remove existing gh config directory
+- name: Ensure gh config directory exists
   ansible.builtin.file:
     path: "{{ user_home }}/.config/gh"
-    state: absent
+    state: directory
 
-- name: Symlink gh config
+- name: Symlink gh config.yml
   ansible.builtin.file:
-    src: "{{ home_repo }}/config/gh"
-    dest: "{{ user_home }}/.config/gh"
+    src: "{{ home_repo }}/config/gh/config.yml"
+    dest: "{{ user_home }}/.config/gh/config.yml"
     state: link
     force: yes
 
@@ -105,10 +105,22 @@
     state: link
     force: yes
 
-- name: Symlink mc config
+- name: Ensure mc config directory exists
   ansible.builtin.file:
-    src: "{{ home_repo }}/config/mc"
-    dest: "{{ user_home }}/.config/mc"
+    path: "{{ user_home }}/.config/mc"
+    state: directory
+
+- name: Symlink mc ini
+  ansible.builtin.file:
+    src: "{{ home_repo }}/config/mc/ini"
+    dest: "{{ user_home }}/.config/mc/ini"
+    state: link
+    force: yes
+
+- name: Symlink mc panels.ini
+  ansible.builtin.file:
+    src: "{{ home_repo }}/config/mc/panels.ini"
+    dest: "{{ user_home }}/.config/mc/panels.ini"
     state: link
     force: yes
 
@@ -125,15 +137,34 @@
     force: yes
 
 # Yazi
-- name: Remove existing yazi config directory
+- name: Ensure yazi config directory exists
   ansible.builtin.file:
     path: "{{ user_home }}/.config/yazi"
+    state: directory
+
+- name: Symlink yazi.toml
+  ansible.builtin.file:
+    src: "{{ home_repo }}/config/yazi/yazi.toml"
+    dest: "{{ user_home }}/.config/yazi.toml"
+    state: link
+    force: yes
+
+- name: Symlink yazi package.toml
+  ansible.builtin.file:
+    src: "{{ home_repo }}/config/yazi/package.toml"
+    dest: "{{ user_home }}/.config/yazi/package.toml"
+    state: link
+    force: yes
+
+- name: Remove existing yazi plugins path
+  ansible.builtin.file:
+    path: "{{ user_home }}/.config/yazi/plugins"
     state: absent
 
-- name: Symlink yazi config dir
+- name: Symlink yazi plugins dir
   ansible.builtin.file:
-    src: "{{ home_repo }}/config/yazi"
-    dest: "{{ user_home }}/.config/yazi"
+    src: "{{ home_repo }}/config/yazi/plugins"
+    dest: "{{ user_home }}/.config/yazi/plugins"
     state: link
     force: yes
 
@@ -164,10 +195,15 @@
     force: yes
 
 # GTK
-- name: Symlink gtk-3.0 config
+- name: Ensure gtk-3.0 config directory exists
   ansible.builtin.file:
-    src: "{{ home_repo }}/config/gtk-3.0"
-    dest: "{{ user_home }}/.config/gtk-3.0"
+    path: "{{ user_home }}/.config/gtk-3.0"
+    state: directory
+
+- name: Symlink gtk-3.0 settings.ini
+  ansible.builtin.file:
+    src: "{{ home_repo }}/config/gtk-3.0/settings.ini"
+    dest: "{{ user_home }}/.config/gtk-3.0/settings.ini"
     state: link
     force: yes
 
