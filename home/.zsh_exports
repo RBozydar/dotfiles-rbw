@@ -1,22 +1,31 @@
-export PATH=$HOME/bin:/usr/local/bin:$PATH
-export PATH=$HOME/.local/bin:$PATH
-export PATH=$PATH:/usr/local/go/bin
-export PATH=$PATH:/usr/local/go/bin:$HOME/go/bin
-export SEARXNG_BASE_URL=https://searxng.local.b47.bozydar.me
-[ -f /home/rbw/.zsh_secrets ] && source /home/rbw/.zsh_secrets
+export PATH="$HOME/bin:/usr/local/bin:$PATH"
+export PATH="$HOME/.local/bin:$PATH"
+export PATH="$PATH:/usr/local/go/bin:$HOME/go/bin"
+export ZSH_TMUX_AUTOSTART=true
 export ENABLE_LSP_TOOL=1
 export CLAUDE_ENABLE_LSP_TOOL=1
 export CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1
+export BUN_INSTALL="$HOME/.bun"
+export PATH="$BUN_INSTALL/bin:$PATH"
+export QLTY_INSTALL="$HOME/.qlty"
+export PATH="$QLTY_INSTALL/bin:$PATH"
+
+# conda
+#  .  ~/miniconda3/etc/profile.d/conda.sh
+#  . /usr/local/anaconda/etc/profile.d/conda.sh
+#  conda activate base
+#  conda zsh completions
 zstyle ':completion::complete:*' use-cache 1
 
 # completions
 zstyle ':completion:*' completer _expand _complete _ignored _correct _approximate
 zstyle ':completion:*' matcher-list 'm:{[:lower:]}={[:upper:]} m:{[:lower:][:upper:]}={[:upper:][:lower:]} l:|=* r:|=*' 'm:{[:lower:]}={[:upper:]} r:|[._-]=** r:|=**' '' 'm:{[:lower:][:upper:]}={[:upper:][:lower:]}'
-zstyle :compinstall filename '/home/rbw/.zshrc'
+zstyle :compinstall filename "$HOME/.zshrc"
 
 # export GTK_THEME=Arc-Dark
-export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR/ssh-agent.socket"
-# llama.cpp CUDA build
+if [ -n "$XDG_RUNTIME_DIR" ]; then
+  export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR/ssh-agent.socket"
+fi
 
 function y() {
 	local tmp="$(mktemp -t "yazi-cwd.XXXXXX")" cwd
@@ -25,9 +34,3 @@ function y() {
 	[ "$cwd" != "$PWD" ] && [ -d "$cwd" ] && builtin cd -- "$cwd"
 	rm -f -- "$tmp"
 }
-export ORT_DYLIB_PATH="$HOME/ort_gpu/libonnxruntime.so"
-export LD_LIBRARY_PATH="$HOME/ort_gpu${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
-export PATH="/home/rbw/.local/llama_cpp_compiled/cuda/bin:$PATH"
-export LD_LIBRARY_PATH="/home/rbw/.local/llama_cpp_compiled/cuda/lib:$LD_LIBRARY_PATH"
-
-export HA_URL=http://homeassistant.local.bozydar.me
