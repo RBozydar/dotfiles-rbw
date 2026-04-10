@@ -81,6 +81,11 @@
     state: link
     force: yes
 
+- name: Remove existing gh config directory
+  ansible.builtin.file:
+    path: "$HOME/.config/gh"
+    state: absent
+
 - name: Symlink gh config
   ansible.builtin.file:
     src: "{{ home_repo }}/config/gh"
@@ -94,6 +99,11 @@
     dest: "$HOME/.config/pip"
     state: link
     force: yes
+
+- name: Remove existing htop config directory
+  ansible.builtin.file:
+    path: "$HOME/.config/htop"
+    state: absent
 
 - name: Symlink htop config
   ansible.builtin.file:
@@ -109,6 +119,11 @@
     state: link
     force: yes
 
+- name: Remove existing glow config directory
+  ansible.builtin.file:
+    path: "$HOME/.config/glow"
+    state: absent
+
 - name: Symlink glow config
   ansible.builtin.file:
     src: "{{ home_repo }}/config/glow"
@@ -117,12 +132,10 @@
     force: yes
 
 # Yazi
-- name: Symlink yazi.toml
+- name: Remove existing yazi config directory
   ansible.builtin.file:
-    src: "{{ home_repo }}/config/yazi.toml"
-    dest: "$HOME/.config/yazi.toml"
-    state: link
-    force: yes
+    path: "$HOME/.config/yazi"
+    state: absent
 
 - name: Symlink yazi config dir
   ansible.builtin.file:
@@ -132,6 +145,11 @@
     force: yes
 
 # ccstatusline
+- name: Remove existing ccstatusline config directory
+  ansible.builtin.file:
+    path: "$HOME/.config/ccstatusline"
+    state: absent
+
 - name: Symlink ccstatusline config
   ansible.builtin.file:
     src: "{{ home_repo }}/config/ccstatusline"

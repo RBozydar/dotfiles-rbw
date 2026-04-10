@@ -1,0 +1,300 @@
+#!/usr/bin/env python3
+import argparse
+import json
+import ssl
+import subprocess
+import sys
+import time
+import urllib.parse
+import urllib.request
+from pathlib import Path
+
+TARGET_USER = 'rbw'
+JELLYFIN_ENV_PATH = Path('~/repo/universal-ingest/.env').expanduser()
+HERMES_ENV_PATH = Path('~/.hermes/.env').expanduser()
+PLAY_ENTITY = 'media_player.shield_2'
+POWER_ENTITIES = ['media_player.shield_2', 'media_player.shield_3']
+REMOTE_ENTITY = 'remote.shield'
+ADB_SERIAL = '192.168.1.149:5555'
+JELLYFIN_COMPONENT = 'org.jellyfin.androidtv/.ui.startup.StartupActivity'
+
+
+class ConfigError(RuntimeError):
+    pass
+
+
+def load_env(path: Path) -> dict[str, str]:
+    env: dict[str, str] = {}
+    if not path.exists():
+        return env
+    for raw in path.read_text().splitlines():
+        line = raw.strip()
+        if not line or line.startswith('#') or '=' not in line:
+            continue
+        key, value = line.split('=', 1)
+        env[key.strip()] = value.strip()
+    return env
+
+
+JF_ENV = load_env(JELLYFIN_ENV_PATH)
+HA_ENV = load_env(HERMES_ENV_PATH)
+JELLYFIN_URL = JF_ENV.get('JELLYFIN_URL')
+JELLYFIN_API_KEY = JF_ENV.get('JELLYFIN_API_KEY')
+HASS_URL = HA_ENV.get('HASS_URL')
+HASS_TOKEN = HA_ENV.get('HASS_TOKEN')
+CTX = ssl._create_unverified_context()
+
+if not JELLYFIN_URL or not JELLYFIN_API_KEY:
+    raise ConfigError(f'missing Jellyfin config in {JELLYFIN_ENV_PATH}')
+if not HASS_URL or not HASS_TOKEN:
+    raise ConfigError(f'missing Home Assistant config in {HERMES_ENV_PATH}')
+
+
+def jf_get(path, params=None):
+    url = JELLYFIN_URL + path
+    if params:
+        url += '?' + urllib.parse.urlencode(params)
+    req = urllib.request.Request(url, headers={'X-Emby-Token': JELLYFIN_API_KEY})
+    with urllib.request.urlopen(req, context=CTX, timeout=10) as r:
+        return json.load(r)
+
+
+def ha_request(method: str, path: str, payload=None):
+    url = HASS_URL.rstrip('/') + path
+    data = None if payload is None else json.dumps(payload).encode()
+    req = urllib.request.Request(
+        url,
+        data=data,
+        headers={
+            'Authorization': f'Bearer {HASS_TOKEN}',
+            'Content-Type': 'application/json',
+        },
+        method=method,
+    )
+    with urllib.request.urlopen(req, context=CTX, timeout=15) as r:
+        text = r.read().decode(errors='ignore')
+        if not text:
+            return None
+        try:
+            return json.loads(text)
+        except json.JSONDecodeError:
+            return text
+
+
+def ha_service(service: str, entity_id: str, **extra):
+    domain, service_name = service.split('.', 1)
+    payload = {'entity_id': entity_id, **extra}
+    return ha_request('POST', f'/api/services/{domain}/{service_name}', payload)
+
+
+def adb(*args, timeout=15):
+    return subprocess.run(['adb', '-s', ADB_SERIAL, 'shell', *args], text=True, capture_output=True, timeout=timeout)
+
+
+def adb_host(*args, timeout=15):
+    return subprocess.run(['adb', *args], text=True, capture_output=True, timeout=timeout)
+
+
+def ensure_power(timeout=25):
+    for entity in POWER_ENTITIES:
+        try:
+            ha_service('media_player.turn_on', entity)
+        except Exception:
+            pass
+    deadline = time.time() + timeout
+    while time.time() < deadline:
+        try:
+            adb_host('connect', ADB_SERIAL, timeout=10)
+            result = adb('getprop', 'sys.boot_completed', timeout=10)
+            if result.returncode == 0 and result.stdout.strip() == '1':
+                return 'ready'
+        except Exception:
+            pass
+        time.sleep(1)
+    raise RuntimeError('shield did not become ready after power-on')
+
+
+def remote(command: str, delay: float = 0.0):
+    ha_service('remote.send_command', REMOTE_ENTITY, command=command)
+    if delay:
+        time.sleep(delay)
+
+
+def jellyfin_user_id() -> str:
+    users = jf_get('/Users')
+    return [u for u in users if u.get('Name') == TARGET_USER][0]['Id']
+
+
+def resolve_series(show_name: str, user_id: str):
+    items = jf_get('/Items', {
+        'Recursive': 'true',
+        'IncludeItemTypes': 'Series',
+        'SearchTerm': show_name,
+        'UserId': user_id,
+    }).get('Items', [])
+    if not items:
+        raise RuntimeError(f'show not found: {show_name}')
+    return items[0]
+
+
+def resolve_nextup(series_id: str, user_id: str):
+    items = jf_get('/Shows/NextUp', {
+        'UserId': user_id,
+        'SeriesId': series_id,
+    }).get('Items', [])
+    if not items:
+        raise RuntimeError('no next-up episode found')
+    return items[0]
+
+
+def resolve_movie(movie_name: str, user_id: str):
+    items = jf_get('/Items', {
+        'Recursive': 'true',
+        'IncludeItemTypes': 'Movie',
+        'SearchTerm': movie_name,
+        'UserId': user_id,
+    }).get('Items', [])
+    if not items:
+        raise RuntimeError(f'movie not found: {movie_name}')
+    exact = [i for i in items if (i.get('Name') or '').casefold() == movie_name.casefold()]
+    return exact[0] if exact else items[0]
+
+
+def shield_session():
+    sessions = jf_get('/Sessions')
+    shield = [s for s in sessions if s.get('DeviceName') == 'SHIELD']
+    if not shield:
+        return None
+    s = shield[0]
+    return {
+        'now_playing_id': (s.get('NowPlayingItem') or {}).get('Id'),
+        'now_playing': (s.get('NowPlayingItem') or {}).get('Name'),
+        'series_name': (s.get('NowPlayingItem') or {}).get('SeriesName'),
+        'type': (s.get('NowPlayingItem') or {}).get('Type'),
+        'supports_remote': s.get('SupportsRemoteControl'),
+    }
+
+
+def verify_playing(item_id: str, attempts=12, delay=1.0):
+    for _ in range(attempts):
+        session = shield_session()
+        if session and session.get('now_playing_id') == item_id:
+            return True, session
+        time.sleep(delay)
+    return False, shield_session()
+
+
+def app_search(query: str):
+    adb_host('connect', ADB_SERIAL, timeout=10)
+    adb('am', 'force-stop', 'org.jellyfin.androidtv', timeout=10)
+    time.sleep(2)
+    adb('am', 'start', '-a', 'android.intent.action.SEARCH', '-n', JELLYFIN_COMPONENT, '--es', 'query', query, timeout=15)
+    time.sleep(4)
+
+
+def app_open_item(item_id: str):
+    adb_host('connect', ADB_SERIAL, timeout=10)
+    adb('am', 'force-stop', 'org.jellyfin.androidtv', timeout=10)
+    time.sleep(2)
+    adb('am', 'start', '-n', JELLYFIN_COMPONENT, '--es', 'ItemId', item_id, timeout=15)
+    time.sleep(4)
+
+
+def play_nextup_native(show_name: str):
+    ensure_power()
+    user_id = jellyfin_user_id()
+    series = resolve_series(show_name, user_id)
+    nextup = resolve_nextup(series['Id'], user_id)
+
+    # SEARCH -> series card -> series detail -> first Next up episode -> episode detail -> Play
+    app_search(series['Name'])
+    remote('DPAD_CENTER', 2.0)
+    remote('DPAD_DOWN', 1.2)
+    remote('DPAD_CENTER', 1.8)
+    remote('DPAD_CENTER', 2.0)
+
+    ok, session = verify_playing(nextup['Id'])
+    return {
+        'mode': 'app-native-nextup',
+        'show': series['Name'],
+        'episode': nextup['Name'],
+        'season': nextup.get('ParentIndexNumber'),
+        'episode_number': nextup.get('IndexNumber'),
+        'verified': ok,
+        'shield_now_playing': (session or {}).get('now_playing'),
+        'shield_series': (session or {}).get('series_name'),
+    }
+
+
+def play_movie_native(movie_name: str):
+    ensure_power()
+    user_id = jellyfin_user_id()
+    movie = resolve_movie(movie_name, user_id)
+
+    # Open movie detail directly using ItemId, then press Play via native remote.
+    app_open_item(movie['Id'])
+    remote('DPAD_CENTER', 2.5)
+
+    ok, session = verify_playing(movie['Id'])
+    return {
+        'mode': 'app-native-movie',
+        'movie': movie['Name'],
+        'year': movie.get('ProductionYear'),
+        'verified': ok,
+        'shield_now_playing': (session or {}).get('now_playing'),
+        'shield_type': (session or {}).get('type'),
+    }
+
+
+def pause():
+    ha_service('remote.send_command', REMOTE_ENTITY, command='MEDIA_PAUSE')
+    print('paused')
+
+
+def resume():
+    ha_service('remote.send_command', REMOTE_ENTITY, command='MEDIA_PLAY')
+    print('resumed')
+
+
+def power_on():
+    ensure_power()
+    print('ready')
+
+
+def main():
+    parser = argparse.ArgumentParser(description='Shield Jellyfin controller')
+    sub = parser.add_subparsers(dest='cmd', required=True)
+
+    p_next = sub.add_parser('nextup', help='Play the next-up episode of a show on the Shield using the Jellyfin Android TV app')
+    p_next.add_argument('show', help='Show name')
+
+    p_movie = sub.add_parser('movie', help='Play a movie on the Shield using the Jellyfin Android TV app')
+    p_movie.add_argument('movie_name', help='Movie name')
+
+    sub.add_parser('pause', help='Pause current playback')
+    sub.add_parser('resume', help='Resume current playback')
+    sub.add_parser('power-on', help='Turn on the Shield')
+
+    args = parser.parse_args()
+
+    if args.cmd == 'nextup':
+        result = play_nextup_native(args.show)
+        print(json.dumps(result, indent=2))
+        raise SystemExit(0 if result['verified'] else 1)
+    if args.cmd == 'movie':
+        result = play_movie_native(args.movie_name)
+        print(json.dumps(result, indent=2))
+        raise SystemExit(0 if result['verified'] else 1)
+    if args.cmd == 'pause':
+        pause()
+        return
+    if args.cmd == 'resume':
+        resume()
+        return
+    if args.cmd == 'power-on':
+        power_on()
+        return
+
+
+if __name__ == '__main__':
+    main()

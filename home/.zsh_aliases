@@ -27,3 +27,7 @@ alias sass='nocorrect sass'
 #soundcloud downloader
 alias sdl="scdl -l"
 
+# Shield / Jellyfin
+alias sj='shield-jellyfin'
+alias sjn='shield-jellyfin nextup'
+

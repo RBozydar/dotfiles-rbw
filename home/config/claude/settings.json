@@ -278,7 +278,16 @@
     "safety-guard@rbw-claude-code": true,
     "gh-api-guard@rbw-claude-code": true,
     "gemini-model-guard@rbw-claude-code": true,
-    "clean-code-guard@rbw-claude-code": true
+    "clean-code-guard@rbw-claude-code": true,
+    "colgrep@lightonai-colgrep": true
+  },
+  "extraKnownMarketplaces": {
+    "lightonai-colgrep": {
+      "source": {
+        "source": "directory",
+        "path": "/home/rbw/.local/share/colgrep/claude-marketplace"
+      }
+    }
   },
   "alwaysThinkingEnabled": true,
   "effortLevel": "high"

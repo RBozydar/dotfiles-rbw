@@ -1,5 +1,6 @@
 export PATH=$HOME/bin:/usr/local/bin:$PATH
 export PATH=$HOME/.local/bin:$PATH
+export PATH=$PATH:/usr/local/go/bin
 export DAGSTER_HOME=$HOME/repo/wina_julii/dbt/doliovini/winajulii
 export DISPLAY=:0
 export DBT_GCP_SA=/home/rbw/.config/gcp/dolio-bq.json
@@ -8,9 +9,10 @@ export HF_HOME=/mnt/ml_models
 export PATH=$PATH:/usr/local/go/bin:$HOME/go/bin
 export ZSH_TMUX_AUTOSTART=true
 export SEARXNG_BASE_URL=https://searxng.local.b47.bozydar.me
-source /home/rbw/.zsh_secrets
+[ -f /home/rbw/.zsh_secrets ] && source /home/rbw/.zsh_secrets
 export ENABLE_LSP_TOOL=1
 export CLAUDE_ENABLE_LSP_TOOL=1
+export CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1
 # conda
 #  .  ~/miniconda3/etc/profile.d/conda.sh
 #  . /usr/local/anaconda/etc/profile.d/conda.sh
@@ -36,3 +38,5 @@ function y() {
 	[ "$cwd" != "$PWD" ] && [ -d "$cwd" ] && builtin cd -- "$cwd"
 	rm -f -- "$tmp"
 }
+export ORT_DYLIB_PATH=/home/rbw/ort_gpu/libonnxruntime.so.1.23.0
+export LD_LIBRARY_PATH=/home/rbw/ort_gpu:$LD_LIBRARY_PATH
