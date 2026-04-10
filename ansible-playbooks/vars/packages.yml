@@ -9,19 +9,17 @@ base_packages:
     - samba
     - nmap
     - meson
-    - scrot
-    - picom
-    - emacs
+    - maim
     - tmux
     - rsync
     - tar
     - unrar
-    - neofetch
+    - fastfetch
     - zip
     - gnome-disk-utility
     - ntfs-3g
     - parted
-    - exfat-utils
+    - exfatprogs
     - jq
 
 ubuntu_packages:
@@ -87,8 +85,22 @@ brew_casks:
     - font-symbols-only-nerd-font
 
 arch_packages:
-    # audio
+    # build
+    - base-devel
+    - cmake
+    - ninja
+    - pkg-config
+    - openssl
+    - unzip
+    # shell & dev
+    - zsh
+    - python-pip
+    - ffmpeg
+    - pandoc
+    # terminal
     - alacritty
+    - tmux
+    # audio
     - wireplumber
     - pipewire
     - pipewire-alsa
@@ -101,7 +113,7 @@ arch_packages:
     # browser
     - firefox
     - chromium
-    # deluge
+    # torrent
     - deluge
     - deluge-gtk
     # theme
@@ -109,55 +121,72 @@ arch_packages:
     # docker
     - docker
     - docker-compose
-    # dev
-    - base-devel
-    - ninja
-    # file sharing
+    # file sharing & networking
     - nfs-utils
     - openssh
-    - python-pip
-    # fonts
-    - ttf-fira-code
-    - ttf-font-awesome
-    - ttf-dejavu
-    - noto-fonts
-    # utils
-    - vlc
-    - tar
-    - rsync
-    # network
     - wireguard-tools
-    - resolvconf
-    - intel-ucode
     - wpa_supplicant
     - networkmanager
     - network-manager-applet
     - bluez
     - bluez-utils
-    - dhcpcdt
+    - dhcpcd
     - bind
-    # ui
+    # monitoring
+    - btop
+    - htop
+    - nvtop
+    - ncdu
+    - duf
+    - iftop
+    - iotop
+    - powertop
+    - fio
+    - traceroute
+    - ethtool
+    - iperf3
+    - mesa-utils
+    # dev tools (from community repo, replaces brew/apt-repo tasks)
+    - github-cli
+    - glow
+    # tools (replaces Homebrew on Arch)
+    - fd
+    - fzf
+    - ripgrep
+    - zoxide
+    - lazygit
+    - imagemagick
+    - poppler
+    - resvg
+    - yazi
+    # fonts
+    - ttf-fira-code
+    - ttf-font-awesome
+    - ttf-dejavu
+    - noto-fonts
+    # ui & display
+    - gtk2
     - gtk3
     - gtk4
-    - gtk2
+    - arandr
+    - nautilus
+    - xorg-xev
     # secrets
     - gnome-keyring
     - libsecret
-    # display
-    - arandr
     - keychain
-    - nautilus
-    - xorg-xev
-    - iperf3
-    # misc
+    # security
+    - fail2ban
+    # media
+    - vlc
+    # system
+    - amd-ucode
+    - linux-firmware
     - liquidctl
-    # gpu drivers
+    # gpu
     - nvidia
     - nvidia-utils
     - libva-utils
-    - libva-intel-driver
-    - linux-firmware
-
 
 i3_packages:
     - i3-gaps
@@ -171,11 +200,15 @@ i3_packages:
 
 aur_packages:
     - visual-studio-code-bin
-    # curl -sS https://download.spotify.com/debian/pubkey_5E3C45D7B312C643.gpg | gpg --import -
-#     - spotify
     - httpdirfs
     - ttf-ms-win11-auto
-    # - dhcpcd-ui
     - nerd-fonts-inter
     - moka-icon-theme-git
-    - faba-icon-theme-git\
+    - faba-icon-theme-git
+    # tools (replaces Homebrew on Arch)
+    - ast-grep-bin
+    - lazydocker-bin
+    - 7-zip
+    - ttf-nerd-fonts-symbols-only
+    # nvidia container runtime
+    - nvidia-container-toolkit

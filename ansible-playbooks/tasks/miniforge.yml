@@ -1,0 +1,25 @@
+---
+- name: Check if Miniforge3 is installed
+  ansible.builtin.stat:
+    path: "/home/{{ username }}/miniforge3/bin/conda"
+  register: miniforge_installed
+
+- name: Download Miniforge3 installer
+  when: not miniforge_installed.stat.exists
+  ansible.builtin.get_url:
+    url: https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-x86_64.sh
+    dest: /tmp/miniforge3.sh
+    mode: "0755"
+
+- name: Install Miniforge3
+  when: not miniforge_installed.stat.exists
+  become: yes
+  become_user: "{{ username }}"
+  ansible.builtin.command:
+    cmd: /tmp/miniforge3.sh -b -p "/home/{{ username }}/miniforge3"
+
+- name: Clean up Miniforge3 installer
+  when: not miniforge_installed.stat.exists
+  ansible.builtin.file:
+    path: /tmp/miniforge3.sh
+    state: absent

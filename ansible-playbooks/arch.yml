@@ -5,20 +5,22 @@
       update_cache: yes
       upgrade: yes
 
-  - name: Ensure arch specific packages are installed
+  - name: Install arch packages
     become: yes
-    ansible.builtin.package:
+    community.general.pacman:
       name: "{{ arch_packages }}"
       state: present
+    tags:
+      - packages
 
-  - name: Create the `aur_builder` user
+  - name: Create the aur_builder user
     become: yes
     ansible.builtin.user:
       name: aur_builder
       create_home: yes
       group: wheel
 
-  - name: Allow the `aur_builder` user to run `sudo pacman` without a password
+  - name: Allow aur_builder to run sudo pacman without a password
     become: yes
     ansible.builtin.lineinfile:
       path: /etc/sudoers.d/11-install-aur_builder
@@ -26,17 +28,53 @@
       create: yes
       validate: 'visudo -cf %s'
 
-  - name: Install aur packages using makepkg if it isn't installed already
+  - name: Install AUR packages
     kewlfft.aur.aur:
       name: "{{ aur_packages }}"
       use: makepkg
       state: present
     become: yes
     become_user: aur_builder
+    tags:
+      - aur
 
-  - name: Ensure docker users are added to the docker group.
+  - name: Add user to docker group
     become: yes
-    user:
-      name: rbw
+    ansible.builtin.user:
+      name: "{{ username }}"
       groups: docker
       append: true
+
+  - name: Enable and start Docker
+    become: yes
+    ansible.builtin.systemd:
+      name: docker
+      enabled: yes
+      state: started
+    tags:
+      - docker
+
+  - name: NVIDIA CUDA
+    ansible.builtin.include_tasks: tasks/nvidia-cuda-arch.yml
+    tags:
+      - nvidia
+
+  - name: Miniforge3
+    ansible.builtin.include_tasks: tasks/miniforge.yml
+    tags:
+      - miniforge
+
+  - name: Go
+    ansible.builtin.include_tasks: tasks/golang.yml
+    tags:
+      - golang
+
+  - name: Rust
+    ansible.builtin.include_tasks: tasks/rustup.yml
+    tags:
+      - rust
+
+  - name: Version managers (fnm, uv, bun)
+    ansible.builtin.include_tasks: tasks/version-managers.yml
+    tags:
+      - version-managers
