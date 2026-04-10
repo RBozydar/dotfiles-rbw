@@ -1,2 +1,3 @@
 ansible-playbooks/roles
 .DS_Store
+ai_studio_outputs
