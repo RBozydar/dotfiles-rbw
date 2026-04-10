@@ -23,6 +23,10 @@
               url: zsh-users/zsh-completions
             - name: zsh-autosuggestions
               url: zsh-users/zsh-autosuggestions
+    - role: geerlingguy.git
+      when:
+        - enable_git_role | bool
+        - ansible_os_family == 'Debian'
     - role : ansible-role-security
       when: enable_security_role | bool
       become: yes

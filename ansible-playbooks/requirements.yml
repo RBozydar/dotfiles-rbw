@@ -1,6 +1,7 @@
 ---
 roles:
   - src: geerlingguy.docker
+  - src: geerlingguy.git
   # - src: geerlingguy.security
   - src: https://github.com/RBozydar/ansible-role-security
   - src: andrewrothstein.miniconda
