@@ -6,10 +6,10 @@
       state: present
     tags:
       - packages
-  
+
   - name: Copy SSH public keys from Github
     ansible.posix.authorized_key:
-      user: rbw
+      user: "{{ username }}"
       state: present
       key: https://github.com/rbozydar.keys
 
@@ -24,65 +24,12 @@
       dest: "{{ legacy_repo_root }}"
       state: link
       force: yes
-  
-  # - name: Clone & pull dotfiles
-  #   ansible.builtin.git:
-  #     repo: git@github.com:RBozydar/dotfiles-rbw.git
-  #     version: main
-  #     dest: $HOME/repo/dotfiles
-  #     single_branch: yes
-  #     update: yes
-  #     # accept_hostkey: yes
-
-# remove existing file? compare maybe and only then
-  - name: Register current state of .zshrc
-    stat:
-      path: "{{ zshrc_home }}"
-      checksum: sha1
-      get_checksum: yes
-    register: zshrc_home_checksum
-
-  - name: Register .zshrc in repository
-    stat:
-      path: "{{ zshrc_repo }}"
-      checksum: sha1
-      get_checksum: yes
-    register: zshrc_repo_checksum
-
-  - name: Symlink .zshrc
-    ansible.builtin.file:
-      src: "{{ repo_root }}/home/.zshrc"
-      dest: "{{ user_home }}/.zshrc"
-      state: link
-      force: yes
-    when: zshrc_repo_checksum != zshrc_home_checksum
-
-  - name: Symlink .zsh_aliases
-    ansible.builtin.file:
-      src: "{{ repo_root }}/home/.zsh_aliases"
-      dest: "{{ user_home }}/.zsh_aliases"
-      state: link
-      force: yes
-  
-  - name: Symlink .zsh_exports
-    ansible.builtin.file:
-      src: "{{ repo_root }}/home/.zsh_exports"
-      dest: "{{ user_home }}/.zsh_exports"
-      state: link
-      force: yes
 
   - name: Create empty .zsh_secrets if missing
     ansible.builtin.file:
       path: "{{ user_home }}/.zsh_secrets"
       state: touch
       mode: '0600'
-
-  - name: Symlink zsh git-worktree helpers
-    ansible.builtin.file:
-      src: "{{ repo_root }}/home/utils/git-worktree.zsh"
-      dest: "{{ user_home }}/.zsh_utils_git-worktree"
-      state: link
-      force: yes
 
   - name: Write .antigenrc
     ansible.builtin.copy:
@@ -99,97 +46,3 @@
         antigen bundle zsh-users/zsh-completions
         antigen bundle zsh-users/zsh-autosuggestions
         antigen apply
-
-  - name: Symlink gitconfig
-    ansible.builtin.file:
-      src: "{{ repo_root }}/home/.gitconfig"
-      dest: "{{ user_home }}/.gitconfig"
-      state: link
-      force: yes
-
-  - name: Symlink git_ingore global
-    ansible.builtin.file:
-      src: "{{ repo_root }}/home/.gitignore_global"
-      dest: "{{ user_home }}/.gitignore_global"
-      state: link
-      force: yes
-
-  - name: Symlink .tmux.conf
-    ansible.builtin.file:
-      src: "{{ repo_root }}/home/.tmux.conf"
-      dest: "{{ user_home }}/.tmux.conf"
-      state: link
-      force: yes
-
-  - name: Ensure ~/.tmux exists
-    ansible.builtin.file:
-      path: "{{ user_home }}/.tmux"
-      state: directory
-
-  - name: Symlink tmux custom modules
-    ansible.builtin.file:
-      src: "{{ repo_root }}/home/.tmux/custom_modules"
-      dest: "{{ user_home }}/.tmux/custom_modules"
-      state: link
-      force: yes
-
-  - name: Ensure tmux plugins directory exists
-    ansible.builtin.file:
-      path: "{{ user_home }}/.tmux/plugins"
-      state: directory
-
-  - name: Install TPM
-    ansible.builtin.git:
-      repo: https://github.com/tmux-plugins/tpm.git
-      dest: "{{ user_home }}/.tmux/plugins/tpm"
-      version: master
-      update: yes
-
-  - name: Install tmux resurrect plugin
-    ansible.builtin.git:
-      repo: https://github.com/tmux-plugins/tmux-resurrect.git
-      dest: "{{ user_home }}/.tmux/plugins/tmux-resurrect"
-      version: master
-      update: yes
-
-  - name: Install tmux cpu plugin
-    ansible.builtin.git:
-      repo: https://github.com/tmux-plugins/tmux-cpu.git
-      dest: "{{ user_home }}/.tmux/plugins/tmux-cpu"
-      version: master
-      update: yes
-
-  - name: Install tmux continuum plugin
-    ansible.builtin.git:
-      repo: https://github.com/tmux-plugins/tmux-continuum.git
-      dest: "{{ user_home }}/.tmux/plugins/tmux-continuum"
-      version: master
-      update: yes
-
-  - name: Install catppuccin tmux plugin
-    ansible.builtin.git:
-      repo: https://github.com/catppuccin/tmux.git
-      dest: "{{ user_home }}/.tmux/plugins/tmux"
-      version: v2.1.3
-      update: yes
-
-  - name: Symlink alacritty
-    ansible.builtin.file:
-      src: "{{ repo_root }}/home/config/alacritty"
-      dest: "{{ user_home }}/.config/alacritty"
-      state: link
-      force: yes
-
-  - name: Symlink gtk-3.0 config
-    ansible.builtin.file:
-      src: "{{ repo_root }}/home/config/gtk-3.0"
-      dest: "{{ user_home }}/.config/gtk-3.0"
-      state: link
-      force: yes
-
-  - name: Symlink gtkrc for gt2k
-    ansible.builtin.file:
-      src: "{{ repo_root }}/home/.gtkrc-2.0"
-      dest: "{{ user_home }}/.gtkrc-2.0"
-      state: link
-      force: yes

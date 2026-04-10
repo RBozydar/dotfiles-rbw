@@ -1,7 +1,7 @@
 ---
 - name: Check if rustup is installed
   ansible.builtin.stat:
-    path: "/home/{{ username }}/.cargo/bin/rustup"
+    path: "{{ user_home }}/.cargo/bin/rustup"
   register: rustup_installed
 
 - name: Install rustup
@@ -15,8 +15,8 @@
   become: yes
   become_user: "{{ username }}"
   ansible.builtin.command:
-    cmd: "/home/{{ username }}/.cargo/bin/cargo install {{ item }}"
+    cmd: "{{ user_home }}/.cargo/bin/cargo install {{ item }}"
   environment:
-    PATH: "/home/{{ username }}/.cargo/bin:{{ ansible_env.PATH }}"
+    PATH: "{{ user_home }}/.cargo/bin:{{ ansible_env.PATH }}"
   loop:
     - colgrep

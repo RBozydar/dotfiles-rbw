@@ -1,22 +1,34 @@
 ---
-- name: Check if TPM is installed
-  ansible.builtin.stat:
-    path: "/home/{{ username }}/.tmux/plugins/tpm"
-  register: tpm_installed
+- name: Ensure ~/.tmux directory exists
+  ansible.builtin.file:
+    path: "{{ user_home }}/.tmux"
+    state: directory
 
-- name: Clone TPM
-  when: not tpm_installed.stat.exists
+- name: Symlink tmux custom modules
+  ansible.builtin.file:
+    src: "{{ home_repo }}/.tmux/custom_modules"
+    dest: "{{ user_home }}/.tmux/custom_modules"
+    state: link
+    force: yes
+
+- name: Ensure tmux plugins directory exists
+  ansible.builtin.file:
+    path: "{{ user_home }}/.tmux/plugins"
+    state: directory
+
+- name: Install TPM
   become: yes
   become_user: "{{ username }}"
   ansible.builtin.git:
     repo: https://github.com/tmux-plugins/tpm.git
-    dest: "/home/{{ username }}/.tmux/plugins/tpm"
-    depth: 1
+    dest: "{{ user_home }}/.tmux/plugins/tpm"
+    version: master
+    update: yes
 
 - name: Install tmux plugins via TPM
   become: yes
   become_user: "{{ username }}"
   ansible.builtin.shell:
-    cmd: "/home/{{ username }}/.tmux/plugins/tpm/bin/install_plugins"
+    cmd: "{{ user_home }}/.tmux/plugins/tpm/bin/install_plugins"
   environment:
-    TMUX_PLUGIN_MANAGER_PATH: "/home/{{ username }}/.tmux/plugins"
+    TMUX_PLUGIN_MANAGER_PATH: "{{ user_home }}/.tmux/plugins"

@@ -5,7 +5,6 @@ base_packages:
     - zsh
     - keychain
     - mc
-    - python3
     - samba
     - nmap
     - meson

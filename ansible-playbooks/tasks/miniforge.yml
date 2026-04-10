@@ -1,7 +1,7 @@
 ---
 - name: Check if Miniforge3 is installed
   ansible.builtin.stat:
-    path: "/home/{{ username }}/miniforge3/bin/conda"
+    path: "{{ user_home }}/miniforge3/bin/conda"
   register: miniforge_installed
 
 - name: Download Miniforge3 installer
@@ -16,7 +16,7 @@
   become: yes
   become_user: "{{ username }}"
   ansible.builtin.command:
-    cmd: /tmp/miniforge3.sh -b -p "/home/{{ username }}/miniforge3"
+    cmd: /tmp/miniforge3.sh -b -p "{{ user_home }}/miniforge3"
 
 - name: Clean up Miniforge3 installer
   when: not miniforge_installed.stat.exists

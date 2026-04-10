@@ -59,17 +59,22 @@
     tags:
       - nvidia
 
-  - name: Miniforge3
-    ansible.builtin.include_tasks: tasks/miniforge.yml
+  - name: Install yazi piper plugin
+    become: yes
+    become_user: "{{ username }}"
+    ansible.builtin.command:
+      cmd: ya pkg add yazi-rs/plugins:piper
+    register: yazi_plugin_result
+    changed_when: "'already exists' not in yazi_plugin_result.stderr"
+    failed_when: "yazi_plugin_result.rc != 0 and 'already exists' not in yazi_plugin_result.stderr"
     tags:
-      - miniforge
+      - yazi
 
-  - name: Go
-    ansible.builtin.include_tasks: tasks/golang.yml
+  - name: Install yazi plugins
+    become: yes
+    become_user: "{{ username }}"
+    ansible.builtin.command:
+      cmd: ya pkg install
+    changed_when: true
     tags:
-      - golang
-
-  - name: Rust
-    ansible.builtin.include_tasks: tasks/rustup.yml
-    tags:
-      - rust
+      - yazi

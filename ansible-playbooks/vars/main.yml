@@ -28,4 +28,3 @@ enable_antigen_role: true
 enable_git_role: true
 enable_security_role: true
 enable_miniconda_role: false
-enable_i3: false

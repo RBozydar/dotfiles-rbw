@@ -3,28 +3,28 @@
 - name: Symlink .zshrc
   ansible.builtin.file:
     src: "{{ home_repo }}/.zshrc"
-    dest: "$HOME/.zshrc"
+    dest: "{{ user_home }}/.zshrc"
     state: link
     force: yes
 
 - name: Symlink .zsh_aliases
   ansible.builtin.file:
     src: "{{ home_repo }}/.zsh_aliases"
-    dest: "$HOME/.zsh_aliases"
+    dest: "{{ user_home }}/.zsh_aliases"
     state: link
     force: yes
 
 - name: Symlink .zsh_exports
   ansible.builtin.file:
     src: "{{ home_repo }}/.zsh_exports"
-    dest: "$HOME/.zsh_exports"
+    dest: "{{ user_home }}/.zsh_exports"
     state: link
     force: yes
 
 - name: Symlink .zsh_utils_git-worktree
   ansible.builtin.file:
     src: "{{ home_repo }}/utils/git-worktree.zsh"
-    dest: "$HOME/.zsh_utils_git-worktree"
+    dest: "{{ user_home }}/.zsh_utils_git-worktree"
     state: link
     force: yes
 
@@ -32,14 +32,14 @@
 - name: Symlink .gitconfig
   ansible.builtin.file:
     src: "{{ home_repo }}/.gitconfig"
-    dest: "$HOME/.gitconfig"
+    dest: "{{ user_home }}/.gitconfig"
     state: link
     force: yes
 
 - name: Symlink .gitignore_global
   ansible.builtin.file:
     src: "{{ home_repo }}/.gitignore_global"
-    dest: "$HOME/.gitignore_global"
+    dest: "{{ user_home }}/.gitignore_global"
     state: link
     force: yes
 
@@ -47,7 +47,7 @@
 - name: Symlink .nanorc
   ansible.builtin.file:
     src: "{{ home_repo }}/.nanorc"
-    dest: "$HOME/.nanorc"
+    dest: "{{ user_home }}/.nanorc"
     state: link
     force: yes
 
@@ -55,21 +55,14 @@
 - name: Symlink .tmux.conf
   ansible.builtin.file:
     src: "{{ home_repo }}/.tmux.conf"
-    dest: "$HOME/.tmux.conf"
-    state: link
-    force: yes
-
-- name: Symlink tmux custom modules
-  ansible.builtin.file:
-    src: "{{ home_repo }}/.tmux"
-    dest: "$HOME/.tmux-custom"
+    dest: "{{ user_home }}/.tmux.conf"
     state: link
     force: yes
 
 - name: Symlink alacritty config
   ansible.builtin.file:
     src: "{{ home_repo }}/config/alacritty"
-    dest: "$HOME/.config/alacritty"
+    dest: "{{ user_home }}/.config/alacritty"
     state: link
     force: yes
 
@@ -77,96 +70,96 @@
 - name: Symlink btop config
   ansible.builtin.file:
     src: "{{ home_repo }}/config/btop"
-    dest: "$HOME/.config/btop"
+    dest: "{{ user_home }}/.config/btop"
     state: link
     force: yes
 
 - name: Remove existing gh config directory
   ansible.builtin.file:
-    path: "$HOME/.config/gh"
+    path: "{{ user_home }}/.config/gh"
     state: absent
 
 - name: Symlink gh config
   ansible.builtin.file:
     src: "{{ home_repo }}/config/gh"
-    dest: "$HOME/.config/gh"
+    dest: "{{ user_home }}/.config/gh"
     state: link
     force: yes
 
 - name: Symlink pip config
   ansible.builtin.file:
     src: "{{ home_repo }}/config/pip"
-    dest: "$HOME/.config/pip"
+    dest: "{{ user_home }}/.config/pip"
     state: link
     force: yes
 
 - name: Remove existing htop config directory
   ansible.builtin.file:
-    path: "$HOME/.config/htop"
+    path: "{{ user_home }}/.config/htop"
     state: absent
 
 - name: Symlink htop config
   ansible.builtin.file:
     src: "{{ home_repo }}/config/htop"
-    dest: "$HOME/.config/htop"
+    dest: "{{ user_home }}/.config/htop"
     state: link
     force: yes
 
 - name: Symlink mc config
   ansible.builtin.file:
     src: "{{ home_repo }}/config/mc"
-    dest: "$HOME/.config/mc"
+    dest: "{{ user_home }}/.config/mc"
     state: link
     force: yes
 
 - name: Remove existing glow config directory
   ansible.builtin.file:
-    path: "$HOME/.config/glow"
+    path: "{{ user_home }}/.config/glow"
     state: absent
 
 - name: Symlink glow config
   ansible.builtin.file:
     src: "{{ home_repo }}/config/glow"
-    dest: "$HOME/.config/glow"
+    dest: "{{ user_home }}/.config/glow"
     state: link
     force: yes
 
 # Yazi
 - name: Remove existing yazi config directory
   ansible.builtin.file:
-    path: "$HOME/.config/yazi"
+    path: "{{ user_home }}/.config/yazi"
     state: absent
 
 - name: Symlink yazi config dir
   ansible.builtin.file:
     src: "{{ home_repo }}/config/yazi"
-    dest: "$HOME/.config/yazi"
+    dest: "{{ user_home }}/.config/yazi"
     state: link
     force: yes
 
 # ccstatusline
 - name: Remove existing ccstatusline config directory
   ansible.builtin.file:
-    path: "$HOME/.config/ccstatusline"
+    path: "{{ user_home }}/.config/ccstatusline"
     state: absent
 
 - name: Symlink ccstatusline config
   ansible.builtin.file:
     src: "{{ home_repo }}/config/ccstatusline"
-    dest: "$HOME/.config/ccstatusline"
+    dest: "{{ user_home }}/.config/ccstatusline"
     state: link
     force: yes
 
 # Claude Code
 - name: Ensure ~/.claude directory exists
   ansible.builtin.file:
-    path: "$HOME/.claude"
+    path: "{{ user_home }}/.claude"
     state: directory
 
 - name: Symlink Claude Code settings.json
   ansible.builtin.file:
     src: "{{ home_repo }}/config/claude/settings.json"
-    dest: "$HOME/.claude/settings.json"
+    dest: "{{ user_home }}/.claude/settings.json"
     state: link
     force: yes
 
@@ -174,13 +167,13 @@
 - name: Symlink gtk-3.0 config
   ansible.builtin.file:
     src: "{{ home_repo }}/config/gtk-3.0"
-    dest: "$HOME/.config/gtk-3.0"
+    dest: "{{ user_home }}/.config/gtk-3.0"
     state: link
     force: yes
 
 - name: Symlink .gtkrc-2.0
   ansible.builtin.file:
     src: "{{ home_repo }}/.gtkrc-2.0"
-    dest: "$HOME/.gtkrc-2.0"
+    dest: "{{ user_home }}/.gtkrc-2.0"
     state: link
     force: yes

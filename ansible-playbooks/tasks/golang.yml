@@ -31,7 +31,7 @@
   ansible.builtin.command:
     cmd: /usr/local/go/bin/go install {{ item }}
   environment:
-    GOPATH: "/home/{{ username }}/go"
+    GOPATH: "{{ user_home }}/go"
     PATH: "/usr/local/go/bin:{{ ansible_env.PATH }}"
   loop:
     - mvdan.cc/sh/v3/cmd/shfmt@latest

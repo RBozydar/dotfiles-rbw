@@ -3,7 +3,7 @@
   vars_files:
     - vars/main.yml
     - vars/packages.yml
-  
+
   roles:
     - role: gantsign.antigen
       when: enable_antigen_role | bool
@@ -23,31 +23,60 @@
               url: zsh-users/zsh-completions
             - name: zsh-autosuggestions
               url: zsh-users/zsh-autosuggestions
+    - role: geerlingguy.docker
+      when: ansible_os_family == 'Debian'
+      become: yes
+      docker_users:
+        - "{{ username }}"
     - role: geerlingguy.git
       when:
         - enable_git_role | bool
         - ansible_os_family == 'Debian'
-    - role : ansible-role-security
-      when: enable_security_role | bool
+    - role: ansible-role-security
+      when:
+        - enable_security_role | bool
+        - ansible_os_family == 'Debian'
       become: yes
     - role: andrewrothstein.miniconda
       when: enable_miniconda_role | bool
 
   tasks:
+  # Base setup (packages, SSH, repo folder, antigenrc, zsh_secrets)
   - name: Init
     ansible.builtin.include_tasks: initial.yml
+
+  # Distro-specific packages and repos
   - name: Ubuntu
     ansible.builtin.include_tasks: ubuntu.yml
     when: ansible_os_family == 'Debian'
   - name: Arch Linux
     ansible.builtin.include_tasks: arch.yml
     when: ansible_os_family == 'Archlinux'
-  - name: Version managers
+
+  # Common tools (distro-agnostic, curl-based installers)
+  - name: Go
+    ansible.builtin.include_tasks: tasks/golang.yml
+    tags:
+      - golang
+  - name: Rust
+    ansible.builtin.include_tasks: tasks/rustup.yml
+    tags:
+      - rust
+  - name: Version managers (fnm, uv, bun)
     ansible.builtin.include_tasks: tasks/version-managers.yml
-    when: ansible_os_family in ['Debian', 'Archlinux']
     tags:
       - version-managers
-  - name: i3
-    ansible.builtin.include_tasks: i3.yml
-    when: enable_i3 | bool
-  # - name: conda init
+  - name: Miniforge3
+    ansible.builtin.include_tasks: tasks/miniforge.yml
+    tags:
+      - miniforge
+
+  # Common config (after all packages installed)
+  - name: Symlinks
+    ansible.builtin.include_tasks: tasks/symlinks.yml
+    tags:
+      - symlinks
+  - name: Tmux
+    ansible.builtin.include_tasks: tasks/tmux.yml
+    tags:
+      - tmux
