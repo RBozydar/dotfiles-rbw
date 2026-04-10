@@ -150,6 +150,7 @@ arch_packages:
     - xorg-xev
     - iperf3
     # misc
+    - bubblewrap
     - liquidctl
     # gpu drivers
     - nvidia
