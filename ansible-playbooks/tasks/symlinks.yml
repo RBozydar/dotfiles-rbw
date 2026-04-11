@@ -146,6 +146,18 @@
     state: link
     force: yes
 
+- name: Ensure ghostty config directory exists
+  ansible.builtin.file:
+    path: "{{ user_home }}/.config/ghostty"
+    state: directory
+
+- name: Symlink ghostty config
+  ansible.builtin.file:
+    src: "{{ home_repo }}/config/ghostty/config"
+    dest: "{{ user_home }}/.config/ghostty/config"
+    state: link
+    force: yes
+
 # Yazi
 - name: Ensure yazi config directory exists
   ansible.builtin.file:
@@ -217,6 +229,16 @@
     state: link
     force: yes
 
+- name: Reload Hyprland config if running in current session
+  ansible.builtin.command: hyprctl reload
+  environment:
+    HYPRLAND_INSTANCE_SIGNATURE: "{{ lookup('env', 'HYPRLAND_INSTANCE_SIGNATURE') }}"
+    XDG_RUNTIME_DIR: "{{ lookup('env', 'XDG_RUNTIME_DIR') }}"
+  when:
+    - lookup('env', 'HYPRLAND_INSTANCE_SIGNATURE') | length > 0
+    - lookup('env', 'XDG_RUNTIME_DIR') | length > 0
+  changed_when: false
+
 # GTK
 - name: Ensure gtk-3.0 config directory exists
   ansible.builtin.file:
@@ -229,5 +251,3 @@
     dest: "{{ user_home }}/.config/gtk-3.0/settings.ini"
     state: link
     force: yes
-
-

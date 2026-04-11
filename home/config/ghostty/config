@@ -1,0 +1,2 @@
+# Reduce wheel scrolling in Ghostty without affecting the rest of Hyprland.
+mouse-scroll-multiplier = discrete:1,precision:1
