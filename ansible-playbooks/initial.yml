@@ -24,6 +24,7 @@
       dest: "{{ legacy_repo_root }}"
       state: link
       force: yes
+    when: manage_legacy_repo_symlink | bool
 
   - name: Create empty .zsh_secrets if missing
     ansible.builtin.file:

@@ -16,11 +16,12 @@ ansible_ssh_user: "{{ lookup('env', 'USER') }}"
 
 username: "{{ lookup('env', 'USER') }}"
 user_home: "{{ lookup('env', 'HOME') }}"
-repo_root: "{{ user_home }}/repo/dotfiles-rbw"
+repo_root: "{{ lookup('env', 'DOTFILES_REPO_ROOT') | default((playbook_dir | dirname), true) }}"
 legacy_repo_root: "{{ user_home }}/repo/dotfiles"
 zshrc_home: "{{ user_home }}/.zshrc"
 zshrc_repo: "{{ repo_root }}/home/.zshrc"
 home_repo: "{{ repo_root }}/home"
+manage_legacy_repo_symlink: "{{ repo_root != legacy_repo_root }}"
 
 enable_git_role: true
 enable_security_role: true
