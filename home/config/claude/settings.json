@@ -291,7 +291,7 @@
     "lightonai-colgrep": {
       "source": {
         "source": "directory",
-        "path": "/home/rbw/.local/share/colgrep/claude-marketplace"
+        "path": "~/.local/share/colgrep/claude-marketplace"
       }
     }
   },

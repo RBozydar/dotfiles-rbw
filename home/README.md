@@ -6,8 +6,40 @@ The tracked shell files in this repo are meant to be the portable baseline:
 - `.zsh_exports`
 - `.zsh_aliases`
 - `.zsh_utils_git-worktree`
+- `.zsh_plugins.txt`
 
 Machine-specific paths and secrets should stay outside the repo.
+
+## Bootstrap on a new machine
+
+Install the basic prerequisites first:
+
+```sh
+# Example baseline packages; use your platform package manager.
+# Needed before the shell config works as intended:
+# - git
+# - zsh
+# - curl
+```
+
+Clone the repo and link the shell files into `$HOME`:
+
+```sh
+ln -sfn ~/repo/dotfiles-rbw/home/.zshrc ~/.zshrc
+ln -sfn ~/repo/dotfiles-rbw/home/.zsh_exports ~/.zsh_exports
+ln -sfn ~/repo/dotfiles-rbw/home/.zsh_aliases ~/.zsh_aliases
+ln -sfn ~/repo/dotfiles-rbw/home/utils/git-worktree.zsh ~/.zsh_utils_git-worktree
+ln -sfn ~/repo/dotfiles-rbw/home/.zsh_plugins.txt ~/.zsh_plugins.txt
+```
+
+Install Antidote into the default location expected by `.zshrc`:
+
+```sh
+git clone --depth=1 https://github.com/mattmc3/antidote.git ~/.antidote
+```
+
+Then start a new shell. The plugin bundle file `~/.zsh_plugins.zsh` will be
+generated automatically from `~/.zsh_plugins.txt` when needed.
 
 ## Local machine overlay
 
@@ -34,6 +66,18 @@ Use `~/.zsh_secrets` for:
 - private file paths
 
 `~/.zshrc` loads both files automatically when they exist.
+
+## Agent prep
+
+This setup is meant to keep agent-facing shell startup predictable:
+
+- shared shell behavior lives in tracked files
+- machine-local overrides live in `~/.zsh_local`
+- secrets live in `~/.zsh_secrets`
+- project-specific env should move to project-level tooling later
+
+That separation makes it easier to reuse the same repo across machines without
+forcing every agent session to inherit workstation-only paths.
 
 ## Current defaults
 
