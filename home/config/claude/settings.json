@@ -282,6 +282,12 @@
     "colgrep@lightonai-colgrep": true
   },
   "extraKnownMarketplaces": {
+    "rbw-claude-code": {
+      "source": {
+        "source": "github",
+        "repo": "RBozydar/rbw-claude-code"
+      }
+    },
     "lightonai-colgrep": {
       "source": {
         "source": "directory",

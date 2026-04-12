@@ -1,11 +1,3 @@
-# Antidote plugin manager
-source ${ZDOTDIR:-$HOME}/.antidote/antidote.zsh
-zsh_plugins=${ZDOTDIR:-$HOME}/.zsh_plugins
-if [[ ! ${zsh_plugins}.zsh -nt ${zsh_plugins}.txt ]]; then
-  antidote bundle <${zsh_plugins}.txt >${zsh_plugins}.zsh
-fi
-source ${zsh_plugins}.zsh
-
 #auto cmd correction
 ENABLE_CORRECTION="true"
 
@@ -18,9 +10,36 @@ HISTFILE=~/.histfile
 HISTSIZE=10000000
 SAVEHIST=10000000
 
+# Keep the OMZ tmux plugin loaded for aliases/functions, but only auto-start
+# tmux from the explicit SSH block below.
+ZSH_TMUX_AUTOSTART=false
+
+# Antidote static bundle
+zsh_plugins=${ZDOTDIR:-$HOME}/.zsh_plugins
+if [[ ! ${zsh_plugins}.zsh -nt ${zsh_plugins}.txt ]]; then
+  (
+    source ${ZDOTDIR:-$HOME}/.antidote/antidote.zsh
+    antidote bundle <${zsh_plugins}.txt >${zsh_plugins}.zsh
+  )
+fi
+
+# Source the bundle in an anonymous function so OMZ top-level `local`
+# declarations do not leak during `source ~/.zshrc`.
+() {
+  source ${zsh_plugins}.zsh
+}
+
+# OMZ common-aliases defines a global `P` alias that expands to `pygmentize`.
+# It breaks re-sourcing and is not worth keeping.
+builtin unalias -- 'P' 2>/dev/null
+
 source $HOME/.zsh_aliases
 source $HOME/.zsh_exports
 source $HOME/.zsh_utils_git-worktree
+
+# agnoster hides user@host when DEFAULT_USER matches $USERNAME.
+# Clear any inherited value so the context segment is always shown.
+unset DEFAULT_USER
 
 ## The next line updates PATH for the Google Cloud SDK.
 if [ -f "$HOME/google-cloud-sdk/path.zsh.inc" ]; then . "$HOME/google-cloud-sdk/path.zsh.inc"; fi
@@ -30,6 +49,7 @@ if [ -f "$HOME/google-cloud-sdk/completion.zsh.inc" ]; then . "$HOME/google-clou
 
 # >>> conda initialize >>>
 # !! Contents within this block are managed by 'conda init' !!
+export CONDA_CHANGEPS1=false
 __conda_setup="$("$HOME/miniforge3/bin/conda" 'shell.zsh' 'hook' 2> /dev/null)"
 if [ $? -eq 0 ]; then
     eval "$__conda_setup"
