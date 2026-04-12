@@ -48,7 +48,9 @@
       "Bash(pacman -Ss '7zip\\\\|7-zip\\\\|p7zip\\\\|7z')",
       "Bash(pacman -Ss 7zip)",
       "Bash(pacman -Ss p7zip)",
-      "Bash(pacman:*)"
+      "Bash(pacman:*)",
+      "Bash(hypridle --help)",
+      "Bash(hyprlock --help)"
     ]
   }
 }
