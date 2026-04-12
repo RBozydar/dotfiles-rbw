@@ -23,5 +23,34 @@ zshrc_repo: "{{ repo_root }}/home/.zshrc"
 home_repo: "{{ repo_root }}/home"
 manage_legacy_repo_symlink: "{{ repo_root != legacy_repo_root }}"
 
+homebrew_prefix_default: >-
+  {{
+    '/opt/homebrew'
+    if ansible_system == 'Darwin' and ansible_architecture in ['arm64', 'aarch64']
+    else '/usr/local'
+    if ansible_system == 'Darwin'
+    else '/home/linuxbrew/.linuxbrew'
+  }}
+homebrew_prefix: "{{ lookup('env', 'HOMEBREW_PREFIX') | default(homebrew_prefix_default, true) }}"
+homebrew_bin: "{{ homebrew_prefix }}/bin/brew"
+homebrew_path_env: "{{ homebrew_prefix }}/bin:{{ ansible_env.PATH }}"
+yazi_bin: "{{ homebrew_prefix }}/bin/ya"
+
+miniforge_root: "{{ lookup('env', 'CONDA_HOME') | default(user_home ~ '/miniforge3', true) }}"
+miniforge_platform: "{{ 'MacOSX' if ansible_system == 'Darwin' else 'Linux' }}"
+miniforge_arch: >-
+  {{
+    'x86_64'
+    if ansible_architecture in ['x86_64', 'amd64']
+    else 'aarch64'
+    if ansible_architecture == 'aarch64'
+    else 'arm64'
+    if ansible_architecture == 'arm64'
+    else ansible_architecture
+  }}
+miniforge_installer_filename: "Miniforge3-{{ miniforge_platform }}-{{ miniforge_arch }}.sh"
+miniforge_installer_url: "https://github.com/conda-forge/miniforge/releases/latest/download/{{ miniforge_installer_filename }}"
+miniforge_installer_path: "/tmp/{{ miniforge_installer_filename }}"
+
 enable_git_role: true
 enable_security_role: true

@@ -1,7 +1,7 @@
 ---
 - name: Check if Homebrew is installed
   ansible.builtin.stat:
-    path: /home/linuxbrew/.linuxbrew/bin/brew
+    path: "{{ homebrew_bin }}"
   register: brew_installed
 
 - name: Install Homebrew
@@ -20,7 +20,7 @@
     name: "{{ item }}"
     state: present
   environment:
-    PATH: "/home/linuxbrew/.linuxbrew/bin:{{ ansible_facts['env']['PATH'] }}"
+    PATH: "{{ homebrew_path_env }}"
   loop:
     - jesseduffield/lazydocker
 
@@ -31,7 +31,7 @@
     name: "{{ brew_packages }}"
     state: present
   environment:
-    PATH: "/home/linuxbrew/.linuxbrew/bin:{{ ansible_facts['env']['PATH'] }}"
+    PATH: "{{ homebrew_path_env }}"
 
 - name: Install Homebrew casks
   become: yes
@@ -40,13 +40,13 @@
     name: "{{ brew_casks }}"
     state: present
   environment:
-    PATH: "/home/linuxbrew/.linuxbrew/bin:{{ ansible_facts['env']['PATH'] }}"
+    PATH: "{{ homebrew_path_env }}"
 
 - name: Register yazi piper plugin
   become: yes
   become_user: "{{ username }}"
   ansible.builtin.command:
-    cmd: /home/linuxbrew/.linuxbrew/bin/ya pkg add yazi-rs/plugins:piper
+    cmd: "{{ yazi_bin }} pkg add yazi-rs/plugins:piper"
   register: yazi_plugin_result
   changed_when: "'already exists' not in yazi_plugin_result.stderr"
   failed_when: "yazi_plugin_result.rc != 0 and 'already exists' not in yazi_plugin_result.stderr"
@@ -55,5 +55,5 @@
   become: yes
   become_user: "{{ username }}"
   ansible.builtin.command:
-    cmd: /home/linuxbrew/.linuxbrew/bin/ya pkg install
+    cmd: "{{ yazi_bin }} pkg install"
   changed_when: true
