@@ -26,9 +26,8 @@ target=$(
 
 [ -n "$target" ]
 
-set -- $target
-workspace_id=$1
-window_address=$2
+workspace_id=${target%% *}
+window_address=${target#* }
 
 hyprctl dispatch workspace "$workspace_id" >/dev/null
 hyprctl dispatch focuswindow "address:$window_address" >/dev/null

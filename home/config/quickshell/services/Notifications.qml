@@ -3,6 +3,7 @@ pragma Singleton
 import QtQuick
 import Quickshell
 import Quickshell.Services.Notifications
+import "notifications-store.js" as NotificationsStore
 
 Singleton {
     id: root
@@ -13,47 +14,14 @@ Singleton {
     property int popupLimit: 5
     readonly property int unreadCount: history.filter(item => !item.read).length
 
-    function popupTimeoutMs(notification): int {
-        const timeout = Number(notification.expireTimeout ?? -1);
-        if (timeout > 1000)
-            return timeout;
-        if (timeout > 0)
-            return timeout * 1000;
-        return 6000;
-    }
-
     function remember(notification): void {
-        const entry = {
-            key: `${notification.id}-${Date.now()}`,
-            id: notification.id,
-            appName: notification.appName || "Notification",
-            summary: notification.summary || "Untitled notification",
-            body: notification.body || "",
-            appIcon: notification.appIcon || "",
-            image: notification.image || "",
-            urgency: notification.urgency,
-            timestamp: Date.now(),
-            read: false
-        };
-
-        root.history = [entry].concat(root.history).slice(0, root.limit);
-        root.popupList = [{
-            key: entry.key,
-            id: entry.id,
-            appName: entry.appName,
-            summary: entry.summary,
-            body: entry.body,
-            urgency: entry.urgency,
-            timestamp: entry.timestamp,
-            expiresAt: Date.now() + popupTimeoutMs(notification)
-        }].concat(root.popupList).slice(0, root.popupLimit);
+        const next = NotificationsStore.remember(root.history, root.popupList, notification, Date.now(), root.limit, root.popupLimit);
+        root.history = next.history;
+        root.popupList = next.popupList;
     }
 
     function markAllRead(): void {
-        root.history = root.history.map(entry => {
-            entry.read = true;
-            return entry;
-        });
+        root.history = NotificationsStore.markAllRead(root.history);
     }
 
     function clearHistory(): void {
@@ -62,20 +30,16 @@ Singleton {
     }
 
     function dismissPopup(key): void {
-        root.popupList = root.popupList.filter(entry => entry.key !== key);
+        root.popupList = NotificationsStore.dismissPopup(root.popupList, key);
     }
 
     function clearEntry(key): void {
-        root.history = root.history.filter(entry => entry.key !== key);
+        root.history = NotificationsStore.clearEntry(root.history, key);
         dismissPopup(key);
     }
 
     function markEntryRead(key): void {
-        root.history = root.history.map(entry => {
-            if (entry.key === key)
-                entry.read = true;
-            return entry;
-        });
+        root.history = NotificationsStore.markEntryRead(root.history, key);
     }
 
     function activateEntry(key): void {
@@ -99,8 +63,7 @@ Singleton {
         running: true
         repeat: true
         onTriggered: {
-            const now = Date.now();
-            root.popupList = root.popupList.filter(entry => entry.expiresAt > now);
+            root.popupList = NotificationsStore.filterUnexpiredPopups(root.popupList, Date.now());
         }
     }
 

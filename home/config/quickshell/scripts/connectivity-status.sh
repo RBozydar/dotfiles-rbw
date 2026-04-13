@@ -90,7 +90,6 @@ if command -v nmcli >/dev/null 2>&1; then
                     network_label="${network_name:-wifi}"
                     network_kind="wifi"
                     network_connected="true"
-                    network_device="$network_device"
                     ;;
                 ethernet|802-3-ethernet)
                     network_label="ethernet ${network_device:-wired}"

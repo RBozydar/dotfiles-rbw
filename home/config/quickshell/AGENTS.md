@@ -68,6 +68,13 @@ Relevant files:
 - If a Codex session needs a manual restart, use that script and run it outside the sandbox.
 - The only state that restart helper should resolve is the live `HYPRLAND_INSTANCE_SIGNATURE`, and it should resolve that from the newest `/run/user/$UID/hypr/*/.socket.sock`, not from inherited env.
 
-## Current Open UX Issue
+## Testing
 
-- The bar popouts work and are interactive, but the visual connection between the bar and popup still has a small gap. Treat that as active work, not settled architecture.
+- Run `make test` from `home/config/quickshell/` for the local Quickshell baseline.
+- Run `make test-live` when you want the real `qs -p` smoke check too.
+- `make qmltest` runs headless QML tests via [`scripts/qml-test.sh`](./scripts/qml-test.sh).
+- `make lint-shell` lints tracked shell helpers. It prefers `shellcheck`, but falls back to `sh -n` if `shellcheck` is not installed.
+- `make pycheck` syntax-checks Python helpers such as [`scripts/fetch_meteo_forecast.py`](./scripts/fetch_meteo_forecast.py).
+- `make smoke` launches the config in the current graphical session and asserts it reaches `Configuration Loaded`.
+- `make smoke` is not sandbox-safe. Use it from a real Hyprland/desktop session or via an approved unsandboxed command.
+- Keep unit tests focused on pure state/helpers. Geometry, hover timing, and Hyprland interaction are better covered by smoke tests plus live validation than by brittle UI automation.

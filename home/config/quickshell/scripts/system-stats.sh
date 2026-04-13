@@ -127,7 +127,7 @@ if [ "$cpu_temp" = "null" ]; then
         [ -d "$zone" ] || continue
         zone_type=$(tr '[:upper:]' '[:lower:]' < "$zone/type" 2>/dev/null || printf '')
         case "$zone_type" in
-            *cpu*|*pkg*|*x86_pkg_temp*|*k10temp*|*tdie*|*tctl*)
+            *cpu*|*pkg*|*k10temp*|*tdie*|*tctl*)
                 raw_temp=$(cat "$zone/temp" 2>/dev/null || printf '')
                 if is_uint "$raw_temp" && [ "$raw_temp" -gt 0 ]; then
                     cpu_temp=$(((raw_temp + 500) / 1000))

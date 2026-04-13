@@ -31,7 +31,7 @@ The shell is centered around `shell.qml`, shared singletons in `services/`, and 
   Bar composition, shared popout state, shared popout surface, and popup content.
 
 - [`modules/notifications/`](./modules/notifications)
-  Notification center and top-right popup stack.
+  Toast-style popup notifications.
 
 - [`modules/osd/`](./modules/osd)
   Ephemeral OSD surfaces such as volume.
@@ -67,14 +67,34 @@ The shell is centered around `shell.qml`, shared singletons in `services/`, and 
 
 ## Notification Structure
 
-- [modules/notifications/NotificationCenter.qml](./modules/notifications/NotificationCenter.qml)
-  Full notification center drawer/panel.
-
 - [modules/notifications/NotificationPopups.qml](./modules/notifications/NotificationPopups.qml)
   Toast-style popup notifications.
 
 - [services/Notifications.qml](./services/Notifications.qml)
   Desktop notification state, actions, history, and popup queues.
+
+- [modules/bar/popouts/NotificationsPopout.qml](./modules/bar/popouts/NotificationsPopout.qml)
+  Bell-anchored notification history popout rendered through the shared bar popup surface.
+
+## Test Surface
+
+- [Makefile](./Makefile)
+  Local Quickshell test entrypoint. Run `make test` for sandbox-safe checks and `make test-live` for the full suite including a live-session smoke run.
+
+- [tests/](./tests)
+  QML/JS unit tests for pure popup state and notification-store logic.
+
+- [scripts/qml-test.sh](./scripts/qml-test.sh)
+  Headless QML test runner wrapper around `qmltestrunner`.
+
+- [scripts/lint-shell.sh](./scripts/lint-shell.sh)
+  Shell script lint target. Uses `shellcheck` when installed and falls back to `sh -n`.
+
+- [scripts/python-check.sh](./scripts/python-check.sh)
+  Syntax-checks Python helpers without writing `__pycache__` into the repo.
+
+- [scripts/smoke-load.sh](./scripts/smoke-load.sh)
+  Config smoke test. Launches the shell in the current graphical session and asserts that Quickshell reaches `Configuration Loaded`.
 
 ## Ownership Boundaries
 
