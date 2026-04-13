@@ -9,6 +9,7 @@ Item {
     required property var clock
 
     readonly property alias weatherChip: weatherChip
+    readonly property alias clockChip: clockCard
 
     implicitWidth: centerRow.implicitWidth
     implicitHeight: centerRow.implicitHeight
@@ -31,12 +32,18 @@ Item {
         Rectangle {
             id: clockCard
 
+            property bool hovered: clockHover.hovered
+
             radius: Theme.chipRadius
             color: Theme.panelSolid
             border.width: 1
             border.color: Theme.border
             height: Theme.barInnerHeight - 4
             width: clockText.implicitWidth + 28
+
+            HoverHandler {
+                id: clockHover
+            }
 
             Text {
                 id: clockText

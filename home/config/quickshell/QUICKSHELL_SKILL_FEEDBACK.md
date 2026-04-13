@@ -5,3 +5,5 @@
 - The skill would be stronger with one explicit section on interactive bar popouts:
   per-widget `PanelWindow` hover popups are the wrong default for sliders and toggles, and a same-window shared surface should be recommended early.
 - A short example of "shared popout state + shared surface + hovered target geometry" for top bars would help more than generic popup references.
+- A small section on data-heavy widgets would help too:
+  `Process` + cached script fetchers + `Canvas` charts is a useful Quickshell pattern, and weather/radar/metrics widgets run into it quickly.

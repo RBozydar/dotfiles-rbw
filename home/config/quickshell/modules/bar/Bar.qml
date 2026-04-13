@@ -1,5 +1,4 @@
 import Quickshell
-import "bar" as BarParts
 
 Variants {
     id: root
@@ -8,7 +7,7 @@ Variants {
 
     model: Quickshell.screens
 
-    BarParts.BarScreen {
+    BarScreen {
         required property var modelData
 
         shell: root.shell

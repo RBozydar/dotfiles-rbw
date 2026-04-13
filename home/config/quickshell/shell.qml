@@ -2,7 +2,10 @@
 //@ pragma Env QS_NO_RELOAD_POPUP=1
 
 import Quickshell
-import qs.modules
+import "modules/bar" as BarModule
+import "modules/notifications" as NotificationModule
+import "modules/osd" as OsdModule
+import "modules/session" as SessionModule
 import qs.services
 
 ShellRoot {
@@ -10,30 +13,9 @@ ShellRoot {
 
     settings.watchFiles: true
 
-    property bool notificationCenterOpen: false
     property bool sessionOverlayOpen: false
-    property var notificationScreen: null
-
-    function toggleNotificationCenter(screen): void {
-        sessionOverlayOpen = false;
-
-        if (notificationCenterOpen && notificationScreen === screen) {
-            closeNotificationCenter();
-            return;
-        }
-
-        notificationScreen = screen;
-        notificationCenterOpen = true;
-        Notifications.markAllRead();
-    }
-
-    function closeNotificationCenter(): void {
-        notificationCenterOpen = false;
-        notificationScreen = null;
-    }
 
     function toggleSessionOverlay(): void {
-        closeNotificationCenter();
         sessionOverlayOpen = !sessionOverlayOpen;
     }
 
@@ -41,23 +23,19 @@ ShellRoot {
         sessionOverlayOpen = false;
     }
 
-    Bar {
+    BarModule.Bar {
         shell: root
     }
 
-    NotificationCenter {
+    NotificationModule.NotificationPopups {
         shell: root
     }
 
-    NotificationPopups {
+    OsdModule.VolumeOsd {
         shell: root
     }
 
-    VolumeOsd {
-        shell: root
-    }
-
-    SessionOverlay {
+    SessionModule.SessionOverlay {
         shell: root
     }
 }

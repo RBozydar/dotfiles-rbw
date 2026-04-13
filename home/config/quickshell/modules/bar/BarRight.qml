@@ -18,6 +18,7 @@ Item {
     readonly property alias resourcesChip: resourcesChip
     readonly property alias networkChip: networkChip
     readonly property alias bluetoothChip: bluetoothChip
+    readonly property alias notificationChip: notificationChip
     readonly property Item hoveredControlCenterTarget: audioChip.hovered ? audioChip : (brightnessChip.visible && brightnessChip.hovered ? brightnessChip : (networkChip.hovered ? networkChip : (bluetoothChip.hovered ? bluetoothChip : null)))
     readonly property bool controlCenterHovered: hoveredControlCenterTarget !== null
 
@@ -103,14 +104,15 @@ Item {
         }
 
         StatusChip {
+            id: notificationChip
+
             icon: ""
             accent: Notifications.unreadCount > 0 ? Theme.warning : Theme.textMuted
-            active: root.shell.notificationCenterOpen && root.shell.notificationScreen === root.screen
+            active: notificationChip.hovered
             label: ""
             badgeVisible: Notifications.unreadCount > 0
             badgeText: Notifications.unreadCount > 0 ? `${Math.min(Notifications.unreadCount, 99)}` : ""
             badgeColor: Theme.warning
-            onClicked: root.shell.toggleNotificationCenter(root.screen)
         }
 
         StatusChip {

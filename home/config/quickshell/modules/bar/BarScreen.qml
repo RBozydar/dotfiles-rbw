@@ -37,11 +37,11 @@ PanelWindow {
     }
 
     function anyPopoutTriggerHovered(): bool {
-        return centerCluster.weatherChip.hovered || (rightCluster.mediaChip.visible && rightCluster.mediaChip.hovered) || rightCluster.controlCenterHovered || rightCluster.resourcesChip.hovered;
+        return centerCluster.weatherChip.hovered || centerCluster.clockChip.hovered || (rightCluster.mediaChip.visible && rightCluster.mediaChip.hovered) || rightCluster.controlCenterHovered || rightCluster.resourcesChip.hovered || rightCluster.notificationChip.hovered;
     }
 
     function syncPopout(): void {
-        if (root.shell.notificationCenterOpen || root.shell.sessionOverlayOpen) {
+        if (root.shell.sessionOverlayOpen) {
             closePopoutCheck.stop();
             popoutState.clearAll();
             return;
@@ -49,7 +49,13 @@ PanelWindow {
 
         if (centerCluster.weatherChip.hovered) {
             closePopoutCheck.stop();
-            popoutState.show("weather", centerCluster.weatherChip, weatherPopupContent, 320);
+            popoutState.show("weather", centerCluster.weatherChip, weatherPopupContent, 820);
+            return;
+        }
+
+        if (centerCluster.clockChip.hovered) {
+            closePopoutCheck.stop();
+            popoutState.show("calendar", centerCluster.clockChip, calendarPopupContent, 330);
             return;
         }
 
@@ -68,6 +74,12 @@ PanelWindow {
         if (rightCluster.resourcesChip.hovered) {
             closePopoutCheck.stop();
             popoutState.show("resources", rightCluster.resourcesChip, resourcesPopupContent, 360);
+            return;
+        }
+
+        if (rightCluster.notificationChip.hovered) {
+            closePopoutCheck.stop();
+            popoutState.show("notifications", rightCluster.notificationChip, notificationsPopupContent, 420);
             return;
         }
 
@@ -157,6 +169,14 @@ PanelWindow {
             }
 
             Component {
+                id: calendarPopupContent
+
+                BarPopouts.CalendarPopout {
+                    clock: clock
+                }
+            }
+
+            Component {
                 id: controlCenterPopupContent
 
                 BarPopouts.ControlCenterPopout {
@@ -172,8 +192,23 @@ PanelWindow {
                 }
             }
 
+            Component {
+                id: notificationsPopupContent
+
+                BarPopouts.NotificationsPopout {
+                }
+            }
+
             Connections {
                 target: centerCluster.weatherChip
+
+                function onHoveredChanged(): void {
+                    root.syncPopout();
+                }
+            }
+
+            Connections {
+                target: centerCluster.clockChip
 
                 function onHoveredChanged(): void {
                     root.syncPopout();
@@ -209,6 +244,14 @@ PanelWindow {
             }
 
             Connections {
+                target: rightCluster.notificationChip
+
+                function onHoveredChanged(): void {
+                    root.syncPopout();
+                }
+            }
+
+            Connections {
                 target: popoutState
 
                 function onPopupHoveredChanged(): void {
@@ -218,13 +261,6 @@ PanelWindow {
 
             Connections {
                 target: root.shell
-
-                function onNotificationCenterOpenChanged(): void {
-                    if (root.shell.notificationCenterOpen)
-                        popoutState.clearAll();
-                    else
-                        root.syncPopout();
-                }
 
                 function onSessionOverlayOpenChanged(): void {
                     if (root.shell.sessionOverlayOpen)
@@ -241,6 +277,6 @@ PanelWindow {
 
         screen: root.screen
         state: popoutState
-        surfaceEnabled: !root.shell.notificationCenterOpen && !root.shell.sessionOverlayOpen
+        surfaceEnabled: !root.shell.sessionOverlayOpen
     }
 }

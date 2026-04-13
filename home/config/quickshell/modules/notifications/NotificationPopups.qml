@@ -12,7 +12,7 @@ PanelWindow {
     required property var shell
 
     screen: Quickshell.screens.find(screen => screen.name === Hyprland.focusedMonitor?.name) ?? Quickshell.screens.values[0] ?? null
-    visible: Notifications.popupList.length > 0 && !shell.notificationCenterOpen && !shell.sessionOverlayOpen
+    visible: Notifications.popupList.length > 0 && !shell.sessionOverlayOpen
     color: "transparent"
     exclusiveZone: 0
     exclusionMode: ExclusionMode.Ignore

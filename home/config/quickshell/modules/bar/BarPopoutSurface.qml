@@ -11,6 +11,7 @@ Item {
 
     property int popupPadding: Theme.padding
     property int overlapHeight: 22
+    property int bridgeOverlapIntoBar: 4
     property real slideDistance: 18
     property bool surfaceEnabled: true
 
@@ -58,7 +59,7 @@ Item {
             right: true
         }
 
-        margins.top: Theme.barOuterHeight - Theme.barMargin - root.overlapHeight
+        margins.top: Theme.barOuterHeight - Theme.barMargin - root.bridgeOverlapIntoBar
 
         implicitHeight: root.overlapHeight + popupHeight
         mask: Region {
@@ -94,7 +95,7 @@ Item {
             popupCard.revealed = false;
         }
 
-        Item {
+        Rectangle {
             id: hoverBridge
 
             visible: root.popupVisible
@@ -102,6 +103,9 @@ Item {
             y: 0
             width: root.popupVisible ? Math.min(Math.max((root.state.displayTarget?.width ?? 44) + 24, 60), Math.max(60, popupWindow.popupWidth - 24)) : 0
             height: root.popupVisible ? root.overlapHeight : 0
+            radius: Math.min(height / 2, Theme.chipRadius)
+            color: Theme.panel
+            border.width: 0
 
             HoverHandler {
                 id: bridgeHover
@@ -113,7 +117,7 @@ Item {
 
             visible: root.popupVisible
             x: popupWindow.popupX
-            y: root.overlapHeight
+            y: root.overlapHeight - 1
             width: popupWindow.popupWidth
             height: popupWindow.popupHeight
             clip: true
