@@ -14,7 +14,6 @@ from typing import Any
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 
-
 DEFAULT_NAME = "Gdansk, Poland"
 DEFAULT_LAT = "54.35"
 DEFAULT_LON = "18.65"
