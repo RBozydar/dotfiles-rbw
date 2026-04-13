@@ -7,73 +7,214 @@ import Quickshell.Io
 Singleton {
     id: root
 
-    property string location: Quickshell.env("RBW_WEATHER_LOCATION") || ""
+    property string locationSpec: Quickshell.env("RBW_WEATHER_LOCATION") || ""
+    readonly property var locationParts: locationSpec.length > 0 ? locationSpec.split("|") : []
+    readonly property string locationName: locationParts.length > 0 && locationParts[0].length > 0 ? locationParts[0] : (Quickshell.env("RBW_WEATHER_NAME") || "Gdansk, Poland")
+    readonly property string latitude: locationParts.length > 1 && locationParts[1].length > 0 ? locationParts[1] : (Quickshell.env("RBW_WEATHER_LAT") || "54.35")
+    readonly property string longitude: locationParts.length > 2 && locationParts[2].length > 0 ? locationParts[2] : (Quickshell.env("RBW_WEATHER_LON") || "18.65")
+
     property bool available: false
     property string city: ""
     property string condition: "Weather unavailable"
-    property string code: ""
     property string temperature: "--°"
     property string feelsLike: "--°"
     property string humidity: "--%"
     property string wind: "--"
+    property string pressure: "--"
+    property string modelLabel: ""
+    property string runLabel: ""
+    property bool stale: false
+    property var hourly: []
 
-    readonly property string icon: {
-        switch (root.code) {
-        case "113":
-            return "☀";
-        case "116":
-            return "⛅";
-        case "119":
-        case "122":
-        case "143":
+    readonly property var hourlyPreview: root.hourly.slice(0, 24)
+    readonly property string summaryKind: root.classifyForecast(root.hourlyPreview.slice(0, 6))
+    readonly property string icon: root.iconForKind(root.summaryKind, root.hourlyPreview[0]?.night ?? false)
+
+    function iconForKind(kind, night): string {
+        switch (kind) {
+        case "sunny":
+            return night ? "☾" : "☀";
+        case "partly-cloudy":
+            return night ? "☁" : "⛅";
+        case "cloudy":
             return "☁";
-        case "176":
-        case "263":
-        case "266":
-        case "281":
-        case "284":
-        case "293":
-        case "296":
-        case "299":
-        case "302":
-        case "305":
-        case "308":
-        case "311":
-        case "314":
-        case "317":
-        case "353":
-        case "356":
-        case "359":
-        case "362":
-        case "365":
+        case "rain":
             return "☂";
-        case "179":
-        case "182":
-        case "185":
-        case "227":
-        case "230":
-        case "320":
-        case "323":
-        case "326":
-        case "329":
-        case "332":
-        case "335":
-        case "338":
-        case "350":
-        case "368":
-        case "371":
-        case "374":
-        case "377":
-        case "392":
-        case "395":
+        case "snow":
             return "❄";
-        case "200":
-        case "386":
-        case "389":
+        case "storm":
             return "⚡";
+        case "fog":
+            return "〰";
         default:
             return "☁";
         }
+    }
+
+    function labelForKind(kind): string {
+        switch (kind) {
+        case "sunny":
+            return "Clear skies";
+        case "partly-cloudy":
+            return "Partly cloudy";
+        case "cloudy":
+            return "Cloudy";
+        case "rain":
+            return "Rain showers";
+        case "snow":
+            return "Snow";
+        case "storm":
+            return "Storm risk";
+        case "fog":
+            return "Fog";
+        default:
+            return "Forecast unavailable";
+        }
+    }
+
+    function numberOrNull(value): real {
+        return value === null || value === undefined || Number.isNaN(value) ? NaN : Number(value);
+    }
+
+    function rounded(value, digits): real {
+        const factor = Math.pow(10, digits);
+        return Math.round(value * factor) / factor;
+    }
+
+    function percentValue(value): real {
+        const numeric = root.numberOrNull(value);
+        if (Number.isNaN(numeric))
+            return 0;
+
+        return numeric <= 1.01 ? numeric * 100 : numeric;
+    }
+
+    function formatTemperature(value): string {
+        const numeric = root.numberOrNull(value);
+        return Number.isNaN(numeric) ? "--°" : `${Math.round(numeric)}°`;
+    }
+
+    function formatHumidity(value): string {
+        const numeric = root.numberOrNull(value);
+        return Number.isNaN(numeric) ? "--%" : `${Math.round(root.percentValue(numeric))}%`;
+    }
+
+    function formatWind(value): string {
+        const numeric = root.numberOrNull(value);
+        return Number.isNaN(numeric) ? "--" : `${Math.round(numeric * 3.6)} km/h`;
+    }
+
+    function formatPressure(value): string {
+        const numeric = root.numberOrNull(value);
+        return Number.isNaN(numeric) ? "--" : `${Math.round(numeric / 100)} hPa`;
+    }
+
+    function formatRunLabel(value): string {
+        if (!value)
+            return "";
+
+        const date = new Date(value);
+        return `run ${Qt.formatDateTime(date, "yyyy-MM-dd hh:mm")}`;
+    }
+
+    function classifyHour(row): string {
+        const storm = root.percentValue(row.storm_max ?? 0);
+        const fog = root.percentValue(row.fog_max ?? 0);
+        const precipAmount = root.numberOrNull(row.pcpttl_max ?? row.pcpttl_aver ?? 0);
+        const precipProb = root.percentValue(row.pcpttlprob_point ?? 0);
+        const cloudCover = root.percentValue(row.cldtot_aver ?? 0);
+        const temperature = root.numberOrNull(row.airtmp_point);
+
+        if (storm >= 20)
+            return "storm";
+        if (fog >= 45)
+            return "fog";
+        if ((!Number.isNaN(precipAmount) && precipAmount >= 0.25) || precipProb >= 45) {
+            if (!Number.isNaN(temperature) && temperature <= 0.5)
+                return "snow";
+            return "rain";
+        }
+        if (cloudCover >= 75)
+            return "cloudy";
+        if (cloudCover >= 35)
+            return "partly-cloudy";
+        return "sunny";
+    }
+
+    function classifyForecast(rows): string {
+        const scores = {
+            sunny: 0,
+            "partly-cloudy": 0,
+            cloudy: 0,
+            rain: 0,
+            snow: 0,
+            storm: 0,
+            fog: 0
+        };
+
+        for (let index = 0; index < rows.length; index += 1) {
+            const row = rows[index];
+            if (!row)
+                continue;
+
+            const weight = Math.max(1, rows.length - index);
+            scores[row.kind] += weight;
+        }
+
+        let bestKind = "cloudy";
+        let bestScore = -1;
+        for (const [kind, score] of Object.entries(scores)) {
+            if (score > bestScore) {
+                bestKind = kind;
+                bestScore = score;
+            }
+        }
+
+        return bestKind;
+    }
+
+    function buildHour(row, index): var {
+        const timestamp = Number(row.timestamp ?? 0) * 1000;
+        const date = new Date(timestamp);
+        const windSpeed = root.numberOrNull(row.wind10_sd_true_prev_point);
+        const kind = root.classifyHour(row);
+        const temp = root.numberOrNull(row.airtmp_point);
+        const tempMin = root.numberOrNull(row.airtmp_min);
+        const tempMax = root.numberOrNull(row.airtmp_max);
+        const dewPoint = root.numberOrNull(row.dwptmp_point);
+        const feelsLike = root.numberOrNull(row.wchill_point);
+        const pressurePa = root.numberOrNull(row.slpres_point);
+        const visibilityMeters = root.numberOrNull(row.visibl_min);
+
+        return {
+            timestamp: row.timestamp ?? 0,
+            hourLabel: Qt.formatDateTime(date, "hh"),
+            dayLabel: Qt.formatDateTime(date, "dd.MM"),
+            dayMarker: index === 0 || date.getHours() === 0,
+            night: date.getHours() < 6 || date.getHours() >= 21,
+            icon: root.iconForKind(kind, date.getHours() < 6 || date.getHours() >= 21),
+            kind: kind,
+            label: root.labelForKind(kind),
+            temp: Number.isNaN(temp) ? null : root.rounded(temp, 1),
+            tempMin: Number.isNaN(tempMin) ? null : root.rounded(tempMin, 1),
+            tempMax: Number.isNaN(tempMax) ? null : root.rounded(tempMax, 1),
+            feelsLike: Number.isNaN(feelsLike) ? null : root.rounded(feelsLike, 1),
+            dewPoint: Number.isNaN(dewPoint) ? null : root.rounded(dewPoint, 1),
+            humidity: root.percentValue(row.realhum_aver ?? 0),
+            pressureHpa: Number.isNaN(pressurePa) ? null : root.rounded(pressurePa / 100, 1),
+            precipAmount: root.numberOrNull(row.pcpttl_max ?? row.pcpttl_aver ?? 0),
+            precipProbability: root.percentValue(row.pcpttlprob_point ?? 0),
+            cloudCover: root.percentValue(row.cldtot_aver ?? 0),
+            cloudLow: root.percentValue(row.cldlow_aver ?? 0),
+            cloudMid: root.percentValue(row.cldmed_aver ?? 0),
+            cloudHigh: root.percentValue(row.cldhigh_aver ?? 0),
+            visibilityKm: Number.isNaN(visibilityMeters) ? null : root.rounded(visibilityMeters / 1000, 1),
+            fogRisk: root.percentValue(row.fog_max ?? 0),
+            stormRisk: root.percentValue(row.storm_max ?? 0),
+            windSpeedKmh: Number.isNaN(windSpeed) ? 0 : root.rounded(windSpeed * 3.6, 1),
+            windGustKmh: root.rounded((root.numberOrNull(row.wind_gust_max) || 0) * 3.6, 1),
+            windDirection: root.numberOrNull(row.wind10_dr_deg_true_prev_point) || 0
+        };
     }
 
     function refresh(): void {
@@ -84,7 +225,7 @@ Singleton {
     Component.onCompleted: refresh()
 
     Timer {
-        interval: 1200000
+        interval: 21600000
         running: true
         repeat: true
         onTriggered: root.refresh()
@@ -93,7 +234,13 @@ Singleton {
     Process {
         id: fetcher
 
-        command: ["sh", Quickshell.shellPath("scripts/weather.sh"), root.location]
+        command: [
+            "sh",
+            Quickshell.shellPath("scripts/weather.sh"),
+            root.latitude,
+            root.longitude,
+            root.locationName
+        ]
         workingDirectory: Quickshell.shellDir
 
         stdout: SplitParser {
@@ -104,14 +251,22 @@ Singleton {
 
                 try {
                     const payload = JSON.parse(line);
-                    root.available = payload.available ?? false;
-                    root.city = payload.city ?? "";
-                    root.condition = payload.condition ?? "Weather unavailable";
-                    root.code = `${payload.code ?? ""}`;
-                    root.temperature = payload.temperature ?? "--°";
-                    root.feelsLike = payload.feelsLike ?? "--°";
-                    root.humidity = payload.humidity ?? "--%";
-                    root.wind = payload.wind ?? "--";
+                    const rawHourly = Array.isArray(payload.hourly) ? payload.hourly : [];
+                    const builtHours = rawHourly.map((hour, index) => root.buildHour(hour, index));
+                    const first = builtHours.length > 0 ? builtHours[0] : null;
+
+                    root.available = (payload.available ?? builtHours.length > 0) && builtHours.length > 0;
+                    root.stale = payload.stale ?? false;
+                    root.city = payload.location?.name ?? root.locationName;
+                    root.modelLabel = payload.model?.label ?? "";
+                    root.runLabel = root.formatRunLabel(payload.run_timestamp_iso ?? payload.forecast_start ?? "");
+                    root.hourly = builtHours;
+                    root.condition = first ? first.label : "Weather unavailable";
+                    root.temperature = first ? root.formatTemperature(first.temp) : "--°";
+                    root.feelsLike = first ? root.formatTemperature(first.feelsLike) : "--°";
+                    root.humidity = first ? root.formatHumidity(first.humidity) : "--%";
+                    root.wind = first ? `${Math.round(first.windSpeedKmh)} km/h` : "--";
+                    root.pressure = first ? `${Math.round(first.pressureHpa)} hPa` : "--";
                 } catch (error) {
                     console.log(`weather parse error: ${error}`);
                 }

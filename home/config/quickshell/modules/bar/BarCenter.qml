@@ -1,7 +1,6 @@
 import QtQuick
+import "weather" as WeatherWidgets
 import qs
-import qs.components
-import qs.services
 
 Item {
     id: root
@@ -20,13 +19,8 @@ Item {
         anchors.centerIn: parent
         spacing: Theme.gap
 
-        StatusChip {
+        WeatherWidgets.WeatherChip {
             id: weatherChip
-
-            icon: Weather.icon
-            accent: Theme.warning
-            label: Weather.temperature
-            maximumLabelWidth: 96
         }
 
         Rectangle {
