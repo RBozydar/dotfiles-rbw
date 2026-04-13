@@ -37,7 +37,7 @@ PanelWindow {
     }
 
     function anyPopoutTriggerHovered(): bool {
-        return centerCluster.weatherChip.hovered || centerCluster.clockChip.hovered || (rightCluster.mediaChip.visible && rightCluster.mediaChip.hovered) || rightCluster.controlCenterHovered || rightCluster.resourcesChip.hovered || rightCluster.notificationChip.hovered;
+        return centerCluster.weatherChip.hovered || centerCluster.clockChip.hovered || (rightCluster.mediaChip.visible && rightCluster.mediaChip.hovered) || (rightCluster.homeChip.visible && rightCluster.homeChip.hovered) || rightCluster.controlCenterHovered || rightCluster.resourcesChip.hovered || rightCluster.notificationChip.hovered;
     }
 
     function syncPopout(): void {
@@ -62,6 +62,12 @@ PanelWindow {
         if (rightCluster.mediaChip.visible && rightCluster.mediaChip.hovered) {
             closePopoutCheck.stop();
             popoutState.show("media", rightCluster.mediaChip, mediaPopupContent, 380);
+            return;
+        }
+
+        if (rightCluster.homeChip.visible && rightCluster.homeChip.hovered) {
+            closePopoutCheck.stop();
+            popoutState.show("home-assistant", rightCluster.homeChip, homeAssistantPopupContent, 360);
             return;
         }
 
@@ -185,6 +191,13 @@ PanelWindow {
             }
 
             Component {
+                id: homeAssistantPopupContent
+
+                BarPopouts.HomeAssistantPopout {
+                }
+            }
+
+            Component {
                 id: resourcesPopupContent
 
                 BarPopouts.ResourcesPopout {
@@ -219,6 +232,20 @@ PanelWindow {
                 target: rightCluster.mediaChip
 
                 function onHoveredChanged(): void {
+                    root.syncPopout();
+                }
+
+                function onVisibleChanged(): void {
+                    root.syncPopout();
+                }
+            }
+
+            Connections {
+                target: rightCluster.homeChip
+
+                function onHoveredChanged(): void {
+                    if (rightCluster.homeChip.hovered)
+                        HomeAssistant.refresh();
                     root.syncPopout();
                 }
 

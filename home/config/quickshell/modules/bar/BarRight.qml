@@ -15,6 +15,7 @@ Item {
     readonly property alias mediaChip: mediaChip
     readonly property alias audioChip: audioChip
     readonly property alias brightnessChip: brightnessChip
+    readonly property alias homeChip: homeChip
     readonly property alias resourcesChip: resourcesChip
     readonly property alias networkChip: networkChip
     readonly property alias bluetoothChip: bluetoothChip
@@ -62,6 +63,17 @@ Item {
             label: `${root.brightnessMonitor?.brightnessPercent ?? "--"}%`
             onWheelUp: root.brightnessMonitor?.changeBy(0.05)
             onWheelDown: root.brightnessMonitor?.changeBy(-0.05)
+        }
+
+        StatusChip {
+            id: homeChip
+
+            visible: HomeAssistant.configured
+            icon: !HomeAssistant.available ? "󰔎" : (HomeAssistant.anyOn ? "󰖨" : "󰖧")
+            accent: !HomeAssistant.available ? Theme.warning : (HomeAssistant.anyOn ? Theme.warning : Theme.textMuted)
+            active: homeChip.hovered
+            label: HomeAssistant.chipLabel
+            onClicked: HomeAssistant.refresh()
         }
 
         StatusChip {
