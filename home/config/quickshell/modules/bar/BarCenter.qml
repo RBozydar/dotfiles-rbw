@@ -31,7 +31,7 @@ Item {
             radius: Theme.chipRadius
             color: Theme.panelSolid
             border.width: 1
-            border.color: Theme.border
+            border.color: Theme.border1
             height: Theme.barInnerHeight - 4
             width: clockText.implicitWidth + 28
 
@@ -43,7 +43,7 @@ Item {
                 id: clockText
 
                 anchors.centerIn: parent
-                text: Qt.formatDateTime(root.clock.date, "hh:mm:ss yyyy-MM-dd")
+                text: Qt.formatDateTime(root.clock.date, "yyyy-MM-dd hh:mm:ss")
                 color: Theme.text
                 font.family: Theme.fontMono
                 font.pixelSize: 14
