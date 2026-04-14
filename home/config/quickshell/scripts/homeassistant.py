@@ -5,16 +5,18 @@ from __future__ import annotations
 
 import argparse
 import json
-import os
 import re
 import sys
+from pathlib import Path
 from typing import Any
+from dotenv import dotenv_values
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 
 
 DEFAULT_HASS_URL = "http://homeassistant.local:8123"
 DEFAULT_TIMEOUT_SECONDS = 10.0
+ENV_FILE = Path(__file__).resolve().with_name(".env")
 ENTITY_ID_RE = re.compile(r"^light\.[a-z0-9_]+$")
 ALLOWED_LIGHT_SERVICES = frozenset({"toggle", "turn_on", "turn_off"})
 DEFAULT_ALLOWED_LIGHTS = (
@@ -48,17 +50,12 @@ def parse_args() -> argparse.Namespace:
 
     return parser.parse_args()
 
-
 def get_config() -> tuple[str, str, list[str]]:
-    """Return (url, token, allowed_lights) from the environment."""
-    hass_url = (
-        os.getenv("HA_URL")
-        or os.getenv("RBW_HA_URL")
-        or os.getenv("HASS_URL")
-        or DEFAULT_HASS_URL
-    ).rstrip("/")
-    token = os.getenv("HA_TOKEN") or os.getenv("RBW_HA_TOKEN") or os.getenv("HASS_TOKEN") or ""
-    raw_allowlist = os.getenv("RBW_HA_LIGHTS", "")
+    """Return (url, token, allowed_lights) from the repo env file."""
+    env = dotenv_values(ENV_FILE)
+    hass_url = (env.get("HA_URL") or env.get("HASS_URL") or DEFAULT_HASS_URL).rstrip("/")
+    token = env.get("HA_TOKEN") or env.get("HASS_TOKEN") or ""
+    raw_allowlist = env.get("RBW_HA_LIGHTS", "")
     allowlist = [part.strip() for part in raw_allowlist.split(",") if part.strip()]
     if not allowlist:
         allowlist = list(DEFAULT_ALLOWED_LIGHTS)
