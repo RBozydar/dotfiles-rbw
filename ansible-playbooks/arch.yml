@@ -45,6 +45,12 @@
     tags:
       - aur
 
+  - name: Configure NCT6687 fan control support
+    ansible.builtin.include_tasks: tasks/nct6687-arch.yml
+    tags:
+      - hwmon
+      - fans
+
   - name: Add user to docker group
     become: yes
     ansible.builtin.user:
@@ -60,6 +66,19 @@
       state: started
     tags:
       - docker
+
+  - name: Keep Docker bridges unmanaged by NetworkManager
+    become: yes
+    ansible.builtin.copy:
+      src: files/networkmanager/90-unmanage-docker.conf
+      dest: /etc/NetworkManager/conf.d/90-unmanage-docker.conf
+      owner: root
+      group: root
+      mode: '0644'
+    notify: Restart NetworkManager
+    tags:
+      - docker
+      - networkmanager
 
   - name: NVIDIA CUDA
     ansible.builtin.include_tasks: tasks/nvidia-cuda-arch.yml

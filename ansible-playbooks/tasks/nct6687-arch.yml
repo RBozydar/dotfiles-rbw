@@ -1,0 +1,38 @@
+---
+- name: Blacklist conflicting in-kernel nct6683 driver
+  become: yes
+  ansible.builtin.copy:
+    dest: /etc/modprobe.d/nct6683_blacklist.conf
+    content: |
+      blacklist nct6683
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Configure nct6687 kernel module options
+  become: yes
+  ansible.builtin.copy:
+    dest: /etc/modprobe.d/nct6687.conf
+    content: |
+      options nct6687 msi_fan_brute_force=1
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Ensure nct6687 module loads at boot
+  become: yes
+  ansible.builtin.copy:
+    dest: /etc/modules-load.d/nct6687.conf
+    content: |
+      nct6687
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Remove nct6683 from lm_sensors autoload config when present
+  become: yes
+  ansible.builtin.replace:
+    path: /etc/conf.d/lm_sensors
+    regexp: '\bnct6683\b\s*'
+    replace: ''
+  failed_when: false
