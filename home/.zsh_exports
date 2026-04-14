@@ -1,22 +1,13 @@
 export PATH=$HOME/bin:/usr/local/bin:$PATH
 export PATH=$HOME/.local/bin:$PATH
 export PATH=$PATH:/usr/local/go/bin
-export DAGSTER_HOME=$HOME/repo/wina_julii/dbt/doliovini/winajulii
-export DISPLAY=:0
-export DBT_GCP_SA=/home/rbw/.config/gcp/dolio-bq.json
-export HF_HOME=/mnt/ml_models
 export PATH=$PATH:/usr/local/go/bin:$HOME/go/bin
 export SEARXNG_BASE_URL=https://searxng.local.b47.bozydar.me
 [ -f /home/rbw/.zsh_secrets ] && source /home/rbw/.zsh_secrets
 export ENABLE_LSP_TOOL=1
 export CLAUDE_ENABLE_LSP_TOOL=1
 export CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1
-# conda
-#  .  ~/miniconda3/etc/profile.d/conda.sh
-#  . /usr/local/anaconda/etc/profile.d/conda.sh
-#  conda activate base
-#  conda zsh completions
-  zstyle ':completion::complete:*' use-cache 1
+zstyle ':completion::complete:*' use-cache 1
 
 # completions
 zstyle ':completion:*' completer _expand _complete _ignored _correct _approximate
@@ -26,8 +17,6 @@ zstyle :compinstall filename '/home/rbw/.zshrc'
 # export GTK_THEME=Arc-Dark
 export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR/ssh-agent.socket"
 # llama.cpp CUDA build
-export PATH="/mnt/ml_models/llama_cpp_compiled/cuda/bin:$PATH"
-export LD_LIBRARY_PATH="/mnt/ml_models/llama_cpp_compiled/cuda/lib:$LD_LIBRARY_PATH"
 
 function y() {
 	local tmp="$(mktemp -t "yazi-cwd.XXXXXX")" cwd
@@ -38,3 +27,7 @@ function y() {
 }
 export ORT_DYLIB_PATH=/home/rbw/ort_gpu/libonnxruntime.so.1.23.0
 export LD_LIBRARY_PATH=/home/rbw/ort_gpu:$LD_LIBRARY_PATH
+export PATH="/home/rbw/.local/llama_cpp_compiled/cuda/bin:$PATH"
+export LD_LIBRARY_PATH="/home/rbw/.local/llama_cpp_compiled/cuda/lib:$LD_LIBRARY_PATH"
+
+export HA_URL=http://homeassistant.local.bozydar.me
