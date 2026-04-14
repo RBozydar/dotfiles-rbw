@@ -253,20 +253,11 @@ Item {
                 }
             }
 
-            drawRoundedRect(root.leftInset - 8, root.tempTop - 10, root.chartWidth + 16, root.tempHeight + 20, 18, root.rgba(Theme.panelSolid, Theme.darkMode ? 0.62 : 0.72), root.rgba(Theme.border, 0.65));
+            drawRoundedRect(root.leftInset - 8, root.tempTop - 10, root.chartWidth + 16, root.tempHeight + 20, 18, root.rgba(Theme.chip, Theme.darkMode ? 0.82 : 0.9), root.rgba(Theme.border, 0.58));
             drawRoundedRect(root.leftInset - 8, root.precipTop - 8, root.chartWidth + 16, root.precipHeight + 16, 16, root.rgba(Theme.chip, Theme.darkMode ? 0.42 : 0.55), root.rgba(Theme.border, 0.5));
             drawRoundedRect(root.leftInset - 8, root.pressureTop - 8, root.chartWidth + 16, root.pressureHeight + 16, 16, root.rgba(Theme.warning, Theme.darkMode ? 0.08 : 0.12), root.rgba(Theme.border, 0.5));
             drawRoundedRect(root.leftInset - 8, root.windTop - 8, root.chartWidth + 16, root.windHeight + 16, 16, root.rgba(Theme.accentStrong, Theme.darkMode ? 0.08 : 0.1), root.rgba(Theme.border, 0.5));
             drawRoundedRect(root.leftInset - 8, root.cloudTop - 8, root.chartWidth + 16, root.cloudHeight + 16, 16, root.rgba(Theme.text, Theme.darkMode ? 0.04 : 0.06), root.rgba(Theme.border, 0.5));
-
-            for (let index = 0; index < root.sampleCount; index += 1) {
-                const sample = root.sampleAt(index);
-                const cloudAlpha = 0.03 + ((sample?.cloudCover ?? 0) / 100) * 0.18;
-                const columnLeft = root.columnLeft(index);
-                const columnRight = root.columnRight(index);
-                ctx.fillStyle = root.rgba(Theme.text, cloudAlpha);
-                ctx.fillRect(columnLeft, root.tempTop, columnRight - columnLeft, root.tempHeight);
-            }
 
             ctx.strokeStyle = root.rgba(Theme.border, 0.55);
             ctx.lineWidth = 1;

@@ -25,6 +25,6 @@ StatusChip {
 
     icon: Weather.icon
     accent: weatherAccent
-    label: Weather.temperature
-    maximumLabelWidth: 56
+    label: `${Weather.temperature} • feels ${Weather.feelsLike} • ${Weather.wind}`
+    maximumLabelWidth: 220
 }

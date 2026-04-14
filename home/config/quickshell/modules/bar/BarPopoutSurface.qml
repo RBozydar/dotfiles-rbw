@@ -14,6 +14,8 @@ Item {
     property int bridgeOverlapIntoBar: 4
     property real slideDistance: 18
     property bool surfaceEnabled: true
+    readonly property bool solidPopup: root.state.displayName === "weather"
+    readonly property color surfaceColor: root.solidPopup ? Theme.panelSolid : Theme.panel
 
     readonly property bool open: root.surfaceEnabled && root.state.open
     readonly property bool popupVisible: root.surfaceEnabled && root.state.visible
@@ -104,7 +106,7 @@ Item {
             width: root.popupVisible ? Math.min(Math.max((root.state.displayTarget?.width ?? 44) + 24, 60), Math.max(60, popupWindow.popupWidth - 24)) : 0
             height: root.popupVisible ? root.overlapHeight : 0
             radius: Math.min(height / 2, Theme.chipRadius)
-            color: Theme.panel
+            color: root.surfaceColor
             border.width: 0
 
             HoverHandler {
@@ -133,7 +135,7 @@ Item {
                 y: popupCard.revealed ? 0 : -root.slideDistance
                 opacity: popupCard.revealed ? 1 : 0
                 radius: Theme.radius
-                color: Theme.panel
+                color: root.surfaceColor
                 border.width: 1
                 border.color: Theme.border
 
