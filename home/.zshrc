@@ -35,6 +35,7 @@ builtin unalias -- 'P' 2>/dev/null
 
 source $HOME/.zsh_aliases
 source $HOME/.zsh_exports
+source $HOME/.zsh_secrets
 source $HOME/.zsh_utils_git-worktree
 
 # agnoster hides user@host when DEFAULT_USER matches $USERNAME.
