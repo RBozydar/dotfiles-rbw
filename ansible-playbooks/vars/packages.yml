@@ -1,238 +1,251 @@
-base_packages:
-    - git
-    - curl
-    - wget
-    - zsh
-    - keychain
-    - mc
-    - samba
-    - nmap
-    - meson
-    - tmux
-    - rsync
-    - tar
-    - unrar
-    - zip
-    - gnome-disk-utility
-    - ntfs-3g
-    - parted
-    - jq
+base_terminal_packages:
+  - git
+  - curl
+  - wget
+  - zsh
+  - keychain
+  - mc
+  - samba
+  - nmap
+  - meson
+  - tmux
+  - rsync
+  - tar
+  - unrar
+  - zip
+  - ntfs-3g
+  - parted
+  - jq
 
-ubuntu_packages:
-    # build
-    - build-essential
-    - cmake
-    - ninja-build
-    - pkg-config
-    - libssl-dev
-    - libomp-dev
-    - libopenblas-dev
-    - unzip
-    # dev
-    - zsh
-    - ffmpeg
-    - pandoc
-    # networking
-    - nfs-kernel-server
-    - nfs-common
-    - openssh-client
-    - openssh-server
-    - wireguard
-    # monitoring
-    - btop
-    - htop
-    - nvtop
-    - ncdu
-    - duf
-    - iftop
-    - iotop
-    - powertop
-    - fio
-    - traceroute
-    - ethtool
-    - iperf3
-    - mesa-utils
-    # security
-    - apparmor
-    - apparmor-profiles
-    - bubblewrap
-    - openssl
-    - fail2ban
-    - unattended-upgrades
-    # fonts
-    - fonts-firacode
+base_gui_packages:
+  - gnome-disk-utility
+
+base_packages: "{{ base_terminal_packages + (base_gui_packages if enable_gui | bool else []) }}"
+
+ubuntu_terminal_packages:
+  # build
+  - build-essential
+  - cmake
+  - ninja-build
+  - pkg-config
+  - libssl-dev
+  - libomp-dev
+  - libopenblas-dev
+  - unzip
+  # dev
+  - zsh
+  - ffmpeg
+  - pandoc
+  # networking
+  - nfs-kernel-server
+  - nfs-common
+  - openssh-client
+  - openssh-server
+  - wireguard
+  # monitoring
+  - btop
+  - htop
+  - nvtop
+  - ncdu
+  - duf
+  - iftop
+  - iotop
+  - powertop
+  - fio
+  - traceroute
+  - ethtool
+  - iperf3
+  # security
+  - apparmor
+  - apparmor-profiles
+  - bubblewrap
+  - openssl
+  - fail2ban
+  - unattended-upgrades
+
+ubuntu_gui_packages:
+  - fonts-firacode
+  - mesa-utils
+
+ubuntu_packages: "{{ ubuntu_terminal_packages + (ubuntu_gui_packages if enable_gui | bool else []) }}"
 
 brew_packages:
-    - ast-grep
-    - fd
-    - ffmpeg
-    - fzf
-    - imagemagick
-    - jq
-    - lazydocker
-    - lazygit
-    - poppler
-    - resvg
-    - ripgrep
-    - sevenzip
-    - yazi
-    - zoxide
+  - ast-grep
+  - fd
+  - ffmpeg
+  - fzf
+  - imagemagick
+  - jq
+  - lazydocker
+  - lazygit
+  - poppler
+  - resvg
+  - ripgrep
+  - sevenzip
+  - yazi
+  - zoxide
 
 brew_casks:
-    - font-symbols-only-nerd-font
+  - font-symbols-only-nerd-font
 
 npm_global_packages:
-    - "@anthropic-ai/claude-code"
-    - "@google/gemini-cli"
-    - "@openai/codex"
+  - "@anthropic-ai/claude-code"
+  - "@google/gemini-cli"
+  - "@openai/codex"
 
-arch_packages:
-    # build
-    - acl
-    - base-devel
-    - cmake
-    - ninja
-    - pkgconf
-    - openssl
-    - unzip
-    # shell & dev
-    - zsh
-    - python-pip
-    - ffmpeg
-    - pandoc-cli
-    # terminal
-    - ghostty
-    - tmux
-    # audio
-    - wireplumber
-    - pipewire
-    - pipewire-alsa
-    - pipewire-pulse
-    - pavucontrol
-    - alsa-utils
-    - playerctl
-    - volumeicon
-    - pamixer
-    # browser
-    - firefox
-    - chromium
-    # torrent
-    - deluge
-    - deluge-gtk
-    # docker
-    - docker
-    - docker-compose
-    # file sharing & networking
-    - nfs-utils
-    - openssh
-    - wireguard-tools
-    - wpa_supplicant
-    - networkmanager
-    - network-manager-applet
-    - bluez
-    - bluez-utils
-    - dhcpcd
-    - bind
-    # monitoring
-    - btop
-    - htop
-    - nvtop
-    - ncdu
-    - duf
-    - iftop
-    - iotop
-    - powertop
-    - fio
-    - traceroute
-    - ethtool
-    - iperf3
-    - mesa-utils
-    # dev tools (from community repo, replaces brew/apt-repo tasks)
-    - github-cli
-    - glow
-    # tools (replaces Homebrew on Arch)
-    - fd
-    - fzf
-    - ripgrep
-    - zoxide
-    - lazygit
-    - imagemagick
-    - poppler
-    - resvg
-    - yazi
-    # fonts
-    - ttf-fira-code
-    - otf-font-awesome
-    - ttf-nerd-fonts-symbols
-    - ttf-dejavu
-    - noto-fonts
-    # ui & display
-    - gtk2
-    - gtk3
-    - gtk4
-    - arandr
-    - nautilus
-    - thunar
-    - tumbler
-    - gvfs
-    - xorg-xev
-    # hyprland ecosystem
-    - hyprlock
-    - hypridle
-    - hyprpicker
-    - hyprpaper
-    - hyprpolkitagent
-    - hyprsunset
-    - hyprland-qt-support
-    - xdg-desktop-portal-hyprland
-    - wl-clipboard
-    - cliphist
-    - swww
-    - blueman
-    - nwg-displays
-    - nwg-look
-    - quickshell
-    # math / scientific
-    - hypre
-    # secrets
-    - gnome-keyring
-    - libsecret
-    - keychain
-    # security
-    - fail2ban
-    # media
-    - vlc
-    # system
-    - amd-ucode
-    - linux-firmware
-    - linux-cachyos-headers
-    # misc
-    - bubblewrap
-    - liquidctl
-    # gpu
-    - nvidia-utils
-    - nvidia-container-toolkit
-    - libva-utils
-    - lact
-    # filesystem
-    - httpdirfs
-    - 7zip
+arch_terminal_packages:
+  # build
+  - acl
+  - base-devel
+  - cmake
+  - ninja
+  - pkgconf
+  - openssl
+  - unzip
+  # shell & dev
+  - zsh
+  - python-pip
+  - ffmpeg
+  - pandoc-cli
+  - tmux
+  # docker
+  - docker
+  - docker-compose
+  # file sharing & networking
+  - nfs-utils
+  - openssh
+  - wireguard-tools
+  - wpa_supplicant
+  - networkmanager
+  - bluez
+  - bluez-utils
+  - dhcpcd
+  - bind
+  # monitoring
+  - btop
+  - htop
+  - nvtop
+  - ncdu
+  - duf
+  - iftop
+  - iotop
+  - powertop
+  - fio
+  - traceroute
+  - ethtool
+  - iperf3
+  # dev tools
+  - github-cli
+  - glow
+  # tools
+  - fd
+  - fzf
+  - ripgrep
+  - zoxide
+  - lazygit
+  - imagemagick
+  - poppler
+  - resvg
+  - yazi
+  # secrets
+  - gnome-keyring
+  - libsecret
+  - keychain
+  # security
+  - fail2ban
+  # system
+  - amd-ucode
+  - linux-firmware
+  - linux-cachyos-headers
+  # misc
+  - bubblewrap
+  # filesystem
+  - httpdirfs
+  - 7zip
 
-i3_packages:
-    - i3-gaps
-    - polybar
-    - rofi
-    - picom
-    - dunst
-    - nitrogen
-    - feh
-    - python-pywal
+arch_gui_packages:
+  # terminal emulator
+  - ghostty
+  # audio / desktop
+  - wireplumber
+  - pipewire
+  - pipewire-alsa
+  - pipewire-pulse
+  - pavucontrol
+  - alsa-utils
+  - playerctl
+  - volumeicon
+  - pamixer
+  # browser
+  - firefox
+  - chromium
+  # torrent
+  - deluge
+  - deluge-gtk
+  # fonts
+  - ttf-fira-code
+  - otf-font-awesome
+  - ttf-nerd-fonts-symbols
+  - ttf-dejavu
+  - noto-fonts
+  # ui & display
+  - gtk2
+  - gtk3
+  - gtk4
+  - arandr
+  - nautilus
+  - thunar
+  - tumbler
+  - gvfs
+  - xorg-xev
+  - mesa-utils
+  - network-manager-applet
+  # hyprland ecosystem
+  - hyprlock
+  - hypridle
+  - hyprpicker
+  - hyprpaper
+  - hyprpolkitagent
+  - hyprsunset
+  - hyprland-qt-support
+  - xdg-desktop-portal-hyprland
+  - wl-clipboard
+  - cliphist
+  - swww
+  - blueman
+  - nwg-displays
+  - nwg-look
+  - quickshell
+  # math / scientific
+  - hypre
+  # media
+  - vlc
+  - liquidctl
 
-aur_packages:
-    - visual-studio-code-bin
-    - nerd-fonts-inter
-    # tools (replaces Homebrew on Arch)
-    - ast-grep-bin
-    - lazydocker-bin
-    # hardware monitoring
-    - nct6687d-dkms-git
+arch_nvidia_packages:
+  - nvidia-utils
+  - nvidia-container-toolkit
+  - libva-utils
+  - lact
+
+arch_packages: >-
+  {{
+    arch_terminal_packages
+    + (arch_gui_packages if enable_gui | bool else [])
+    + (arch_nvidia_packages if enable_nvidia | bool else [])
+  }}
+
+arch_terminal_aur_packages:
+  - ast-grep-bin
+  - lazydocker-bin
+  - nct6687d-dkms-git
+
+arch_gui_aur_packages:
+  - visual-studio-code-bin
+  - nerd-fonts-inter
+
+aur_packages: >-
+  {{
+    arch_terminal_aur_packages
+    + (arch_gui_aur_packages if enable_gui | bool else [])
+  }}

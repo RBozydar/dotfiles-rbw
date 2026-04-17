@@ -52,5 +52,7 @@ miniforge_installer_filename: "Miniforge3-{{ miniforge_platform }}-{{ miniforge_
 miniforge_installer_url: "https://github.com/conda-forge/miniforge/releases/latest/download/{{ miniforge_installer_filename }}"
 miniforge_installer_path: "/tmp/{{ miniforge_installer_filename }}"
 
+enable_gui: false
+enable_nvidia: false
 enable_git_role: true
 enable_security_role: true

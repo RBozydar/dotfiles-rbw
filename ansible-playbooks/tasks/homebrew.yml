@@ -39,6 +39,7 @@
   community.general.homebrew_cask:
     name: "{{ brew_casks }}"
     state: present
+  when: enable_gui | bool
   environment:
     PATH: "{{ homebrew_path_env }}"
 
