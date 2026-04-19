@@ -72,6 +72,9 @@ The bootstrap is successful when:
     - bar/OSD/session runtime composition runs under system ownership.
     - shell chrome modules now consume a dedicated `ShellChromeBridge` instead of importing `qs.services` directly.
     - architecture enforcement now blocks `import qs.services` under `system/ui` outside `system/ui/bridges/`.
+    - delivered native window-switcher slice (Alt+Tab overlay + bridge + IPC command surface):
+      `window_switcher.next`, `window_switcher.previous`, `window_switcher.accept`,
+      `window_switcher.cancel`, `window_switcher.describe`.
 - Theming boundary scaffold (`provider + contracts + bridge`): completed for initial slice
     - delivered canonical theme contracts (`shell.theme.generate`, `shell.theme.scheme`) and provider port boundary.
     - delivered static + matugen provider adapters with explicit fallback behavior and diagnostics surface.

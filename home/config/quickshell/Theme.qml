@@ -1,5 +1,6 @@
 import QtQuick
 import Quickshell
+import Quickshell.Io
 pragma Singleton
 
 Singleton {
@@ -65,6 +66,71 @@ Singleton {
         const parsed = Qt.color(String(inputColor));
         const resolvedAlpha = clampOpacity(alpha, parsed.a);
         return Qt.rgba(parsed.r, parsed.g, parsed.b, resolvedAlpha);
+    }
+
+    function clampOpacityScale(value, fallback): real {
+        const parsed = Number(value);
+        if (!Number.isFinite(parsed))
+            return fallback;
+        if (parsed < 0)
+            return 0;
+        if (parsed > 4)
+            return 4;
+        return parsed;
+    }
+
+    function parseUiOpacityConfig(text): var {
+        const defaults = {
+            "global": 1,
+            "modules": ({})
+        };
+
+        const rawText = String(text || "").trim();
+        if (!rawText)
+            return defaults;
+
+        try {
+            const parsed = JSON.parse(rawText);
+            if (!parsed || typeof parsed !== "object" || Array.isArray(parsed))
+                return defaults;
+
+            const modules = {};
+            if (parsed.modules && typeof parsed.modules === "object" && !Array.isArray(parsed.modules)) {
+                for (const rawModuleId in parsed.modules) {
+                    const moduleId = String(rawModuleId || "").trim();
+                    if (!moduleId)
+                        continue;
+                    modules[moduleId] = clampOpacityScale(parsed.modules[rawModuleId], 1);
+                }
+            }
+
+            return {
+                "global": clampOpacityScale(parsed.global, 1),
+                "modules": modules
+            };
+        } catch (error) {
+            return defaults;
+        }
+    }
+
+    function moduleOpacity(moduleId, fallbackOpacity): real {
+        const baseOpacity = clampOpacity(fallbackOpacity, 1);
+        const configDocument = uiOpacityConfig;
+        const globalScale = clampOpacityScale(configDocument && configDocument.global, 1);
+        const modules = configDocument && configDocument.modules && typeof configDocument.modules === "object" && !Array.isArray(configDocument.modules) ? configDocument.modules : ({});
+        const key = String(moduleId || "").trim();
+        const moduleScale = key.length > 0 ? clampOpacityScale(modules[key], 1) : 1;
+        return clampOpacity(baseOpacity * globalScale * moduleScale, baseOpacity);
+    }
+
+    readonly property string uiOpacityConfigPath: Quickshell.shellPath("config/ui-opacity.json")
+    readonly property var uiOpacityConfig: parseUiOpacityConfig(uiOpacityConfigFile.text)
+
+    FileView {
+        id: uiOpacityConfigFile
+        path: uiOpacityConfigPath
+        watchChanges: true
+        blockWrites: true
     }
 
     readonly property color primary: roleColor("primary", "#82dccc", "#0f9684")
@@ -135,6 +201,12 @@ Singleton {
     readonly property int barChipHeight: barInnerHeight - 4
     readonly property int barMargin: 6
     readonly property real barSurfaceOpacity: darkMode ? 0.72 : 0.82
+    readonly property real workspaceStripOpacity: darkMode ? 0.54 : 0.62
+    readonly property real workspaceStripBorderOpacity: darkMode ? 0.58 : 0.72
+    readonly property real workspaceButtonActiveOpacity: darkMode ? 0.72 : 0.8
+    readonly property real workspaceButtonHoverOpacity: darkMode ? 0.62 : 0.72
+    readonly property real workspaceButtonOccupiedOpacity: darkMode ? 0.54 : 0.64
+    readonly property real workspaceSpecialOpacity: darkMode ? 0.7 : 0.8
     readonly property int radius: 18
     readonly property int chipRadius: 14
     readonly property int gap: 8

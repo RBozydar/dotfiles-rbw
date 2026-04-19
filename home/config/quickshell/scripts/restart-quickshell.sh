@@ -76,12 +76,18 @@ apply_wallpaper_direct() {
 	fi
 
 	if command -v swww >/dev/null 2>&1; then
-		swww query >/dev/null 2>&1 || { command -v swww-daemon >/dev/null 2>&1 && swww-daemon >/dev/null 2>&1 & sleep 0.2; }
+		swww query >/dev/null 2>&1 || {
+			command -v swww-daemon >/dev/null 2>&1 && swww-daemon >/dev/null 2>&1 &
+			sleep 0.2
+		}
 		swww img "$path" >/dev/null 2>&1 && return 0
 	fi
 
 	if command -v awww >/dev/null 2>&1; then
-		awww query >/dev/null 2>&1 || { command -v awww-daemon >/dev/null 2>&1 && awww-daemon >/dev/null 2>&1 & sleep 0.2; }
+		awww query >/dev/null 2>&1 || {
+			command -v awww-daemon >/dev/null 2>&1 && awww-daemon >/dev/null 2>&1 &
+			sleep 0.2
+		}
 		awww img "$path" >/dev/null 2>&1 && return 0
 	fi
 

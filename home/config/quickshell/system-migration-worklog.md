@@ -1618,3 +1618,48 @@ Validation snapshot:
     - `shellctl theme.provider.set matugen`
     - `shellctl wallpaper.set /home/rbw/repo/dotfiles-rbw/wallpapers/m31.jpg`
     - `shellctl theme.describe` reports provider `matugen`, `fallbackUsed: false`
+
+### Native Alt+Tab Window Switcher (2026-04-19)
+
+- Implemented a native window-switcher slice using the quickshell-overview
+  event/debounce pattern as the base:
+    - adapter-level Hyprland event coalescing and `hyprctl` snapshot polling
+    - bridge-level store/use-case orchestration and IPC surface
+- Added new adapter/runtime boundary:
+    - `system/adapters/hyprland/WindowSwitcherSnapshotAdapter.qml`
+    - `system/adapters/hyprland/window-switcher-snapshot-adapter.js`
+    - `system/ui/bridges/HyprlandWindowSwitcherBridge.qml`
+- Added new core slice contracts/domain/use-cases:
+    - `system/core/contracts/window-switcher-contracts.js`
+    - `system/core/domain/window-switcher/window-switcher-store.js`
+    - `system/core/application/window-switcher/cycle-window-switcher.js`
+- Added new system UI module:
+    - `system/ui/modules/window-switcher/WindowSwitcherOverlay.qml`
+- Integrated command surface in `SystemShell`:
+    - `window_switcher.next`
+    - `window_switcher.previous`
+    - `window_switcher.accept`
+    - `window_switcher.cancel`
+    - `window_switcher.describe`
+- Added Hyprland keybind wiring:
+    - `ALT+TAB` -> `window_switcher.next`
+    - `ALT+SHIFT+TAB` -> `window_switcher.previous`
+    - `ALT+ESCAPE` -> `window_switcher.cancel`
+    - `ALT_L`/`ALT_R` release -> `window_switcher.accept`
+- Added tests:
+    - `tests/tst_WindowSwitcherSlice.qml` (snapshot normalization, cycle/open,
+      accept/cancel, focus dispatch)
+
+Validation snapshot:
+
+- `make -C home/config/quickshell format`
+- `make -C home/config/quickshell lint`
+- `make -C home/config/quickshell qmltest`
+- `make -C home/config/quickshell arch-check`
+- live IPC checks:
+    - `shellctl commands | rg window_switcher`
+    - `shellctl window_switcher.describe`
+    - `shellctl window_switcher.next`
+    - `shellctl window_switcher.accept`
+- Hyprland bind table check:
+    - `hyprctl binds | rg window_switcher|ALT_L|ALT_R`

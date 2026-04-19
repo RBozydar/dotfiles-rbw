@@ -34,6 +34,7 @@ import "modules/launcher" as SystemLauncherModules
 import "modules/notifications" as SystemNotificationModules
 import "modules/osd" as SystemOsdModules
 import "modules/session" as SystemSessionModules
+import "modules/window-switcher" as SystemWindowSwitcherModules
 
 ShellRoot {
     id: root
@@ -83,6 +84,7 @@ ShellRoot {
             root.queueNotificationHistorySync(payload && payload.history ? payload.history : []);
         }
     }
+    readonly property QtObject windowSwitcherBridge: SystemBridges.HyprlandWindowSwitcherBridge {}
     property string themeProviderId: String(Quickshell.env("RBW_THEME_PROVIDER") || "static")
     property string themeFallbackProviderId: String(Quickshell.env("RBW_THEME_FALLBACK_PROVIDER") || "static")
     property string themeMode: String(Quickshell.env("RBW_THEME_MODE") || "dark")
@@ -182,6 +184,36 @@ ShellRoot {
             name: "launcher.close",
             summary: "Close launcher overlay",
             usage: "launcher.close",
+            minArgs: 0,
+            maxArgs: 0
+        }), IpcContracts.createShellIpcCommandSpec({
+            name: "window_switcher.next",
+            summary: "Open or advance the native Alt+Tab window switcher",
+            usage: "window_switcher.next",
+            minArgs: 0,
+            maxArgs: 0
+        }), IpcContracts.createShellIpcCommandSpec({
+            name: "window_switcher.previous",
+            summary: "Open or reverse-cycle the native Alt+Tab window switcher",
+            usage: "window_switcher.previous",
+            minArgs: 0,
+            maxArgs: 0
+        }), IpcContracts.createShellIpcCommandSpec({
+            name: "window_switcher.accept",
+            summary: "Accept current Alt+Tab selection and focus that window",
+            usage: "window_switcher.accept",
+            minArgs: 0,
+            maxArgs: 0
+        }), IpcContracts.createShellIpcCommandSpec({
+            name: "window_switcher.cancel",
+            summary: "Cancel Alt+Tab without changing focus",
+            usage: "window_switcher.cancel",
+            minArgs: 0,
+            maxArgs: 0
+        }), IpcContracts.createShellIpcCommandSpec({
+            name: "window_switcher.describe",
+            summary: "Return window switcher state snapshot",
+            usage: "window_switcher.describe",
             minArgs: 0,
             maxArgs: 0
         }), IpcContracts.createShellIpcCommandSpec({
@@ -551,6 +583,21 @@ ShellRoot {
             },
             "launcher.close": function () {
                 return root.setLauncherOverlayOpen(false, "launcher.overlay.closed");
+            },
+            "window_switcher.next": function () {
+                return root.cycleWindowSwitcher(1);
+            },
+            "window_switcher.previous": function () {
+                return root.cycleWindowSwitcher(-1);
+            },
+            "window_switcher.accept": function () {
+                return root.acceptWindowSwitcher();
+            },
+            "window_switcher.cancel": function () {
+                return root.cancelWindowSwitcher();
+            },
+            "window_switcher.describe": function () {
+                return root.describeWindowSwitcher();
             },
             "launcher.activate": function (args) {
                 return root.activateLauncherItemById(args[0]);
@@ -2828,6 +2875,70 @@ ShellRoot {
         return root.notificationBridge.activateEntry(String(key || ""), String(actionId || ""));
     }
 
+    function ensureWindowSwitcherBridgeMethod(methodName, fallbackCode) {
+        if (!root.windowSwitcherBridge || typeof root.windowSwitcherBridge[methodName] !== "function") {
+            return OperationOutcomes.rejected({
+                code: fallbackCode,
+                reason: "Window switcher bridge is unavailable",
+                targetId: "window_switcher"
+            });
+        }
+
+        return null;
+    }
+
+    function windowSwitcherSyncSnapshot(sourceCode) {
+        const methodName = root.windowSwitcherBridge && typeof root.windowSwitcherBridge.refreshSnapshot === "function" ? "refreshSnapshot" : "syncSnapshot";
+        const guard = ensureWindowSwitcherBridgeMethod(methodName, "window_switcher.bridge_unavailable");
+        if (guard)
+            return guard;
+
+        return root.windowSwitcherBridge[methodName](sourceCode === undefined ? "window_switcher.snapshot.manual" : String(sourceCode));
+    }
+
+    function cycleWindowSwitcher(direction) {
+        const guard = ensureWindowSwitcherBridgeMethod("cycle", "window_switcher.bridge_unavailable");
+        if (guard)
+            return guard;
+
+        if (launcherOverlayOpen)
+            launcherOverlayOpen = false;
+        if (sessionOverlayOpen)
+            sessionOverlayOpen = false;
+
+        return root.windowSwitcherBridge.cycle(direction, "shell.ipc.window_switcher.cycle");
+    }
+
+    function acceptWindowSwitcher() {
+        const guard = ensureWindowSwitcherBridgeMethod("accept", "window_switcher.bridge_unavailable");
+        if (guard)
+            return guard;
+
+        return root.windowSwitcherBridge.accept("shell.ipc.window_switcher.accept");
+    }
+
+    function cancelWindowSwitcher() {
+        const guard = ensureWindowSwitcherBridgeMethod("cancel", "window_switcher.bridge_unavailable");
+        if (guard)
+            return guard;
+
+        return root.windowSwitcherBridge.cancel("shell.ipc.window_switcher.cancel");
+    }
+
+    function describeWindowSwitcher() {
+        const guard = ensureWindowSwitcherBridgeMethod("describe", "window_switcher.bridge_unavailable");
+        if (guard)
+            return guard;
+
+        return OperationOutcomes.applied({
+            code: "window_switcher.snapshot",
+            targetId: "window_switcher",
+            meta: {
+                windowSwitcher: root.windowSwitcherBridge.describe()
+            }
+        });
+    }
+
     function setSessionOverlayOpen(nextOpen, appliedCode) {
         const targetOpen = Boolean(nextOpen);
         if (sessionOverlayOpen === targetOpen) {
@@ -2953,6 +3064,10 @@ ShellRoot {
     }
 
     SystemLauncherModules.LauncherOverlay {
+        shell: root
+    }
+
+    SystemWindowSwitcherModules.WindowSwitcherOverlay {
         shell: root
     }
 

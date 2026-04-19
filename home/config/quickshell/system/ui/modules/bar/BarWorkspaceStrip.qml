@@ -9,9 +9,9 @@ Rectangle {
     readonly property var stripModel: presentationModel.workspaceStrip
 
     radius: 12
-    color: Theme.surfaceContainerLow
+    color: Theme.withAlpha(Theme.surfaceContainerLow, Theme.moduleOpacity("bar.workspace.strip", Theme.workspaceStripOpacity))
     border.width: 1
-    border.color: Theme.outline
+    border.color: Theme.withAlpha(Theme.outline, Theme.moduleOpacity("bar.workspace.strip.border", Theme.workspaceStripBorderOpacity))
     height: 34
     width: workspaceRow.implicitWidth + 18
 
@@ -32,9 +32,9 @@ Rectangle {
                 width: 24
                 height: 24
                 radius: 9
-                color: modelData.active ? Theme.secondaryContainer : (hover.hovered ? Theme.surfaceContainerHigh : (modelData.occupied ? Theme.surfaceContainer : "transparent"))
+                color: modelData.active ? Theme.withAlpha(Theme.secondaryContainer, Theme.moduleOpacity("bar.workspace.button.active", Theme.workspaceButtonActiveOpacity)) : (hover.hovered ? Theme.withAlpha(Theme.surfaceContainerHigh, Theme.moduleOpacity("bar.workspace.button.hover", Theme.workspaceButtonHoverOpacity)) : (modelData.occupied ? Theme.withAlpha(Theme.surfaceContainer, Theme.moduleOpacity("bar.workspace.button.occupied", Theme.workspaceButtonOccupiedOpacity)) : "transparent"))
                 border.width: modelData.active || modelData.occupied || hover.hovered ? 1 : 0
-                border.color: modelData.active ? Theme.secondary : Theme.outline
+                border.color: modelData.active ? Theme.withAlpha(Theme.secondary, Theme.moduleOpacity("bar.workspace.button.active.border", 0.78)) : Theme.withAlpha(Theme.outline, Theme.moduleOpacity("bar.workspace.button.border", 0.62))
 
                 Text {
                     anchors.centerIn: parent
@@ -83,9 +83,9 @@ Rectangle {
             width: 24
             height: 24
             radius: 9
-            color: Theme.tertiaryContainer
+            color: Theme.withAlpha(Theme.tertiaryContainer, Theme.moduleOpacity("bar.workspace.special", Theme.workspaceSpecialOpacity))
             border.width: 1
-            border.color: Theme.tertiary
+            border.color: Theme.withAlpha(Theme.tertiary, Theme.moduleOpacity("bar.workspace.special.border", 0.76))
 
             Text {
                 anchors.centerIn: parent
