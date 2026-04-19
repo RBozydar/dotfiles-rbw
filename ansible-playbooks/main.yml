@@ -23,6 +23,12 @@
   - name: Init
     ansible.builtin.include_tasks: initial.yml
 
+  - name: Detect NVIDIA GPU
+    ansible.builtin.include_tasks: tasks/nvidia-detect.yml
+    when: ansible_system == 'Linux'
+    tags:
+      - always
+
   # Distro-specific packages and repos
   - name: Ubuntu
     ansible.builtin.include_tasks: ubuntu.yml
