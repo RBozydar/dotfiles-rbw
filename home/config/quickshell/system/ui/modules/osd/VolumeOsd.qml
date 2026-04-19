@@ -157,7 +157,7 @@ PanelWindow {
 
                     Text {
                         text: "Volume"
-                        color: Theme.onSurface
+                        color: Theme.roleOnSurface
                         font.family: Theme.fontSans
                         font.pixelSize: 15
                         font.weight: Font.DemiBold
@@ -187,7 +187,7 @@ PanelWindow {
                         anchors.bottom: parent.bottom
                         width: Math.max(12, parent.width * Math.max(0, Math.min(1, root.audioState ? root.audioState.volumeLevel : 0)))
                         radius: parent.radius
-                        color: root.audioState && root.audioState.muted ? Theme.onSurfaceVariant : Theme.primary
+                        color: root.audioState && root.audioState.muted ? Theme.roleOnSurfaceVariant : Theme.primary
                     }
                 }
             }

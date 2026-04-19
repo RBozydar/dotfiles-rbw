@@ -264,7 +264,7 @@ Variants {
 
             Rectangle {
                 anchors.fill: parent
-                color: "#a90a1018"
+                color: Qt.rgba(Theme.scrim.r, Theme.scrim.g, Theme.scrim.b, 0.66)
             }
 
             Rectangle {
@@ -295,7 +295,7 @@ Variants {
 
                         Text {
                             text: "Launcher"
-                            color: Theme.onSurface
+                            color: Theme.roleOnSurface
                             font.family: Theme.fontSans
                             font.pixelSize: 24
                             font.weight: Font.DemiBold
@@ -304,7 +304,7 @@ Variants {
 
                         Text {
                             text: panel.pendingProviderCount > 0 ? `syncing ${panel.pendingProviderCount} providers` : panel.launcherState.phase
-                            color: Theme.onSurfaceVariant
+                            color: Theme.roleOnSurfaceVariant
                             font.family: Theme.fontMono
                             font.pixelSize: 11
                         }
@@ -338,7 +338,7 @@ Variants {
 
                                 anchors.verticalCenter: parent.verticalCenter
                                 width: parent.width - 36
-                                color: Theme.onSurface
+                                color: Theme.roleOnSurface
                                 font.family: Theme.fontSans
                                 font.pixelSize: 16
                                 selectionColor: Theme.primary
@@ -396,7 +396,7 @@ Variants {
                                     Text {
                                         anchors.horizontalCenter: parent.horizontalCenter
                                         text: "No launcher results"
-                                        color: Theme.onSurface
+                                        color: Theme.roleOnSurface
                                         font.family: Theme.fontSans
                                         font.pixelSize: 18
                                         font.weight: Font.DemiBold
@@ -405,7 +405,7 @@ Variants {
                                     Text {
                                         anchors.horizontalCenter: parent.horizontalCenter
                                         text: "Try app names, commands with >, or math expressions."
-                                        color: Theme.onSurfaceVariant
+                                        color: Theme.roleOnSurfaceVariant
                                         font.family: Theme.fontSans
                                         font.pixelSize: 13
                                     }
@@ -427,7 +427,7 @@ Variants {
 
                                     Text {
                                         text: sectionBlock.modelData.title
-                                        color: Theme.onSurfaceVariant
+                                        color: Theme.roleOnSurfaceVariant
                                         font.family: Theme.fontSans
                                         font.pixelSize: 12
                                         font.weight: Font.DemiBold
@@ -510,7 +510,7 @@ Variants {
                                                         anchors.centerIn: parent
                                                         visible: resultCard.iconSource.length <= 0
                                                         text: resultCard.fallbackGlyph
-                                                        color: Theme.onSurfaceVariant
+                                                        color: Theme.roleOnSurfaceVariant
                                                         font.family: Theme.fontSans
                                                         font.pixelSize: 15
                                                     }
@@ -522,7 +522,7 @@ Variants {
 
                                                     Text {
                                                         text: resultCard.modelData.title
-                                                        color: Theme.onSurface
+                                                        color: Theme.roleOnSurface
                                                         font.family: Theme.fontSans
                                                         font.pixelSize: 14
                                                         font.weight: Font.DemiBold
@@ -531,7 +531,7 @@ Variants {
 
                                                     Text {
                                                         text: resultCard.subtitleText
-                                                        color: Theme.onSurfaceVariant
+                                                        color: Theme.roleOnSurfaceVariant
                                                         font.family: Theme.fontMono
                                                         font.pixelSize: 11
                                                         elide: Text.ElideRight
@@ -540,7 +540,7 @@ Variants {
                                                     Text {
                                                         visible: resultCard.hasDetailText
                                                         text: resultCard.detailText
-                                                        color: Qt.rgba(Theme.onSurfaceVariant.r, Theme.onSurfaceVariant.g, Theme.onSurfaceVariant.b, 0.85)
+                                                        color: Qt.rgba(Theme.roleOnSurfaceVariant.r, Theme.roleOnSurfaceVariant.g, Theme.roleOnSurfaceVariant.b, 0.85)
                                                         font.family: Theme.fontSans
                                                         font.pixelSize: 11
                                                         elide: Text.ElideRight

@@ -106,7 +106,7 @@ PanelWindow {
 
                             Text {
                                 text: Qt.formatDateTime(new Date(popupEntry.modelData.timestamp), "hh:mm:ss")
-                                color: Theme.onSurfaceVariant
+                                color: Theme.roleOnSurfaceVariant
                                 font.family: Theme.fontMono
                                 font.pixelSize: 11
                             }
@@ -114,7 +114,7 @@ PanelWindow {
 
                         Text {
                             text: popupEntry.modelData.summary
-                            color: Theme.onSurface
+                            color: Theme.roleOnSurface
                             font.family: Theme.fontSans
                             font.pixelSize: 15
                             font.weight: Font.DemiBold
@@ -132,7 +132,7 @@ PanelWindow {
                         anchors.leftMargin: Theme.padding
                         anchors.rightMargin: Theme.padding
                         text: popupEntry.modelData.body
-                        color: Theme.onSurfaceVariant
+                        color: Theme.roleOnSurfaceVariant
                         font.family: Theme.fontSans
                         font.pixelSize: 13
                         wrapMode: Text.WrapAtWordBoundaryOrAnywhere

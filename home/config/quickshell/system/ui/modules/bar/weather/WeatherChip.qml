@@ -16,11 +16,11 @@ BarPrimitives.StatusChip {
         case "fog":
             return Theme.secondary;
         case "snow":
-            return Theme.onSurface;
+            return Theme.roleOnSurface;
         case "storm":
             return Theme.error;
         default:
-            return Theme.onSurfaceVariant;
+            return Theme.roleOnSurfaceVariant;
         }
     }
 

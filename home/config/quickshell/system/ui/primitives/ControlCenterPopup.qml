@@ -24,7 +24,7 @@ Item {
 
         Text {
             text: "Control Center"
-            color: Theme.onSurface
+            color: Theme.roleOnSurface
             font.family: Theme.fontSans
             font.pixelSize: 22
             font.weight: Font.DemiBold
@@ -133,21 +133,21 @@ Item {
             width: parent.width
             label: "Network"
             value: root.connectivityState && root.connectivityState.networkConnected ? root.connectivityState.networkLabel : "offline"
-            valueColor: root.connectivityState && root.connectivityState.networkConnected ? Theme.secondary : Theme.onSurfaceVariant
+            valueColor: root.connectivityState && root.connectivityState.networkConnected ? Theme.secondary : Theme.roleOnSurfaceVariant
         }
 
         PrimitiveLocal.PopupMetricRow {
             width: parent.width
             label: "Traffic"
             value: `↑ ${root.connectivityState ? root.connectivityState.networkUpRate : "0B"}  ↓ ${root.connectivityState ? root.connectivityState.networkDownRate : "0B"}`
-            valueColor: Theme.onSurface
+            valueColor: Theme.roleOnSurface
         }
 
         PrimitiveLocal.PopupMetricRow {
             width: parent.width
             label: "Bluetooth"
             value: root.connectivityState && root.connectivityState.bluetoothEnabled ? root.connectivityState.bluetoothLabel : "off"
-            valueColor: root.connectivityState && root.connectivityState.bluetoothEnabled ? Theme.primary : Theme.onSurfaceVariant
+            valueColor: root.connectivityState && root.connectivityState.bluetoothEnabled ? Theme.primary : Theme.roleOnSurfaceVariant
         }
     }
 }

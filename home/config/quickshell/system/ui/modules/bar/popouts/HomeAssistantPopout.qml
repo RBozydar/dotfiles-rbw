@@ -20,7 +20,7 @@ Item {
 
         Text {
             text: "Lights"
-            color: Theme.onSurface
+            color: Theme.roleOnSurface
             font.family: Theme.fontSans
             font.pixelSize: 22
             font.weight: Font.DemiBold
@@ -30,7 +30,7 @@ Item {
             width: parent.width
             label: "Home Assistant"
             value: root.homeAssistantState ? root.homeAssistantState.summaryLabel : "Unavailable"
-            valueColor: root.homeAssistantState && root.homeAssistantState.available ? (root.homeAssistantState.anyOn ? Theme.tertiary : Theme.onSurface) : Theme.tertiary
+            valueColor: root.homeAssistantState && root.homeAssistantState.available ? (root.homeAssistantState.anyOn ? Theme.tertiary : Theme.roleOnSurface) : Theme.tertiary
         }
 
         Text {
@@ -62,7 +62,7 @@ Item {
 
             Text {
                 text: root.homeAssistantState && root.homeAssistantState.available ? `${root.homeAssistantState.activeLightCount}/${root.homeAssistantState.lightCount} on` : ""
-                color: Theme.onSurfaceVariant
+                color: Theme.roleOnSurfaceVariant
                 font.family: Theme.fontMono
                 font.pixelSize: 12
             }
@@ -72,7 +72,7 @@ Item {
             visible: root.homeAssistantState && root.homeAssistantState.available && root.homeAssistantState.lightCount === 0
             width: parent.width
             text: "No light entities found."
-            color: Theme.onSurfaceVariant
+            color: Theme.roleOnSurfaceVariant
             font.family: Theme.fontSans
             font.pixelSize: 13
         }
@@ -159,7 +159,7 @@ Item {
                             }
                             checked: lightCard.modelData.isOn
                             toggleEnabled: lightCard.modelData.available
-                            accent: lightCard.modelData.isOn ? Theme.tertiary : Theme.onSurfaceVariant
+                            accent: lightCard.modelData.isOn ? Theme.tertiary : Theme.roleOnSurfaceVariant
                             onClicked: {
                                 if (root.homeAssistantState)
                                     root.homeAssistantState.toggleLight(lightCard.modelData.entityId);

@@ -2,6 +2,7 @@ import QtQuick
 import Quickshell
 import Quickshell.Services.SystemTray
 import Quickshell.Widgets
+import qs
 
 MouseArea {
     id: root
@@ -48,7 +49,7 @@ MouseArea {
     Rectangle {
         anchors.fill: parent
         radius: 9
-        color: root.containsMouse ? "#223952" : "transparent"
+        color: root.containsMouse ? Theme.surfaceContainerHigh : "transparent"
     }
 
     IconImage {

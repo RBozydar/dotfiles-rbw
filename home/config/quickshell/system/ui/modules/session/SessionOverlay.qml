@@ -94,7 +94,7 @@ Variants {
 
             Rectangle {
                 anchors.fill: parent
-                color: "#a609111f"
+                color: Qt.rgba(Theme.scrim.r, Theme.scrim.g, Theme.scrim.b, 0.64)
             }
 
             Rectangle {
@@ -118,7 +118,7 @@ Variants {
 
                     Text {
                         text: "Session Controls"
-                        color: Theme.onSurface
+                        color: Theme.roleOnSurface
                         font.family: Theme.fontSans
                         font.pixelSize: 28
                         font.weight: Font.DemiBold
@@ -126,7 +126,7 @@ Variants {
 
                     Text {
                         text: "Replace the old wlogout flow with a native Quickshell overlay."
-                        color: Theme.onSurfaceVariant
+                        color: Theme.roleOnSurfaceVariant
                         font.family: Theme.fontSans
                         font.pixelSize: 13
                     }
@@ -168,7 +168,7 @@ Variants {
 
                                     Text {
                                         text: actionCard.modelData.detail
-                                        color: Theme.onSurfaceVariant
+                                        color: Theme.roleOnSurfaceVariant
                                         font.family: Theme.fontMono
                                         font.pixelSize: 12
                                         wrapMode: Text.WrapAtWordBoundaryOrAnywhere
@@ -183,7 +183,7 @@ Variants {
 
                                     Text {
                                         text: "Click to run"
-                                        color: Theme.onSurface
+                                        color: Theme.roleOnSurface
                                         font.family: Theme.fontSans
                                         font.pixelSize: 13
                                     }

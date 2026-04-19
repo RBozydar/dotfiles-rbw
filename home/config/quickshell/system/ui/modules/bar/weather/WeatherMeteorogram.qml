@@ -257,7 +257,7 @@ Item {
             drawRoundedRect(root.leftInset - 8, root.precipTop - 8, root.chartWidth + 16, root.precipHeight + 16, 16, root.rgba(Theme.surfaceContainerLow, Theme.darkMode ? 0.42 : 0.55), root.rgba(Theme.outline, 0.5));
             drawRoundedRect(root.leftInset - 8, root.pressureTop - 8, root.chartWidth + 16, root.pressureHeight + 16, 16, root.rgba(Theme.tertiary, Theme.darkMode ? 0.08 : 0.12), root.rgba(Theme.outline, 0.5));
             drawRoundedRect(root.leftInset - 8, root.windTop - 8, root.chartWidth + 16, root.windHeight + 16, 16, root.rgba(Theme.secondary, Theme.darkMode ? 0.08 : 0.1), root.rgba(Theme.outline, 0.5));
-            drawRoundedRect(root.leftInset - 8, root.cloudTop - 8, root.chartWidth + 16, root.cloudHeight + 16, 16, root.rgba(Theme.onSurface, Theme.darkMode ? 0.04 : 0.06), root.rgba(Theme.outline, 0.5));
+            drawRoundedRect(root.leftInset - 8, root.cloudTop - 8, root.chartWidth + 16, root.cloudHeight + 16, 16, root.rgba(Theme.roleOnSurface, Theme.darkMode ? 0.04 : 0.06), root.rgba(Theme.outline, 0.5));
 
             ctx.strokeStyle = root.rgba(Theme.outline, 0.55);
             ctx.lineWidth = 1;
@@ -442,11 +442,11 @@ Item {
                 }
                 ctx.lineTo(root.xFor(root.sampleCount - 1), root.cloudBottom);
                 ctx.closePath();
-                ctx.fillStyle = root.rgba(Theme.onSurface, 0.2);
+                ctx.fillStyle = root.rgba(Theme.roleOnSurface, 0.2);
                 ctx.fill();
             }
 
-            const cloudLines = [["cloudLow", Theme.secondary, 0.95], ["cloudMid", Theme.primary, 0.9], ["cloudHigh", Theme.onSurfaceVariant, 0.9]];
+            const cloudLines = [["cloudLow", Theme.secondary, 0.95], ["cloudMid", Theme.primary, 0.9], ["cloudHigh", Theme.roleOnSurfaceVariant, 0.9]];
             for (let cloudLineIndex = 0; cloudLineIndex < cloudLines.length; cloudLineIndex += 1) {
                 const cloudLine = cloudLines[cloudLineIndex];
                 const key = cloudLine[0];
@@ -504,7 +504,7 @@ Item {
             width: root.leftInset - 8
             horizontalAlignment: Text.AlignRight
             text: `${Math.round(root.maxTempValue - ((root.maxTempValue - root.minTempValue) * index / 4))}°`
-            color: index === 0 ? Theme.tertiary : Theme.onSurfaceVariant
+            color: index === 0 ? Theme.tertiary : Theme.roleOnSurfaceVariant
             font.family: Theme.fontMono
             font.pixelSize: 10
         }
@@ -530,7 +530,7 @@ Item {
             width: root.leftInset - 8
             horizontalAlignment: Text.AlignRight
             text: `${root.formatValue(root.maxPrecipValue * (1 - (index / 3)), root.maxPrecipValue >= 4 ? 0 : 1, "0")} `
-            color: index === 0 ? Theme.secondary : Theme.onSurfaceVariant
+            color: index === 0 ? Theme.secondary : Theme.roleOnSurfaceVariant
             font.family: Theme.fontMono
             font.pixelSize: 10
         }
@@ -555,7 +555,7 @@ Item {
             y: root.precipTop + (root.precipHeight * index / 3) - (implicitHeight / 2)
             width: root.rightInset - 8
             text: `${Math.round(100 - (index * 100 / 3))}%`
-            color: index === 0 ? Theme.tertiary : Theme.onSurfaceVariant
+            color: index === 0 ? Theme.tertiary : Theme.roleOnSurfaceVariant
             font.family: Theme.fontMono
             font.pixelSize: 10
         }
@@ -581,7 +581,7 @@ Item {
             width: root.leftInset - 8
             horizontalAlignment: Text.AlignRight
             text: `${Math.round(root.maxPressureValue - ((root.maxPressureValue - root.minPressureValue) * index / 3))}`
-            color: index === 0 ? Theme.tertiary : Theme.onSurfaceVariant
+            color: index === 0 ? Theme.tertiary : Theme.roleOnSurfaceVariant
             font.family: Theme.fontMono
             font.pixelSize: 10
         }
@@ -607,7 +607,7 @@ Item {
             width: root.leftInset - 8
             horizontalAlignment: Text.AlignRight
             text: `${Math.round(root.maxWindValue * (1 - (index / 3)))}`
-            color: index === 0 ? Theme.secondary : Theme.onSurfaceVariant
+            color: index === 0 ? Theme.secondary : Theme.roleOnSurfaceVariant
             font.family: Theme.fontMono
             font.pixelSize: 10
         }
@@ -617,7 +617,7 @@ Item {
         x: root.leftInset + (root.chartWidth * 0.25) - (implicitWidth / 2)
         y: root.cloudTitleCenterY - (implicitHeight / 2)
         text: "cloud %"
-        color: Theme.onSurface
+        color: Theme.roleOnSurface
         font.family: Theme.fontMono
         font.pixelSize: 11
     }
@@ -642,7 +642,7 @@ Item {
             width: root.leftInset - 8
             horizontalAlignment: Text.AlignRight
             text: `${Math.round(100 - (index * 100 / 3))}%`
-            color: index === 0 ? Theme.onSurface : Theme.onSurfaceVariant
+            color: index === 0 ? Theme.roleOnSurface : Theme.roleOnSurfaceVariant
             font.family: Theme.fontMono
             font.pixelSize: 10
         }
@@ -658,7 +658,7 @@ Item {
             y: root.cloudTop + (root.cloudHeight * index / 3) - (implicitHeight / 2)
             width: root.rightInset - 8
             text: `${root.formatValue(root.maxVisibilityValue * (1 - (index / 3)), root.maxVisibilityValue >= 10 ? 0 : 1, "0")}`
-            color: index === 0 ? Theme.tertiary : Theme.onSurfaceVariant
+            color: index === 0 ? Theme.tertiary : Theme.roleOnSurfaceVariant
             font.family: Theme.fontMono
             font.pixelSize: 10
         }
@@ -681,7 +681,7 @@ Item {
                 anchors.horizontalCenter: parent.horizontalCenter
                 y: 0
                 text: parent.sample?.icon ?? ""
-                color: Theme.onSurface
+                color: Theme.roleOnSurface
                 font.family: Theme.fontSans
                 font.pixelSize: 18
             }
@@ -690,7 +690,7 @@ Item {
                 anchors.horizontalCenter: parent.horizontalCenter
                 y: 20
                 text: parent.sample?.hourLabel ?? ""
-                color: Theme.onSurfaceVariant
+                color: Theme.roleOnSurfaceVariant
                 font.family: Theme.fontMono
                 font.pixelSize: 11
             }
@@ -711,7 +711,7 @@ Item {
                 anchors.horizontalCenter: parent.horizontalCenter
                 y: Math.max(root.tempTop - 18, root.tempY(parent.sample ? parent.sample.temp : null) - 18)
                 text: parent.sample ? `${Math.round(parent.sample.temp)}` : ""
-                color: Theme.onSurface
+                color: Theme.roleOnSurface
                 font.family: Theme.fontMono
                 font.pixelSize: 10
                 font.weight: Font.DemiBold
@@ -733,7 +733,7 @@ Item {
                 anchors.horizontalCenter: parent.horizontalCenter
                 y: root.windTop + root.windHeight - 4
                 text: parent.sample ? `${Math.round(parent.sample.windSpeedKmh)}` : ""
-                color: Theme.onSurfaceVariant
+                color: Theme.roleOnSurfaceVariant
                 font.family: Theme.fontMono
                 font.pixelSize: 10
             }
@@ -761,7 +761,7 @@ Item {
 
             Text {
                 text: root.hoveredSample ? `${root.hoveredSample.dayLabel} ${root.hoveredSample.hourLabel}:00` : ""
-                color: Theme.onSurface
+                color: Theme.roleOnSurface
                 font.family: Theme.fontMono
                 font.pixelSize: 11
                 font.weight: Font.DemiBold
@@ -797,7 +797,7 @@ Item {
 
             Text {
                 text: root.hoveredSample ? `cloud ${Math.round(root.hoveredSample.cloudCover ?? 0)}%  vis ${root.formatValue(root.hoveredSample.visibilityKm, 1, "--")} km` : ""
-                color: Theme.onSurfaceVariant
+                color: Theme.roleOnSurfaceVariant
                 font.family: Theme.fontMono
                 font.pixelSize: 10
             }

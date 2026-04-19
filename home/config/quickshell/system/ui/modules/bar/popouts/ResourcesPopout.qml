@@ -20,7 +20,7 @@ Item {
 
         Text {
             text: "System Monitor"
-            color: Theme.onSurface
+            color: Theme.roleOnSurface
             font.family: Theme.fontSans
             font.pixelSize: 22
             font.weight: Font.DemiBold

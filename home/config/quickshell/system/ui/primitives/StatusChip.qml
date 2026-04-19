@@ -7,7 +7,7 @@ Rectangle {
 
     property string icon: ""
     property string label: ""
-    property color accent: Theme.onSurface
+    property color accent: Theme.roleOnSurface
     property bool active: false
     property int maximumLabelWidth: 240
     property bool badgeVisible: false
@@ -23,7 +23,7 @@ Rectangle {
     color: mouseArea.containsMouse ? Theme.surfaceContainerHigh : (active ? Theme.surfaceContainerHighest : Theme.surfaceContainerLow)
     border.width: 1
     border.color: active ? Qt.rgba(accent.r, accent.g, accent.b, 0.55) : Theme.outline
-    implicitHeight: Theme.barInnerHeight - 8
+    implicitHeight: Theme.barChipHeight
     implicitWidth: row.implicitWidth + (Theme.chipPadding * 2)
 
     RowLayout {
@@ -46,7 +46,7 @@ Rectangle {
         Text {
             visible: root.label.length > 0
             text: root.label
-            color: Theme.onSurface
+            color: Theme.roleOnSurface
             font.family: Theme.fontSans
             font.pixelSize: 13
             font.weight: Font.Medium

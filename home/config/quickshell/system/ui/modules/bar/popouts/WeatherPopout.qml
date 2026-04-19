@@ -33,7 +33,7 @@ Item {
 
             Text {
                 text: root.weatherState ? root.weatherState.temperature : "--°"
-                color: Theme.onSurface
+                color: Theme.roleOnSurface
                 font.family: Theme.fontMono
                 font.pixelSize: 26
                 font.weight: Font.DemiBold
@@ -42,7 +42,7 @@ Item {
             Text {
                 Layout.fillWidth: true
                 text: root.weatherState ? `${root.weatherState.condition} • ${root.weatherState.city.length > 0 ? root.weatherState.city : "Weather"}${root.weatherState.modelLabel.length > 0 ? ` • ${root.weatherState.modelLabel}` : ""}${root.weatherState.runLabel.length > 0 ? ` • ${root.weatherState.runLabel}` : ""}${root.weatherState.stale ? " • cached" : ""}` : "Weather unavailable"
-                color: Theme.onSurfaceVariant
+                color: Theme.roleOnSurfaceVariant
                 font.family: Theme.fontSans
                 font.pixelSize: 14
                 elide: Text.ElideRight
@@ -75,7 +75,7 @@ Item {
                     {
                         "label": "Pressure",
                         "value": root.weatherState ? root.weatherState.pressure : "--",
-                        "accent": Theme.onSurface
+                        "accent": Theme.roleOnSurface
                     }
                 ]
 
@@ -98,7 +98,7 @@ Item {
 
                         Text {
                             text: metricCard.modelData.label
-                            color: Theme.onSurfaceVariant
+                            color: Theme.roleOnSurfaceVariant
                             font.family: Theme.fontSans
                             font.pixelSize: 12
                         }

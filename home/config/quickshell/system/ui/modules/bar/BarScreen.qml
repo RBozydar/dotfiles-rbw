@@ -132,7 +132,7 @@ PanelWindow {
         anchors.right: parent.right
         anchors.margins: Theme.barMargin
         radius: Theme.radius
-        color: Theme.surface
+        color: Theme.withAlpha(Theme.surface, Theme.barSurfaceOpacity)
         border.width: 0
         height: Theme.barOuterHeight - (Theme.barMargin * 2)
 

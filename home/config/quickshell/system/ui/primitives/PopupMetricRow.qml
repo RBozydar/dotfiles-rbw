@@ -7,7 +7,7 @@ RowLayout {
 
     property string label: ""
     property string value: ""
-    property color valueColor: Theme.onSurface
+    property color valueColor: Theme.roleOnSurface
 
     spacing: 12
     implicitHeight: Math.max(metricLabel.implicitHeight, metricValue.implicitHeight)
@@ -16,7 +16,7 @@ RowLayout {
         id: metricLabel
 
         text: root.label
-        color: Theme.onSurfaceVariant
+        color: Theme.roleOnSurfaceVariant
         font.family: Theme.fontSans
         font.pixelSize: 13
         Layout.fillWidth: true

@@ -28,7 +28,7 @@ Rectangle {
         Text {
             visible: root.icon.length > 0
             text: root.icon
-            color: root.toggleEnabled ? (root.checked ? root.accent : Theme.onSurfaceVariant) : Theme.onSurfaceVariant
+            color: root.toggleEnabled ? (root.checked ? root.accent : Theme.roleOnSurfaceVariant) : Theme.roleOnSurfaceVariant
             font.family: Theme.fontSans
             font.pixelSize: 14
             font.weight: Font.Black
@@ -36,7 +36,7 @@ Rectangle {
 
         Text {
             text: root.text
-            color: root.toggleEnabled ? Theme.onSurface : Theme.onSurfaceVariant
+            color: root.toggleEnabled ? Theme.roleOnSurface : Theme.roleOnSurfaceVariant
             font.family: Theme.fontSans
             font.pixelSize: 13
             font.weight: Font.DemiBold

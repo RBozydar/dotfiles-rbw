@@ -15,6 +15,8 @@ Scope {
     property string wallpaperRootsOverride: ""
     property string commandPath: "find"
     property string applyCommandPath: "swww"
+    property string fallbackApplyCommandPath: "awww"
+    property string resolvedApplyCommandPath: String(root.applyCommandPath || "swww")
     property var catalogEntries: []
     property bool refreshing: false
     property bool refreshQueued: false
@@ -55,10 +57,27 @@ Scope {
         command.push("-maxdepth", String(Math.max(1, Number(root.maxSearchDepth))), "-type", "f", "(", "-iname", "*.png", "-o", "-iname", "*.jpg", "-o", "-iname", "*.jpeg", "-o", "-iname", "*.webp", "-o", "-iname", "*.bmp", "-o", "-iname", "*.gif", ")");
         return command;
     }
+    readonly property var applyCommandCandidates: root.collectApplyCommandCandidates()
     readonly property string capabilityProbeCommand: {
         const findCommand = root.shellSingleQuote(root.commandPath);
-        const applyCommand = root.shellSingleQuote(root.applyCommandPath);
-        return "missing=''; for cmd in " + findCommand + " " + applyCommand + "; do command -v -- \"$cmd\" >/dev/null 2>&1 || missing=\"$missing $cmd\"; done; if [ -n \"$missing\" ]; then printf '%s\\n' \"${missing# }\" >&2; exit 1; fi; command -v -- " + applyCommand;
+        const applyCandidates = Array.isArray(root.applyCommandCandidates) ? root.applyCommandCandidates : [];
+        let applyCommandWords = "";
+        let applyCommandLabel = "";
+
+        for (let index = 0; index < applyCandidates.length; index += 1) {
+            const candidate = String(applyCandidates[index] || "").trim();
+            if (!candidate)
+                continue;
+            applyCommandWords += (applyCommandWords.length > 0 ? " " : "") + root.shellSingleQuote(candidate);
+            applyCommandLabel += (applyCommandLabel.length > 0 ? ", " : "") + candidate;
+        }
+
+        if (!applyCommandWords)
+            applyCommandWords = root.shellSingleQuote("swww");
+        if (!applyCommandLabel)
+            applyCommandLabel = "swww";
+
+        return "missing=''; command -v -- " + findCommand + " >/dev/null 2>&1 || missing=\"$missing " + root.commandPath + "\"; resolved=''; for cmd in " + applyCommandWords + "; do if command -v -- \"$cmd\" >/dev/null 2>&1; then resolved=\"$cmd\"; break; fi; done; if [ -n \"$missing\" ]; then printf '%s\\n' \"${missing# }\" >&2; exit 1; fi; if [ -z \"$resolved\" ]; then printf '%s\\n' " + root.shellSingleQuote(applyCommandLabel) + " >&2; exit 1; fi; printf '%s\\n' \"$resolved\"";
     }
 
     function nowIsoString(): string {
@@ -68,6 +87,22 @@ Scope {
     function shellSingleQuote(value): string {
         const raw = String(value || "");
         return "'" + raw.replace(/'/g, "'\"'\"'") + "'";
+    }
+
+    function collectApplyCommandCandidates(): var {
+        const source = [String(root.applyCommandPath || "").trim(), String(root.fallbackApplyCommandPath || "").trim()];
+        const dedupe = {};
+        const next = [];
+        for (let index = 0; index < source.length; index += 1) {
+            const candidate = source[index];
+            if (!candidate)
+                continue;
+            if (dedupe[candidate])
+                continue;
+            dedupe[candidate] = true;
+            next.push(candidate);
+        }
+        return next;
     }
 
     function setDisabledState(): void {
@@ -80,6 +115,7 @@ Scope {
         root.reasonCode = "integration_disabled";
         root.lastUpdatedAt = nowIsoString();
         root.lastError = "";
+        root.resolvedApplyCommandPath = String(root.applyCommandPath || "swww");
     }
 
     function classifyFailureReason(message, fallbackCode): string {
@@ -189,6 +225,8 @@ Scope {
             latencyExpectation: "background",
             commandPath: root.commandPath,
             applyCommandPath: root.applyCommandPath,
+            fallbackApplyCommandPath: root.fallbackApplyCommandPath,
+            resolvedApplyCommandPath: root.resolvedApplyCommandPath,
             searchRoots: root.searchRoots,
             enabled: root.enabled,
             available: root.available,
@@ -234,6 +272,13 @@ Scope {
         probeAvailability();
     }
 
+    onFallbackApplyCommandPathChanged: {
+        reasonCode = "initializing";
+        ready = false;
+        available = false;
+        probeAvailability();
+    }
+
     Component.onCompleted: {
         if (enabled) {
             reasonCode = "initializing";
@@ -273,6 +318,7 @@ Scope {
             const stderrText = String(capabilityErrors.text ?? "").trim();
 
             if (stdoutText.length > 0) {
+                root.resolvedApplyCommandPath = String(stdoutText.split("\n")[0] || "").trim() || String(root.applyCommandPath || "swww");
                 root.available = true;
                 root.ready = true;
                 root.degraded = false;
@@ -284,6 +330,7 @@ Scope {
             }
 
             const message = stderrText.length > 0 ? "Missing required commands: " + stderrText : "Missing required wallpaper integration dependencies";
+            root.resolvedApplyCommandPath = String(root.applyCommandPath || "swww");
             root.applyFailure(root.classifyFailureReason(message, "dependency_missing"), message);
         }
         // qmllint enable signal-handler-parameters

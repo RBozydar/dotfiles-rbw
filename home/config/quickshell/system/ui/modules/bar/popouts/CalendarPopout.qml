@@ -56,7 +56,7 @@ Item {
 
         Text {
             text: Qt.formatDateTime(root.currentDate, "MMMM yyyy")
-            color: Theme.onSurface
+            color: Theme.roleOnSurface
             font.family: Theme.fontSans
             font.pixelSize: 22
             font.weight: Font.DemiBold
@@ -64,7 +64,7 @@ Item {
 
         Text {
             text: Qt.formatDateTime(root.currentDate, "dddd, yyyy-MM-dd")
-            color: Theme.onSurfaceVariant
+            color: Theme.roleOnSurfaceVariant
             font.family: Theme.fontSans
             font.pixelSize: 13
         }
@@ -84,7 +84,7 @@ Item {
                     width: 42
                     horizontalAlignment: Text.AlignHCenter
                     text: weekdayCell.modelData
-                    color: Theme.onSurfaceVariant
+                    color: Theme.roleOnSurfaceVariant
                     font.family: Theme.fontSans
                     font.pixelSize: 12
                     font.weight: Font.DemiBold
@@ -114,7 +114,7 @@ Item {
                     Text {
                         anchors.centerIn: parent
                         text: parent.modelData.day
-                        color: parent.modelData.isToday ? Theme.surfaceContainer : Theme.onSurface
+                        color: parent.modelData.isToday ? Theme.surfaceContainer : Theme.roleOnSurface
                         font.family: Theme.fontMono
                         font.pixelSize: 13
                         font.weight: parent.modelData.isToday ? Font.Black : Font.DemiBold

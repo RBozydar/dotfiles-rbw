@@ -8,6 +8,29 @@ import QtTest 1.3
 TestCase {
     name: "ThemeProviderPortSlice"
 
+    function toSnakeCase(value) {
+        return String(value).replace(/[A-Z]/g, match => "_" + match.toLowerCase());
+    }
+
+    function toMatugenColors(roleMap) {
+        const colors = {};
+        for (const rawRoleName in roleMap) {
+            const roleName = String(rawRoleName);
+            colors[toSnakeCase(roleName)] = {
+                dark: {
+                    color: String(roleMap[roleName])
+                },
+                default: {
+                    color: String(roleMap[roleName])
+                },
+                light: {
+                    color: "#ffffff"
+                }
+            };
+        }
+        return colors;
+    }
+
     function test_resolveThemeProvider_prefers_preferred_provider() {
         const providers = {
             static: StaticThemeProviderAdapters.createStaticThemeProvider({
@@ -81,11 +104,7 @@ TestCase {
             providerId: "matugen",
             readScheme: function () {
                 return {
-                    schemes: {
-                        dark: {
-                            colors: darkRoles
-                        }
-                    }
+                    colors: toMatugenColors(darkRoles)
                 };
             }
         });
@@ -102,5 +121,36 @@ TestCase {
         compare(scheme.provider, "matugen");
         compare(scheme.mode, "dark");
         compare(scheme.sourceKind, "file");
+        compare(scheme.roles.onPrimary, String(darkRoles.onPrimary).toLowerCase());
+        compare(scheme.roles.surfaceContainerHighest, String(darkRoles.surfaceContainerHighest).toLowerCase());
+    }
+
+    function test_matugenThemeProvider_generate_uses_generate_callback_when_read_returns_null() {
+        const darkRoles = ThemeContracts.createDefaultThemeRoleMap("dark");
+        const adapter = MatugenThemeProviderAdapters.createMatugenThemeProvider({
+            providerId: "matugen",
+            readScheme: function () {
+                return null;
+            },
+            generateScheme: function () {
+                return {
+                    colors: toMatugenColors(darkRoles)
+                };
+            }
+        });
+        const port = ThemeProviderPort.createThemeProviderPort(adapter);
+        const request = ThemeContracts.createThemeGenerationRequest({
+            provider: "matugen",
+            mode: "dark",
+            sourceKind: "wallpaper",
+            sourceValue: "/tmp/wallpaper.jpg"
+        });
+        const rawScheme = port.generate(request);
+        const scheme = ThemeContracts.validateThemeSchemeDocument(rawScheme);
+
+        compare(scheme.provider, "matugen");
+        compare(scheme.mode, "dark");
+        compare(scheme.sourceKind, "wallpaper");
+        compare(scheme.roles.primary, String(darkRoles.primary).toLowerCase());
     }
 }

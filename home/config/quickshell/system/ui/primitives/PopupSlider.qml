@@ -23,7 +23,7 @@ Column {
 
         Text {
             text: root.label
-            color: Theme.onSurfaceVariant
+            color: Theme.roleOnSurfaceVariant
             font.family: Theme.fontSans
             font.pixelSize: 13
             Layout.fillWidth: true
@@ -31,7 +31,7 @@ Column {
 
         Text {
             text: root.valueText
-            color: root.sliderEnabled ? root.accent : Theme.onSurfaceVariant
+            color: root.sliderEnabled ? root.accent : Theme.roleOnSurfaceVariant
             font.family: Theme.fontMono
             font.pixelSize: 13
             font.weight: Font.DemiBold

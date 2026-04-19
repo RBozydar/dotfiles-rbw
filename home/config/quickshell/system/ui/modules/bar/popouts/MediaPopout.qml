@@ -18,7 +18,7 @@ Item {
 
         Text {
             text: "Media"
-            color: Theme.onSurface
+            color: Theme.roleOnSurface
             font.family: Theme.fontSans
             font.pixelSize: 22
             font.weight: Font.DemiBold
@@ -65,7 +65,7 @@ Item {
 
             BarPrimitives.PopupButton {
                 text: "Prev"
-                accent: Theme.onSurface
+                accent: Theme.roleOnSurface
                 onClicked: {
                     if (root.mediaState)
                         root.mediaState.previous();
@@ -83,7 +83,7 @@ Item {
 
             BarPrimitives.PopupButton {
                 text: "Next"
-                accent: Theme.onSurface
+                accent: Theme.roleOnSurface
                 onClicked: {
                     if (root.mediaState)
                         root.mediaState.next();

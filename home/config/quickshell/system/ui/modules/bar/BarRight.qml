@@ -90,7 +90,7 @@ Item {
 
             visible: root.homeAssistantState ? root.homeAssistantState.configured : false
             icon: !root.homeAssistantState || !root.homeAssistantState.available ? "󰔎" : (root.homeAssistantState.anyOn ? "󰖨" : "󰖧")
-            accent: !root.homeAssistantState || !root.homeAssistantState.available ? Theme.tertiary : (root.homeAssistantState.anyOn ? Theme.tertiary : Theme.onSurfaceVariant)
+            accent: !root.homeAssistantState || !root.homeAssistantState.available ? Theme.tertiary : (root.homeAssistantState.anyOn ? Theme.tertiary : Theme.roleOnSurfaceVariant)
             active: homeChip.hovered
             label: root.homeAssistantState ? root.homeAssistantState.chipLabel : ""
             onClicked: {
@@ -130,7 +130,7 @@ Item {
             id: networkChip
 
             icon: root.connectivityState && root.connectivityState.networkKind === "wifi" ? "" : (root.connectivityState && root.connectivityState.networkKind === "ethernet" ? "" : "")
-            accent: root.connectivityState && root.connectivityState.networkConnected ? Theme.secondary : Theme.onSurfaceVariant
+            accent: root.connectivityState && root.connectivityState.networkConnected ? Theme.secondary : Theme.roleOnSurfaceVariant
             label: ` ${root.connectivityState ? root.connectivityState.networkUpRate : "0B"}   ${root.connectivityState ? root.connectivityState.networkDownRate : "0B"}`
             maximumLabelWidth: 180
             onClicked: root.runCommand(["nm-connection-editor"])
@@ -140,7 +140,7 @@ Item {
             id: bluetoothChip
 
             icon: ""
-            accent: root.connectivityState && root.connectivityState.bluetoothEnabled ? Theme.primary : Theme.onSurfaceVariant
+            accent: root.connectivityState && root.connectivityState.bluetoothEnabled ? Theme.primary : Theme.roleOnSurfaceVariant
             label: ""
             onClicked: root.runCommand(["blueman-manager"])
         }
@@ -151,7 +151,7 @@ Item {
             id: notificationChip
 
             icon: ""
-            accent: root.notificationUnreadCount > 0 ? Theme.tertiary : Theme.onSurfaceVariant
+            accent: root.notificationUnreadCount > 0 ? Theme.tertiary : Theme.roleOnSurfaceVariant
             active: notificationChip.hovered
             label: ""
             badgeVisible: root.notificationUnreadCount > 0

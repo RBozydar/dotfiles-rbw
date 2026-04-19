@@ -34,7 +34,7 @@ Item {
             color: Theme.surfaceContainer
             border.width: 1
             border.color: Theme.outline
-            height: Theme.barInnerHeight - 4
+            height: Theme.barChipHeight
             width: clockText.implicitWidth + 28
 
             HoverHandler {
@@ -46,7 +46,7 @@ Item {
 
                 anchors.centerIn: parent
                 text: Qt.formatDateTime(root.clock.date, "yyyy-MM-dd hh:mm:ss")
-                color: Theme.onSurface
+                color: Theme.roleOnSurface
                 font.family: Theme.fontMono
                 font.pixelSize: 14
                 font.weight: Font.DemiBold

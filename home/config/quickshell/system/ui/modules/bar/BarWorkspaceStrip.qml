@@ -1,5 +1,6 @@
 pragma ComponentBehavior: Bound
 import QtQuick
+import qs
 
 Rectangle {
     id: root
@@ -8,9 +9,9 @@ Rectangle {
     readonly property var stripModel: presentationModel.workspaceStrip
 
     radius: 12
-    color: "#11161f"
+    color: Theme.surfaceContainerLow
     border.width: 1
-    border.color: "#2b384d"
+    border.color: Theme.outline
     height: 34
     width: workspaceRow.implicitWidth + 18
 
@@ -31,14 +32,14 @@ Rectangle {
                 width: 24
                 height: 24
                 radius: 9
-                color: modelData.active ? "#17395d" : (hover.hovered ? "#1a2432" : (modelData.occupied ? "#152130" : "transparent"))
+                color: modelData.active ? Theme.secondaryContainer : (hover.hovered ? Theme.surfaceContainerHigh : (modelData.occupied ? Theme.surfaceContainer : "transparent"))
                 border.width: modelData.active || modelData.occupied || hover.hovered ? 1 : 0
-                border.color: modelData.active ? "#7cc7ff" : "#2b384d"
+                border.color: modelData.active ? Theme.secondary : Theme.outline
 
                 Text {
                     anchors.centerIn: parent
                     text: workspaceButton.modelData.label
-                    color: workspaceButton.modelData.active ? "#7cc7ff" : "#d7e2f0"
+                    color: workspaceButton.modelData.active ? Theme.secondary : Theme.roleOnSurface
                     font.family: "JetBrainsMono Nerd Font"
                     font.pixelSize: 13
                     font.weight: Font.DemiBold
@@ -52,7 +53,7 @@ Rectangle {
                     width: 10
                     height: 3
                     radius: 2
-                    color: "#9fd7ff"
+                    color: Theme.secondary
                 }
 
                 Rectangle {
@@ -64,7 +65,7 @@ Rectangle {
                     width: 5
                     height: 5
                     radius: 3
-                    color: "#8aa0b8"
+                    color: Theme.roleOnSurfaceVariant
                 }
 
                 HoverHandler {
@@ -82,14 +83,14 @@ Rectangle {
             width: 24
             height: 24
             radius: 9
-            color: "#221713"
+            color: Theme.tertiaryContainer
             border.width: 1
-            border.color: "#ffb366"
+            border.color: Theme.tertiary
 
             Text {
                 anchors.centerIn: parent
                 text: "*"
-                color: "#ffb366"
+                color: Theme.tertiary
                 font.family: "IBM Plex Sans"
                 font.pixelSize: 14
                 font.weight: Font.Black

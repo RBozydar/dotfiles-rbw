@@ -90,6 +90,8 @@ ShellRoot {
     property string themeSourceKind: String(Quickshell.env("RBW_THEME_SOURCE_KIND") || "static")
     property string themeSourceValue: String(Quickshell.env("RBW_THEME_SOURCE_VALUE") || "")
     property string themeMatugenSchemePath: String(Quickshell.env("RBW_THEME_MATUGEN_SCHEME_PATH") || "")
+    property string themeMatugenCommandPath: String(Quickshell.env("RBW_THEME_MATUGEN_COMMAND") || "matugen")
+    readonly property string themeWallpaperSourcePath: WallpaperWorkflowUseCases.currentWallpaperPath(root.wallpaperHistoryState)
     readonly property QtObject themeBridge: SystemBridges.ThemeBridge {
         providerId: root.themeProviderId
         fallbackProviderId: root.themeFallbackProviderId
@@ -98,6 +100,8 @@ ShellRoot {
         sourceKind: root.themeSourceKind
         sourceValue: root.themeSourceValue
         matugenSchemePath: root.themeMatugenSchemePath
+        matugenCommandPath: root.themeMatugenCommandPath
+        fallbackWallpaperPath: root.themeWallpaperSourcePath
     }
     property var settingsStore: SettingsStore.createSettingsStore()
     property var launcherStore: LauncherStore.createLauncherStore()
@@ -116,6 +120,11 @@ ShellRoot {
     property var wallpaperHistoryState: WallpaperWorkflowUseCases.createWallpaperHistoryState({
         limit: Number(Quickshell.env("RBW_WALLPAPER_HISTORY_LIMIT") || 80)
     })
+    property bool wallpaperStartupRestorePending: false
+    property string wallpaperStartupRestorePath: ""
+    property int wallpaperStartupRestoreAttempt: 0
+    property int wallpaperStartupRestoreMaxAttempts: 60
+    property int wallpaperStartupRestoreIntervalMs: 180
     property bool notificationHistorySyncEnabled: true
     property int notificationHistorySyncIntervalMs: 700
     property int notificationHistoryMaxEntries: 240
@@ -353,6 +362,12 @@ ShellRoot {
             name: "theme.describe",
             summary: "Return theme runtime snapshot and provider diagnostics",
             usage: "theme.describe",
+            minArgs: 0,
+            maxArgs: 0
+        }), IpcContracts.createShellIpcCommandSpec({
+            name: "theme.singleton.describe",
+            summary: "Return resolved Theme singleton token snapshot",
+            usage: "theme.singleton.describe",
             minArgs: 0,
             maxArgs: 0
         }), IpcContracts.createShellIpcCommandSpec({
@@ -627,6 +642,9 @@ ShellRoot {
             "theme.describe": function () {
                 return root.describeTheme();
             },
+            "theme.singleton.describe": function () {
+                return root.describeThemeSingleton();
+            },
             "theme.regenerate": function () {
                 return root.regenerateTheme();
             },
@@ -738,6 +756,16 @@ ShellRoot {
     }
 
     Timer {
+        id: wallpaperStartupRestoreTimer
+        interval: root.wallpaperStartupRestoreIntervalMs
+        repeat: false
+        running: false
+        onTriggered: {
+            root.tryStartupRestoreWallpaper();
+        }
+    }
+
+    Timer {
         id: launcherAsyncProviderSweepTimer
         interval: root.launcherAsyncProviderSweepIntervalMs
         repeat: true
@@ -751,6 +779,17 @@ ShellRoot {
         target: root.themeBridge
         function onSchemeChanged() {
             root.syncThemeSingletonScheme();
+        }
+    }
+
+    Connections {
+        target: root.launcherWallpaperCatalogAdapter
+        function onReadyChanged() {
+            if (!target || target.ready !== true)
+                return;
+            if (!root.wallpaperStartupRestorePending)
+                return;
+            wallpaperStartupRestoreTimer.restart();
         }
     }
 
@@ -1530,6 +1569,7 @@ ShellRoot {
         settingsPersistTimer.stop();
         launcherTelemetryFlushTimer.stop();
         notificationHistorySyncTimer.stop();
+        clearStartupRestoreWallpaperQueue();
         root.notificationHistorySyncPending = false;
         root.notificationHistoryPendingSnapshot = [];
         resetLauncherAsyncProviderRuntime();
@@ -1547,6 +1587,7 @@ ShellRoot {
         applyIntegrationRuntimeSettings();
         restoreNotificationHistoryFromSettings();
         restoreWallpaperHistoryFromSettings();
+        queueStartupRestoreWallpaper("settings.reload");
         syncThemeSingletonScheme();
 
         if (Array.isArray(root.launcherTelemetryQueue) && root.launcherTelemetryQueue.length > 0)
@@ -1682,6 +1723,79 @@ ShellRoot {
 
     function restoreWallpaperHistoryFromSettings() {
         root.wallpaperHistoryState = currentPersistedWallpaperHistoryState();
+    }
+
+    function clearStartupRestoreWallpaperQueue() {
+        root.wallpaperStartupRestorePending = false;
+        root.wallpaperStartupRestorePath = "";
+        root.wallpaperStartupRestoreAttempt = 0;
+        wallpaperStartupRestoreTimer.stop();
+    }
+
+    function queueStartupRestoreWallpaper(sourceCode) {
+        const normalizedSourceCode = String(sourceCode || "wallpaper.startup.restore").trim() || "wallpaper.startup.restore";
+        const currentPath = WallpaperWorkflowUseCases.currentWallpaperPath(ensureWallpaperHistoryState());
+        const normalizedPath = normalizeWallpaperPath(currentPath);
+        if (!normalizedPath) {
+            clearStartupRestoreWallpaperQueue();
+            return OperationOutcomes.noop({
+                code: normalizedSourceCode + ".no_history",
+                reason: "No wallpaper history path available for startup restore",
+                targetId: "wallpaper"
+            });
+        }
+
+        root.wallpaperStartupRestorePending = true;
+        root.wallpaperStartupRestorePath = normalizedPath;
+        root.wallpaperStartupRestoreAttempt = 0;
+        wallpaperStartupRestoreTimer.restart();
+        return OperationOutcomes.applied({
+            code: normalizedSourceCode + ".queued",
+            targetId: normalizedPath
+        });
+    }
+
+    function tryStartupRestoreWallpaper() {
+        if (!root.wallpaperStartupRestorePending) {
+            return OperationOutcomes.noop({
+                code: "wallpaper.startup.restore.noop",
+                reason: "Wallpaper startup restore queue is empty",
+                targetId: "wallpaper"
+            });
+        }
+
+        const normalizedPath = normalizeWallpaperPath(root.wallpaperStartupRestorePath);
+        if (!normalizedPath) {
+            clearStartupRestoreWallpaperQueue();
+            return OperationOutcomes.rejected({
+                code: "wallpaper.startup.restore.invalid_path",
+                reason: "Wallpaper startup restore path is invalid",
+                targetId: "wallpaper"
+            });
+        }
+
+        const outcome = setWallpaper(normalizedPath, "wallpaper.startup.restore", false);
+        if (outcome && outcome.status === "applied") {
+            clearStartupRestoreWallpaperQueue();
+            return outcome;
+        }
+
+        root.wallpaperStartupRestoreAttempt = Number(root.wallpaperStartupRestoreAttempt) + 1;
+        if (String(outcome && outcome.code || "") === "wallpaper.startup.restore.not_ready" && root.wallpaperStartupRestoreAttempt < Number(root.wallpaperStartupRestoreMaxAttempts)) {
+            wallpaperStartupRestoreTimer.restart();
+            return OperationOutcomes.noop({
+                code: "wallpaper.startup.restore.retrying",
+                reason: "Wallpaper integration is not ready yet",
+                targetId: normalizedPath,
+                meta: {
+                    attempt: Number(root.wallpaperStartupRestoreAttempt),
+                    maxAttempts: Number(root.wallpaperStartupRestoreMaxAttempts)
+                }
+            });
+        }
+
+        clearStartupRestoreWallpaperQueue();
+        return outcome;
     }
 
     function setWallpaperHistorySetting(historyEntries, cursor) {
@@ -1916,6 +2030,34 @@ ShellRoot {
         return normalized;
     }
 
+    function shellSingleQuote(value) {
+        return "'" + String(value || "").replace(/'/g, "'\"'\"'") + "'";
+    }
+
+    function wallpaperCommandBaseName(commandPath) {
+        const normalized = String(commandPath || "").trim();
+        if (!normalized)
+            return "";
+        const segments = normalized.split("/");
+        return String(segments.length > 0 ? segments[segments.length - 1] : normalized);
+    }
+
+    function wallpaperApplyCommand(commandPath, wallpaperPath) {
+        const normalizedCommandPath = String(commandPath || "").trim();
+        const normalizedWallpaperPath = normalizeWallpaperPath(wallpaperPath);
+        if (!normalizedCommandPath || !normalizedWallpaperPath)
+            return [];
+
+        const commandBaseName = wallpaperCommandBaseName(normalizedCommandPath);
+        if (commandBaseName === "awww" || commandBaseName === "swww") {
+            const daemonPath = normalizedCommandPath + "-daemon";
+            const script = "cmd=" + shellSingleQuote(normalizedCommandPath) + "; daemon=" + shellSingleQuote(daemonPath) + "; \"$cmd\" query >/dev/null 2>&1 || (\"$daemon\" >/dev/null 2>&1 & sleep 0.2); \"$cmd\" img " + shellSingleQuote(normalizedWallpaperPath);
+            return ["sh", "-lc", script];
+        }
+
+        return [normalizedCommandPath, "img", normalizedWallpaperPath];
+    }
+
     function ensureWallpaperHistoryState() {
         if (root.wallpaperHistoryState && typeof root.wallpaperHistoryState === "object" && !Array.isArray(root.wallpaperHistoryState))
             return root.wallpaperHistoryState;
@@ -1929,6 +2071,20 @@ ShellRoot {
     function appendWallpaperHistory(path, sourceCode) {
         root.wallpaperHistoryState = WallpaperWorkflowUseCases.appendWallpaperHistoryEntry(ensureWallpaperHistoryState(), path, sourceCode, new Date().toISOString());
         syncWallpaperHistorySetting();
+    }
+
+    function maybeRegenerateMatugenThemeFromWallpaper(sourceCode) {
+        if (!root.themeBridge || typeof root.themeBridge.regenerate !== "function")
+            return;
+        if (String(root.themeProviderId || "").trim().toLowerCase() !== "matugen")
+            return;
+
+        const normalizedSourceKind = String(root.themeSourceKind || "static").trim().toLowerCase();
+        if (normalizedSourceKind === "color")
+            return;
+
+        const reasonCode = String(sourceCode || "wallpaper.theme.sync").trim() || "wallpaper.theme.sync";
+        root.themeBridge.regenerate(reasonCode);
     }
 
     function describeWallpaperHistory() {
@@ -1955,8 +2111,9 @@ ShellRoot {
             });
         }
 
-        const commandPath = String(state && state.applyCommandPath ? state.applyCommandPath : "swww");
-        const dispatched = root.commandExecutionPort.execute([commandPath, "img", normalizedPath]);
+        const commandPath = String(state && state.resolvedApplyCommandPath ? state.resolvedApplyCommandPath : (state && state.applyCommandPath ? state.applyCommandPath : "swww"));
+        const command = wallpaperApplyCommand(commandPath, normalizedPath);
+        const dispatched = root.commandExecutionPort.execute(command);
         if (!dispatched) {
             return OperationOutcomes.failed({
                 code: codePrefix + ".dispatch_failed",
@@ -2034,8 +2191,12 @@ ShellRoot {
         }
 
         const outcome = dispatchWallpaperSet(normalizedPath, normalizedSourceCode);
-        if (outcome && outcome.status === "applied" && shouldAppendHistory)
-            appendWallpaperHistory(normalizedPath, normalizedSourceCode);
+        if (outcome && outcome.status === "applied") {
+            if (shouldAppendHistory)
+                appendWallpaperHistory(normalizedPath, normalizedSourceCode);
+            maybeRegenerateMatugenThemeFromWallpaper(normalizedSourceCode + ".theme_sync");
+            persistSettingsIfDirty(normalizedSourceCode + ".persist");
+        }
 
         return outcome;
     }
@@ -2081,6 +2242,7 @@ ShellRoot {
         if (outcome && outcome.status === "applied") {
             root.wallpaperHistoryState = WallpaperWorkflowUseCases.setWallpaperHistoryCursor(ensureWallpaperHistoryState(), Number(previous.cursor));
             syncWallpaperHistorySetting();
+            persistSettingsIfDirty("wallpaper.previous.persist");
         }
         return outcome;
     }
@@ -2099,6 +2261,7 @@ ShellRoot {
         if (outcome && outcome.status === "applied") {
             root.wallpaperHistoryState = WallpaperWorkflowUseCases.setWallpaperHistoryCursor(ensureWallpaperHistoryState(), Number(next.cursor));
             syncWallpaperHistorySetting();
+            persistSettingsIfDirty("wallpaper.next.persist");
         }
         return outcome;
     }
@@ -2442,6 +2605,51 @@ ShellRoot {
             targetId: "theme",
             meta: {
                 theme: root.themeBridge.describe()
+            }
+        });
+    }
+
+    function describeThemeSingleton() {
+        if (typeof Theme === "undefined" || !Theme) {
+            return OperationOutcomes.rejected({
+                code: "theme.singleton.unavailable",
+                reason: "Theme singleton is unavailable in SystemShell",
+                targetId: "theme"
+            });
+        }
+
+        const roleMap = Theme.roleMap && typeof Theme.roleMap === "object" && !Array.isArray(Theme.roleMap) ? Theme.roleMap : ({});
+        const roleNames = Object.keys(roleMap);
+        const fallbackPrimary = String(Theme.primary);
+        const fallbackOnSurface = String(Theme.roleOnSurface);
+
+        return OperationOutcomes.applied({
+            code: "theme.singleton.snapshot",
+            targetId: "theme",
+            meta: {
+                themeSingleton: {
+                    darkMode: Boolean(Theme.darkMode),
+                    roleCount: roleNames.length,
+                    primary: String(Theme.primary),
+                    onPrimary: String(Theme.roleOnPrimary),
+                    surface: String(Theme.surface),
+                    onSurface: String(Theme.roleOnSurface),
+                    surfaceContainer: String(Theme.surfaceContainer),
+                    surfaceContainerLow: String(Theme.surfaceContainerLow),
+                    onSurfaceVariant: String(Theme.roleOnSurfaceVariant),
+                    outline: String(Theme.outline),
+                    computedRoleColorPrimary: String(Theme.roleColor("primary", fallbackPrimary, fallbackPrimary)),
+                    computedRoleColorOnSurface: String(Theme.roleColor("onSurface", fallbackOnSurface, fallbackOnSurface)),
+                    computedQtColorOnSurface: String(Qt.color(Theme.roleColor("onSurface", fallbackOnSurface, fallbackOnSurface))),
+                    sampleRoles: roleNames.slice(0, 10),
+                    sampleRoleValues: {
+                        onPrimary: String(roleMap.onPrimary === undefined ? "" : roleMap.onPrimary),
+                        onSurface: String(roleMap.onSurface === undefined ? "" : roleMap.onSurface),
+                        onSurfaceVariant: String(roleMap.onSurfaceVariant === undefined ? "" : roleMap.onSurfaceVariant),
+                        surface: String(roleMap.surface === undefined ? "" : roleMap.surface),
+                        surfaceContainer: String(roleMap.surfaceContainer === undefined ? "" : roleMap.surfaceContainer)
+                    }
+                }
             }
         });
     }

@@ -35,7 +35,7 @@ Item {
 
                 Text {
                     text: "Notification Center"
-                    color: Theme.onSurface
+                    color: Theme.roleOnSurface
                     font.family: Theme.fontSans
                     font.pixelSize: 22
                     font.weight: Font.DemiBold
@@ -43,7 +43,7 @@ Item {
 
                 Text {
                     text: root.historyEntries.length > 0 ? `${root.historyEntries.length} items in this session` : "All quiet for now"
-                    color: Theme.onSurfaceVariant
+                    color: Theme.roleOnSurfaceVariant
                     font.family: Theme.fontSans
                     font.pixelSize: 12
                 }
@@ -62,7 +62,7 @@ Item {
 
                     anchors.centerIn: parent
                     text: "Clear"
-                    color: Theme.onSurface
+                    color: Theme.roleOnSurface
                     font.family: Theme.fontSans
                     font.pixelSize: 12
                 }
@@ -115,7 +115,7 @@ Item {
                         Text {
                             anchors.horizontalCenter: parent.horizontalCenter
                             text: "All quiet for now"
-                            color: Theme.onSurface
+                            color: Theme.roleOnSurface
                             font.family: Theme.fontSans
                             font.pixelSize: 18
                             font.weight: Font.DemiBold
@@ -124,7 +124,7 @@ Item {
                         Text {
                             anchors.horizontalCenter: parent.horizontalCenter
                             text: "Incoming notifications will land here."
-                            color: Theme.onSurfaceVariant
+                            color: Theme.roleOnSurfaceVariant
                             font.family: Theme.fontSans
                             font.pixelSize: 13
                         }
@@ -179,7 +179,7 @@ Item {
                                     Text {
                                         anchors.centerIn: parent
                                         text: "×"
-                                        color: Theme.onSurfaceVariant
+                                        color: Theme.roleOnSurfaceVariant
                                         font.family: Theme.fontSans
                                         font.pixelSize: 14
                                         font.weight: Font.DemiBold
@@ -196,7 +196,7 @@ Item {
 
                                 Text {
                                     text: Qt.formatDateTime(new Date(entryCard.modelData.timestamp), "hh:mm:ss yyyy-MM-dd")
-                                    color: Theme.onSurfaceVariant
+                                    color: Theme.roleOnSurfaceVariant
                                     font.family: Theme.fontMono
                                     font.pixelSize: 11
                                 }
@@ -204,7 +204,7 @@ Item {
 
                             Text {
                                 text: entryCard.modelData.summary
-                                color: Theme.onSurface
+                                color: Theme.roleOnSurface
                                 font.family: Theme.fontSans
                                 font.pixelSize: 15
                                 font.weight: Font.DemiBold
@@ -215,7 +215,7 @@ Item {
                                 visible: entryCard.modelData.body.length > 0
                                 width: parent.width
                                 text: entryCard.modelData.body
-                                color: Theme.onSurfaceVariant
+                                color: Theme.roleOnSurfaceVariant
                                 font.family: Theme.fontSans
                                 font.pixelSize: 13
                                 wrapMode: Text.WrapAtWordBoundaryOrAnywhere

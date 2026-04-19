@@ -1588,3 +1588,33 @@ Validation snapshot:
     - future optional integrations are tracked as BAU backlog items and must follow ADR-0014 policy and existing harness gates.
 - planning/docs updates:
     - `system-bootstrap-plan.md` roadmap status updated to mark Phase 2 and Phase 7 as completed-for-current-scope with explicit BAU continuation policy.
+
+### Theme Runtime Hardening (2026-04-19)
+
+- Removed remaining runtime hardcoded UI hex literals (non-test scope):
+    - `system/ui/primitives/TrayItem.qml` hover state now uses theme token (`surfaceContainerHigh`).
+    - `system/ui/modules/session/SessionOverlay.qml` backdrop now derives from `Theme.scrim` alpha.
+    - `system/ui/modules/launcher/LauncherOverlay.qml` backdrop now derives from `Theme.scrim` alpha.
+    - `system/ui/SystemShell.qml` theme singleton diagnostics now use Theme-token fallbacks instead of probe hex values.
+- Wired matugen provider from scaffold to runtime:
+    - `system/ui/bridges/ThemeBridge.qml` now includes async matugen generation (`Process` + cached parsed JSON), request-keyed caching, scheme-file watch support, and runtime diagnostics.
+    - Theme requests now resolve matugen source from explicit theme source settings and fall back to current wallpaper history path when source is unset.
+    - `system/ui/SystemShell.qml` now passes matugen command path (`RBW_THEME_MATUGEN_COMMAND`, default `matugen`) plus fallback wallpaper path into `ThemeBridge`.
+    - Wallpaper set actions now trigger matugen regeneration when matugen provider is active (non-color source modes).
+- Improved matugen provider adapter robustness:
+    - `system/adapters/theming/matugen-theme-provider.js` now correctly parses nested matugen JSON role shapes (`colors.<role>.<mode>.color`) and converts snake_case role names to shell role casing.
+    - Fixed callback precedence bug: `generateScheme` now executes when `readScheme` returns null.
+- Added/updated tests:
+    - `tests/tst_ThemeProviderPortSlice.qml` now covers nested matugen JSON extraction and generate-callback fallback behavior.
+
+Validation snapshot:
+
+- `make -C home/config/quickshell format`
+- `make -C home/config/quickshell lint`
+- `make -C home/config/quickshell qmltest`
+- `make -C home/config/quickshell refresh-review-evidence`
+- `VERIFY_ALLOW_SANDBOX=1 make -C /home/rbw/repo/dotfiles-rbw/home/config/quickshell verify`
+- Runtime check:
+    - `shellctl theme.provider.set matugen`
+    - `shellctl wallpaper.set /home/rbw/repo/dotfiles-rbw/wallpapers/m31.jpg`
+    - `shellctl theme.describe` reports provider `matugen`, `fallbackUsed: false`
