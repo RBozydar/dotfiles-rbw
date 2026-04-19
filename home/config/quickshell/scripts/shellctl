@@ -1,0 +1,184 @@
+#!/bin/sh
+
+set -eu
+
+script_dir=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd)
+root_dir=$(dirname "$script_dir")
+config_path="${SHELLCTL_CONFIG_PATH:-$root_dir}"
+target="${SHELLCTL_IPC_TARGET:-shell}"
+
+usage() {
+	cat <<EOF
+Usage: shellctl [--path <quickshell-config-path>] [--target <ipc-target>] <command> [args...]
+       shellctl call <command> [args...]
+       shellctl commands
+       shellctl describe
+       shellctl completion zsh
+
+Defaults:
+  --path   $config_path
+  --target $target
+
+Examples:
+  shellctl session.toggle
+  shellctl session.open
+  shellctl launcher.catalog.describe
+  shellctl integrations.health
+  shellctl wallpaper.random
+  shellctl wallpaper.previous
+  shellctl wallpaper.next
+  shellctl wallpaper.history.describe
+  shellctl launcher.search firefox
+  shellctl launcher.activate app:firefox.desktop
+  shellctl shell.command.run ghostty -e btop
+  shellctl commands
+EOF
+}
+
+completion_zsh() {
+	cat <<'EOF'
+#compdef shellctl
+
+_shellctl() {
+	local -a shellctl_commands
+	shellctl_commands=("${(@f)$(shellctl __complete 2>/dev/null)}")
+
+	_arguments -C \
+		'--path[Quickshell config path]:path:_files -/' \
+		'--target[IPC target name]:target:' \
+		'1:command:->command' \
+		'*::args:->args'
+
+	case "$state" in
+	command)
+		_describe -t shellctl_commands 'shellctl command' shellctl_commands
+		;;
+	args)
+		_message 'command arguments'
+		;;
+	esac
+}
+
+compdef _shellctl shellctl
+EOF
+}
+
+ipc_call() {
+	qs ipc -p "$config_path" call "$target" "$@"
+}
+
+fetch_commands_json() {
+	ipc_call commands
+}
+
+extract_command_names() {
+	printf '%s' "$1" | grep -o '"name":"[^"]*"' | cut -d'"' -f4
+}
+
+encode_args_payload() {
+	if ! command -v python3 >/dev/null 2>&1; then
+		printf '%s\n' "shellctl: python3 is required for argument encoding" >&2
+		return 1
+	fi
+
+	python3 - "$@" <<'PY'
+import json
+import sys
+import urllib.parse
+
+print(urllib.parse.quote(json.dumps(sys.argv[1:]), safe=""))
+PY
+}
+
+invoke_command() {
+	command_name=$1
+	shift || true
+
+	args_payload=$(encode_args_payload "$@")
+	result=$(ipc_call dispatch "$command_name" "$args_payload" 2>&1) || {
+		printf '%s\n' "$result" >&2
+		return 1
+	}
+
+	printf '%s\n' "$result"
+
+	if printf '%s' "$result" | grep -Eq '"status"[[:space:]]*:[[:space:]]*"(applied|noop)"'; then
+		return 0
+	fi
+
+	return 1
+}
+
+while [ "$#" -gt 0 ]; do
+	case "$1" in
+	--path)
+		if [ "$#" -lt 2 ]; then
+			printf '%s\n' "shellctl: missing value for --path" >&2
+			exit 2
+		fi
+		config_path=$2
+		shift 2
+		;;
+	--target)
+		if [ "$#" -lt 2 ]; then
+			printf '%s\n' "shellctl: missing value for --target" >&2
+			exit 2
+		fi
+		target=$2
+		shift 2
+		;;
+	-h | --help)
+		usage
+		exit 0
+		;;
+	--)
+		shift
+		break
+		;;
+	-*)
+		printf '%s\n' "shellctl: unknown option: $1" >&2
+		exit 2
+		;;
+	*)
+		break
+		;;
+	esac
+done
+
+if [ "$#" -eq 0 ]; then
+	usage
+	exit 0
+fi
+
+subcommand=$1
+shift || true
+
+case "$subcommand" in
+call)
+	if [ "$#" -eq 0 ]; then
+		printf '%s\n' "shellctl: call requires a command name" >&2
+		exit 2
+	fi
+	invoke_command "$@"
+	;;
+commands | list | __complete)
+	commands_json=$(fetch_commands_json)
+	extract_command_names "$commands_json"
+	;;
+describe)
+	ipc_call describe
+	;;
+completion)
+	if [ "${1:-}" != "zsh" ]; then
+		printf '%s\n' "shellctl: completion requires shell name (supported: zsh)" >&2
+		exit 2
+	fi
+	completion_zsh
+	;;
+help)
+	usage
+	;;
+*)
+	invoke_command "$subcommand" "$@"
+	;;
+esac

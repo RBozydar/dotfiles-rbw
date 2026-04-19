@@ -3,15 +3,15 @@
 set -eu
 
 if ! command -v hyprctl >/dev/null 2>&1; then
-    exit 1
+	exit 1
 fi
 
 if ! command -v jq >/dev/null 2>&1; then
-    exit 1
+	exit 1
 fi
 
 target=$(
-    hyprctl clients -j | jq -r '
+	hyprctl clients -j | jq -r '
         map(select(.mapped == true and .class == "com.mitchellh.ghostty")) as $ghostty
         | (
             $ghostty

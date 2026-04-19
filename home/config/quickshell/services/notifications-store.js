@@ -1,11 +1,9 @@
 function cloneObject(source) {
     const copy = {};
 
-    if (!source)
-        return copy;
+    if (!source) return copy;
 
-    for (const key in source)
-        copy[key] = source[key];
+    for (const key in source) copy[key] = source[key];
 
     return copy;
 }
@@ -13,10 +11,8 @@ function cloneObject(source) {
 function popupTimeoutMs(expireTimeout) {
     const timeout = Number(expireTimeout ?? -1);
 
-    if (timeout > 1000)
-        return timeout;
-    if (timeout > 0)
-        return timeout * 1000;
+    if (timeout > 1000) return timeout;
+    if (timeout > 0) return timeout * 1000;
     return 6000;
 }
 
@@ -31,7 +27,7 @@ function createEntry(notification, nowMs) {
         image: notification.image || "",
         urgency: notification.urgency,
         timestamp: nowMs,
-        read: false
+        read: false,
     };
 }
 
@@ -44,7 +40,7 @@ function createPopupEntry(entry, expiresAt) {
         body: entry.body,
         urgency: entry.urgency,
         timestamp: entry.timestamp,
-        expiresAt: expiresAt
+        expiresAt: expiresAt,
     };
 }
 
@@ -59,7 +55,7 @@ function remember(history, popupList, notification, nowMs, limit, popupLimit) {
     return {
         entry: entry,
         history: prependWithLimit(history, entry, limit),
-        popupList: prependWithLimit(popupList, popup, popupLimit)
+        popupList: prependWithLimit(popupList, popup, popupLimit),
     };
 }
 
@@ -80,8 +76,7 @@ function dismissPopup(popupList, key) {
 
     for (let index = 0; index < popupList.length; index += 1) {
         const entry = popupList[index];
-        if (entry.key !== key)
-            next.push(entry);
+        if (entry.key !== key) next.push(entry);
     }
 
     return next;
@@ -92,8 +87,7 @@ function clearEntry(history, key) {
 
     for (let index = 0; index < history.length; index += 1) {
         const entry = history[index];
-        if (entry.key !== key)
-            next.push(entry);
+        if (entry.key !== key) next.push(entry);
     }
 
     return next;
@@ -104,8 +98,7 @@ function markEntryRead(history, key) {
 
     for (let index = 0; index < history.length; index += 1) {
         const entry = cloneObject(history[index]);
-        if (entry.key === key)
-            entry.read = true;
+        if (entry.key === key) entry.read = true;
         next.push(entry);
     }
 
@@ -117,8 +110,7 @@ function filterUnexpiredPopups(popupList, nowMs) {
 
     for (let index = 0; index < popupList.length; index += 1) {
         const entry = popupList[index];
-        if (entry.expiresAt > nowMs)
-            next.push(entry);
+        if (entry.expiresAt > nowMs) next.push(entry);
     }
 
     return next;

@@ -9,16 +9,17 @@ This directory contains a Quickshell-based Hyprland shell replacement focused on
 - volume OSD
 - native session overlay
 
-The shell is centered around `shell.qml`, shared singletons in `services/`, and feature folders under `modules/`.
+The shell is centered around a thin bootstrap [shell.qml](./shell.qml), system-owned runtime composition in [system/ui/SystemShell.qml](./system/ui/SystemShell.qml), shared singletons in `services/`, and system runtime modules under `system/ui/modules/`.
 
 ## Entry Points
 
-- Shell root: [shell.qml](./shell.qml)
+- Startup root: [shell.qml](./shell.qml)
+- System runtime root: [system/ui/SystemShell.qml](./system/ui/SystemShell.qml)
 - Theme/design tokens: [Theme.qml](./Theme.qml)
 
 ## Directory Layout
 
-- [`components/`](./components)
+- [`system/ui/primitives/`](./system/ui/primitives)
   Reusable visual primitives such as chips, sliders, toggle rows, tray items, and popup rows.
 
 - [`services/`](./services)
@@ -27,59 +28,63 @@ The shell is centered around `shell.qml`, shared singletons in `services/`, and 
 - [`scripts/`](./scripts)
   Small shell fetchers and helpers used by services. Keep shelling-out logic here rather than embedding it deeply into UI files.
 
-- [`modules/bar/`](./modules/bar)
-  Bar composition, shared popout state, shared popout surface, and popup content.
-
-- [`modules/notifications/`](./modules/notifications)
-  Toast-style popup notifications.
-
-- [`modules/osd/`](./modules/osd)
-  Ephemeral OSD surfaces such as volume.
-
-- [`modules/session/`](./modules/session)
-  Session/power overlay.
+- [`system/ui/modules/`](./system/ui/modules)
+  System-owned runtime modules for bar, notifications, OSD, session, and launcher surfaces.
 
 ## Bar Structure
 
-- [modules/bar/Bar.qml](./modules/bar/Bar.qml)
-  Multi-screen bar entrypoint.
+- [shell.qml](./shell.qml)
+  Bootstrap entrypoint required for Quickshell root import resolution.
 
-- [modules/bar/BarScreen.qml](./modules/bar/BarScreen.qml)
-  Per-screen composition. Owns popup routing, shell gating, and the mapping between hovered chips and popup content.
+- [system/ui/SystemShell.qml](./system/ui/SystemShell.qml)
+  Canonical runtime composition root for bar, notifications, OSD, and session modules.
 
-- [modules/bar/BarLeft.qml](./modules/bar/BarLeft.qml)
-  Workspace strip cluster.
+- [system/ui/modules/bar/BarRoot.qml](./system/ui/modules/bar/BarRoot.qml)
+  Multi-screen system bar entrypoint.
 
-- [modules/bar/BarCenter.qml](./modules/bar/BarCenter.qml)
+- [system/ui/modules/bar/BarScreen.qml](./system/ui/modules/bar/BarScreen.qml)
+  Per-screen bar composition. Owns popup routing and hover-to-popup mapping.
+
+- [system/ui/modules/bar/BarCenter.qml](./system/ui/modules/bar/BarCenter.qml)
   Clock and weather chip.
 
-- [modules/bar/BarRight.qml](./modules/bar/BarRight.qml)
+- [system/ui/modules/bar/BarRight.qml](./system/ui/modules/bar/BarRight.qml)
   Media, control-center chips, resources, tray, notifications, and power.
 
-- [modules/bar/BarPopoutState.qml](./modules/bar/BarPopoutState.qml)
+- [system/ui/modules/bar/BarPopoutState.qml](./system/ui/modules/bar/BarPopoutState.qml)
   Shared popup state. This is the single source of truth for which bar popup is active.
 
-- [modules/bar/BarPopoutSurface.qml](./modules/bar/BarPopoutSurface.qml)
+- [system/ui/modules/bar/BarPopoutSurface.qml](./system/ui/modules/bar/BarPopoutSurface.qml)
   Shared popup surface. Handles popup geometry, reveal animation, and hover handoff.
 
-- [modules/bar/popouts/](./modules/bar/popouts)
+- [system/ui/modules/bar/popouts/](./system/ui/modules/bar/popouts)
   Popup content files. These should stay presentational and avoid owning shared routing state.
 
 ## Notification Structure
 
-- [modules/notifications/NotificationPopups.qml](./modules/notifications/NotificationPopups.qml)
+- [system/ui/modules/notifications/NotificationPopups.qml](./system/ui/modules/notifications/NotificationPopups.qml)
   Toast-style popup notifications.
 
 - [services/Notifications.qml](./services/Notifications.qml)
   Desktop notification state, actions, history, and popup queues.
 
-- [modules/bar/popouts/NotificationsPopout.qml](./modules/bar/popouts/NotificationsPopout.qml)
+- [system/ui/modules/bar/popouts/NotificationsPopout.qml](./system/ui/modules/bar/popouts/NotificationsPopout.qml)
   Bell-anchored notification history popout rendered through the shared bar popup surface.
+
+## OSD Structure
+
+- [system/ui/modules/osd/VolumeOsd.qml](./system/ui/modules/osd/VolumeOsd.qml)
+  Ephemeral volume OSD surface.
+
+## Session Structure
+
+- [system/ui/modules/session/SessionOverlay.qml](./system/ui/modules/session/SessionOverlay.qml)
+  Session/power overlay surface.
 
 ## Test Surface
 
 - [Makefile](./Makefile)
-  Local Quickshell test entrypoint. Run `make test` for sandbox-safe checks and `make test-live` for the full suite including a live-session smoke run.
+  Local Quickshell test/governance entrypoint. Run `make test` for sandbox-safe checks, `make test-live` for the full suite including a live-session smoke run, and `make cutover-status` for legacy-cutover posture checks.
 
 - [tests/](./tests)
   QML/JS unit tests for pure popup state and notification-store logic.
@@ -101,34 +106,34 @@ The shell is centered around `shell.qml`, shared singletons in `services/`, and 
 These boundaries are meant to reduce merge conflicts between parallel sessions.
 
 - Weather:
-  [modules/bar/BarCenter.qml](./modules/bar/BarCenter.qml),
-  [modules/bar/weather/](./modules/bar/weather),
-  [modules/bar/popouts/WeatherPopout.qml](./modules/bar/popouts/WeatherPopout.qml),
+  [system/ui/modules/bar/BarCenter.qml](./system/ui/modules/bar/BarCenter.qml),
+  [system/ui/modules/bar/weather/](./system/ui/modules/bar/weather),
+  [system/ui/modules/bar/popouts/WeatherPopout.qml](./system/ui/modules/bar/popouts/WeatherPopout.qml),
   [services/Weather.qml](./services/Weather.qml),
   [scripts/weather.sh](./scripts/weather.sh)
 
 - Bar popup plumbing:
-  [modules/bar/BarScreen.qml](./modules/bar/BarScreen.qml),
-  [modules/bar/BarPopoutState.qml](./modules/bar/BarPopoutState.qml),
-  [modules/bar/BarPopoutSurface.qml](./modules/bar/BarPopoutSurface.qml)
+  [system/ui/modules/bar/BarScreen.qml](./system/ui/modules/bar/BarScreen.qml),
+  [system/ui/modules/bar/BarPopoutState.qml](./system/ui/modules/bar/BarPopoutState.qml),
+  [system/ui/modules/bar/BarPopoutSurface.qml](./system/ui/modules/bar/BarPopoutSurface.qml)
 
 - Notifications:
-  [modules/notifications/](./modules/notifications),
+  [system/ui/modules/notifications/](./system/ui/modules/notifications),
   [services/Notifications.qml](./services/Notifications.qml),
   [scripts/focus-codex-ghostty.sh](./scripts/focus-codex-ghostty.sh)
 
 - Session overlay:
-  [modules/session/SessionOverlay.qml](./modules/session/SessionOverlay.qml)
+  [system/ui/modules/session/SessionOverlay.qml](./system/ui/modules/session/SessionOverlay.qml)
 
 - OSD:
-  [modules/osd/VolumeOsd.qml](./modules/osd/VolumeOsd.qml)
+  [system/ui/modules/osd/VolumeOsd.qml](./system/ui/modules/osd/VolumeOsd.qml)
 
 ## Extension Rules
 
 - New bar-facing features should usually add:
-  1. a service in `services/` if data/state is needed
-  2. a chip or reusable primitive in `components/` if presentation is reused
-  3. a popup content file in `modules/bar/popouts/` if the feature opens from the bar
+    1. a service in `services/` if data/state is needed
+    2. a chip or reusable primitive in `system/ui/primitives/` if presentation is reused
+    3. a popup content file in `system/ui/modules/bar/popouts/` if the feature opens from the bar
 
 - Keep shell command parsing in `scripts/` when practical.
 

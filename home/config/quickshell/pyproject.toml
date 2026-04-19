@@ -3,13 +3,10 @@ name = "quickshell-weather-tools"
 version = "0.1.0"
 description = "Python tooling for the Quickshell meteo.pl weather fetcher"
 requires-python = ">=3.13"
+dependencies = ["python-dotenv>=1.0,<2"]
 
 [dependency-groups]
-dev = [
-    "mypy>=1.11,<2",
-    "pytest>=8.3,<9",
-    "ruff>=0.11,<0.12",
-]
+dev = ["mypy>=1.11,<2", "pytest>=8.3,<9", "ruff>=0.11,<0.12"]
 
 [tool.uv]
 package = false
@@ -32,6 +29,6 @@ ignore = ["E501"]
 python_version = "3.13"
 strict = true
 files = [
-    "scripts/fetch_meteo_forecast.py",
-    "tests/test_fetch_meteo_forecast.py",
+  "scripts/fetch_meteo_forecast.py",
+  "tests/test_fetch_meteo_forecast.py",
 ]

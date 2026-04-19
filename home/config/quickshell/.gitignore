@@ -2,5 +2,7 @@
 .pytest_cache/
 .ruff_cache/
 .venv/
+.review/
+node_modules/
 scripts/__pycache__/
 tests/__pycache__/
