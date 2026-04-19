@@ -57,7 +57,7 @@ PanelWindow {
 
         if (centerCluster.weatherChip.hovered) {
             closePopoutCheck.stop();
-            popoutState.show("weather", centerCluster.weatherChip, weatherPopupContent, 820);
+            popoutState.show("weather", centerCluster.weatherChip, weatherPopupContent, 1040);
             return;
         }
 

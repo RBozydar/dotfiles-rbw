@@ -24,11 +24,20 @@ Singleton {
     property string modelLabel: ""
     property string runLabel: ""
     property bool stale: false
+    property double nowMs: Date.now()
+    property int previewLookbackHours: 3
+    property int previewLookaheadHours: 48
     property var hourly: []
 
-    readonly property var hourlyPreview: root.hourly.slice(0, 24)
-    readonly property string summaryKind: root.classifyForecast(root.hourlyPreview.slice(0, 6))
-    readonly property string icon: root.iconForKind(root.summaryKind, root.hourlyPreview[0]?.night ?? false)
+    readonly property int currentHourIndex: root.findCurrentHourIndex(root.hourly, root.nowMs)
+    readonly property int previewStartIndex: root.previewStartFor(root.hourly, root.nowMs, root.previewLookbackHours)
+    readonly property int previewCurrentIndex: root.currentHourIndex >= 0 ? Math.max(0, root.currentHourIndex - root.previewStartIndex) : -1
+    readonly property var currentHour: root.currentHourIndex >= 0 ? root.hourly[root.currentHourIndex] : null
+    readonly property var hourlyPreview: root.slicePreviewHours(root.hourly, root.nowMs, root.previewLookbackHours, root.previewLookaheadHours)
+    readonly property var summaryHours: root.currentHourIndex >= 0 ? root.hourly.slice(root.currentHourIndex, Math.min(root.hourly.length, root.currentHourIndex + 6)) : root.hourlyPreview.slice(0, 6)
+    readonly property string summaryKind: root.classifyForecast(root.summaryHours)
+    readonly property string currentKind: root.currentHour?.kind ?? root.summaryKind
+    readonly property string icon: root.iconForKind(root.currentKind, root.currentHour?.night ?? false)
 
     function iconForKind(kind, night): string {
         switch (kind) {
@@ -117,6 +126,68 @@ Singleton {
         return `run ${Qt.formatDateTime(date, "yyyy-MM-dd hh:mm")}`;
     }
 
+    function findCurrentHourIndex(hours, nowMs): int {
+        const source = Array.isArray(hours) ? hours : [];
+        if (source.length === 0)
+            return -1;
+
+        const nowTimestamp = Number(nowMs);
+        if (!Number.isFinite(nowTimestamp))
+            return 0;
+
+        let bestIndex = 0;
+        let bestDistance = Number.POSITIVE_INFINITY;
+
+        for (let index = 0; index < source.length; index += 1) {
+            const hour = source[index];
+            const timestampMs = Number(hour?.timestamp ?? 0) * 1000;
+            if (!Number.isFinite(timestampMs))
+                continue;
+
+            const distance = Math.abs(timestampMs - nowTimestamp);
+            if (distance < bestDistance) {
+                bestDistance = distance;
+                bestIndex = index;
+            }
+        }
+
+        return bestIndex;
+    }
+
+    function resolveCurrentHour(hours, nowMs): var {
+        const index = root.findCurrentHourIndex(hours, nowMs);
+        const source = Array.isArray(hours) ? hours : [];
+        return index >= 0 && index < source.length ? source[index] : null;
+    }
+
+    function previewStartFor(hours, nowMs, lookbackHours): int {
+        const source = Array.isArray(hours) ? hours : [];
+        if (source.length === 0)
+            return 0;
+
+        const currentIndex = root.findCurrentHourIndex(source, nowMs);
+        if (currentIndex < 0)
+            return 0;
+
+        const backward = Math.max(0, Math.round(Number(lookbackHours)));
+        return Math.max(0, currentIndex - backward);
+    }
+
+    function slicePreviewHours(hours, nowMs, lookbackHours, lookaheadHours): var {
+        const source = Array.isArray(hours) ? hours : [];
+        if (source.length === 0)
+            return [];
+
+        const currentIndex = root.findCurrentHourIndex(source, nowMs);
+        if (currentIndex < 0)
+            return source.slice(0, Math.min(source.length, Math.max(1, Number(lookaheadHours) + 1)));
+
+        const forward = Math.max(0, Math.round(Number(lookaheadHours)));
+        const startIndex = root.previewStartFor(source, nowMs, lookbackHours);
+        const endExclusive = Math.min(source.length, currentIndex + forward + 1);
+        return source.slice(startIndex, endExclusive);
+    }
+
     function classifyHour(row): string {
         const storm = root.percentValue(row.storm_max ?? 0);
         const fog = root.percentValue(row.fog_max ?? 0);
@@ -185,6 +256,17 @@ Singleton {
         const feelsLike = root.numberOrNull(row.wchill_point);
         const pressurePa = root.numberOrNull(row.slpres_point);
         const visibilityMeters = root.numberOrNull(row.visibl_min);
+        const cloudTopMeters = root.numberOrNull(row.cldtop);
+        const cloudBasesMeters = [root.numberOrNull(row.cldbse01), root.numberOrNull(row.cldbse25), root.numberOrNull(row.cldbse45), root.numberOrNull(row.cldbse65), root.numberOrNull(row.cldbse79)];
+        let cloudBaseMeters = NaN;
+        for (let index = 0; index < cloudBasesMeters.length; index += 1) {
+            const candidate = cloudBasesMeters[index];
+            if (Number.isNaN(candidate))
+                continue;
+
+            if (Number.isNaN(cloudBaseMeters) || candidate < cloudBaseMeters)
+                cloudBaseMeters = candidate;
+        }
 
         return {
             timestamp: row.timestamp ?? 0,
@@ -205,9 +287,12 @@ Singleton {
             precipAmount: root.numberOrNull(row.pcpttl_max ?? row.pcpttl_aver ?? 0),
             precipProbability: root.percentValue(row.pcpttlprob_point ?? 0),
             cloudCover: root.percentValue(row.cldtot_aver ?? 0),
+            cloudVeryLow: root.percentValue(row.cldvlow_aver ?? 0),
             cloudLow: root.percentValue(row.cldlow_aver ?? 0),
             cloudMid: root.percentValue(row.cldmed_aver ?? 0),
             cloudHigh: root.percentValue(row.cldhigh_aver ?? 0),
+            cloudBaseKm: Number.isNaN(cloudBaseMeters) ? null : root.rounded(cloudBaseMeters / 1000, 1),
+            cloudTopKm: Number.isNaN(cloudTopMeters) ? null : root.rounded(cloudTopMeters / 1000, 1),
             visibilityKm: Number.isNaN(visibilityMeters) ? null : root.rounded(visibilityMeters / 1000, 1),
             fogRisk: root.percentValue(row.fog_max ?? 0),
             stormRisk: root.percentValue(row.storm_max ?? 0),
@@ -229,6 +314,13 @@ Singleton {
         running: true
         repeat: true
         onTriggered: root.refresh()
+    }
+
+    Timer {
+        interval: 60000
+        running: true
+        repeat: true
+        onTriggered: root.nowMs = Date.now()
     }
 
     Process {
@@ -253,7 +345,8 @@ Singleton {
                     const payload = JSON.parse(line);
                     const rawHourly = Array.isArray(payload.hourly) ? payload.hourly : [];
                     const builtHours = rawHourly.map((hour, index) => root.buildHour(hour, index));
-                    const first = builtHours.length > 0 ? builtHours[0] : null;
+                    root.nowMs = Date.now();
+                    const current = root.resolveCurrentHour(builtHours, root.nowMs);
 
                     root.available = (payload.available ?? builtHours.length > 0) && builtHours.length > 0;
                     root.stale = payload.stale ?? false;
@@ -261,12 +354,12 @@ Singleton {
                     root.modelLabel = payload.model?.label ?? "";
                     root.runLabel = root.formatRunLabel(payload.run_timestamp_iso ?? payload.forecast_start ?? "");
                     root.hourly = builtHours;
-                    root.condition = first ? first.label : "Weather unavailable";
-                    root.temperature = first ? root.formatTemperature(first.temp) : "--°";
-                    root.feelsLike = first ? root.formatTemperature(first.feelsLike) : "--°";
-                    root.humidity = first ? root.formatHumidity(first.humidity) : "--%";
-                    root.wind = first ? `${Math.round(first.windSpeedKmh)} km/h` : "--";
-                    root.pressure = first ? `${Math.round(first.pressureHpa)} hPa` : "--";
+                    root.condition = current ? current.label : "Weather unavailable";
+                    root.temperature = current ? root.formatTemperature(current.temp) : "--°";
+                    root.feelsLike = current ? root.formatTemperature(current.feelsLike) : "--°";
+                    root.humidity = current ? root.formatHumidity(current.humidity) : "--%";
+                    root.wind = current ? `${Math.round(current.windSpeedKmh)} km/h` : "--";
+                    root.pressure = current ? `${Math.round(current.pressureHpa)} hPa` : "--";
                 } catch (error) {
                     console.log(`weather parse error: ${error}`);
                 }

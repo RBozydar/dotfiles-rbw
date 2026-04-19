@@ -20,7 +20,7 @@ The bootstrap is successful when:
 - Hyprland and Quickshell are contained behind explicit roles
 - the launcher can be built as a subsystem, not as the architecture
 
-## Roadmap Status (as of 2026-04-19)
+## Roadmap Status (as of 2026-04-20)
 
 - Phase 0 (`Foundation`): completed
     - `system/` scaffold, ADR set, architecture guardrails, and verification harness are in place.
@@ -124,6 +124,11 @@ The bootstrap is successful when:
       any future integration expansion (for example online wallpaper providers
       or broader Home Assistant domains) is BAU backlog work under ADR-0014
       guardrails, not a blocking roadmap phase.
+- BAU UX delivery snapshot:
+    - weather module pass delivered:
+      current-hour anchoring for bar chip state, deterministic preview-current
+      indexing, persistent meteorogram "now" marker, split cloud panels
+      (coverage + altitude), and side legend support in the weather popout.
 - Legacy cutover + packaging hardening: completed for current scope
     - removed stale backup artifacts (`*.bak`) from active system UI paths and elevated this to an architecture gate.
     - decommissioned dead legacy Home Assistant singleton wiring from `qs.services`; system adapter remains the sole runtime path.

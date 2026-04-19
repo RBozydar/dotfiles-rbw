@@ -8,7 +8,8 @@ Item {
 
     required property var chromeBridge
     readonly property var weatherState: root.chromeBridge ? root.chromeBridge.weather : null
-    readonly property int preferredWidth: 820
+    readonly property int preferredWidth: 1040
+    readonly property int legendWidth: 248
     readonly property int layoutWidth: Math.max(width, preferredWidth)
 
     implicitWidth: preferredWidth
@@ -115,9 +116,132 @@ Item {
             }
         }
 
-        WeatherWidgets.WeatherMeteorogram {
+        RowLayout {
             width: parent.width
-            hours: root.weatherState ? root.weatherState.hourlyPreview : []
+            spacing: 12
+
+            WeatherWidgets.WeatherMeteorogram {
+                id: meteorogram
+
+                Layout.fillWidth: true
+                Layout.alignment: Qt.AlignTop
+                Layout.preferredWidth: Math.max(560, root.layoutWidth - root.legendWidth - 12)
+                hours: root.weatherState ? root.weatherState.hourlyPreview : []
+                currentIndex: root.weatherState ? root.weatherState.previewCurrentIndex : -1
+            }
+
+            Rectangle {
+                Layout.preferredWidth: root.legendWidth
+                Layout.alignment: Qt.AlignTop
+                implicitHeight: legendColumn.implicitHeight + 24
+                radius: Theme.chipRadius
+                color: Qt.rgba(Theme.surfaceContainer.r, Theme.surfaceContainer.g, Theme.surfaceContainer.b, 0.82)
+                border.width: 1
+                border.color: Qt.rgba(Theme.outline.r, Theme.outline.g, Theme.outline.b, 0.65)
+
+                Column {
+                    id: legendColumn
+
+                    anchors.fill: parent
+                    anchors.margins: 12
+                    spacing: 9
+
+                    Text {
+                        text: "Legend"
+                        color: Theme.roleOnSurface
+                        font.family: Theme.fontMono
+                        font.pixelSize: 12
+                        font.weight: Font.DemiBold
+                    }
+
+                    Text {
+                        text: "window: -3h / +48h"
+                        color: Theme.roleOnSurfaceVariant
+                        font.family: Theme.fontMono
+                        font.pixelSize: 10
+                    }
+
+                    Repeater {
+                        model: [
+                            {
+                                "label": "Now marker",
+                                "detail": "vertical line (current hour)",
+                                "accent": Theme.error
+                            },
+                            {
+                                "label": "Air / dew",
+                                "detail": "temperature + dew point",
+                                "accent": Theme.tertiary
+                            },
+                            {
+                                "label": "Rain / humidity",
+                                "detail": "precip bars + humidity line",
+                                "accent": Theme.secondary
+                            },
+                            {
+                                "label": "Pressure",
+                                "detail": "surface pressure curve",
+                                "accent": Theme.tertiary
+                            },
+                            {
+                                "label": "Wind / gust",
+                                "detail": "speed area + gust line",
+                                "accent": Theme.primary
+                            },
+                            {
+                                "label": "Cloud layers",
+                                "detail": "cover + very low/low/mid/high",
+                                "accent": Theme.roleOnSurface
+                            },
+                            {
+                                "label": "Cloud altitudes",
+                                "detail": "base-to-top cloud band",
+                                "accent": Theme.primary
+                            },
+                            {
+                                "label": "Visibility",
+                                "detail": "km line (lower cloud panel)",
+                                "accent": Theme.tertiary
+                            }
+                        ]
+
+                        delegate: Row {
+                            id: legendEntry
+
+                            required property var modelData
+
+                            width: parent.width
+                            spacing: 8
+
+                            Rectangle {
+                                width: 16
+                                height: 4
+                                radius: 2
+                                anchors.verticalCenter: parent.verticalCenter
+                                color: Qt.rgba(parent.modelData.accent.r, parent.modelData.accent.g, parent.modelData.accent.b, 0.95)
+                            }
+
+                            Column {
+                                spacing: 1
+
+                                Text {
+                                    text: legendEntry.modelData.label
+                                    color: Theme.roleOnSurface
+                                    font.family: Theme.fontSans
+                                    font.pixelSize: 11
+                                }
+
+                                Text {
+                                    text: legendEntry.modelData.detail
+                                    color: Theme.roleOnSurfaceVariant
+                                    font.family: Theme.fontMono
+                                    font.pixelSize: 9
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 }

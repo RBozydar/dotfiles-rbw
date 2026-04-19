@@ -1663,3 +1663,25 @@ Validation snapshot:
     - `shellctl window_switcher.accept`
 - Hyprland bind table check:
     - `hyprctl binds | rg window_switcher|ALT_L|ALT_R`
+
+### Weather Popout UX Pass (2026-04-20)
+
+- Addressed weather wishlist issues in the system-owned weather slice:
+    - bar weather chip now resolves icon from the current forecast hour (not a future-summary representative hour).
+    - forecast preview window now carries explicit `previewStartIndex` and `previewCurrentIndex` so UI can anchor a deterministic "now" marker.
+    - meteorogram now renders a persistent "now" vertical marker.
+    - cloud visualization split into two sections:
+      cloud-layer coverage panel (`cover + very-low/low/mid/high`) and a separate cloud-altitude panel (`base/top band`) with visibility overlay.
+    - weather popout now includes a side legend panel describing graph semantics and units.
+    - weather popup width expanded to fit chart + side legend without clipping.
+
+Validation snapshot:
+
+- `make -C home/config/quickshell format`
+- `make -C home/config/quickshell lint`
+- `make -C home/config/quickshell qmltest`
+- `make -C home/config/quickshell arch-check`
+- `make -C /home/rbw/repo/dotfiles-rbw/home/config/quickshell smoke-system` (outside sandbox)
+- restart/runtime log check:
+    - `/home/rbw/repo/dotfiles-rbw/home/config/quickshell/scripts/restart-quickshell.sh`
+    - `tail -n 40 /run/user/$UID/quickshell/by-id/*/log.log` (latest instance)

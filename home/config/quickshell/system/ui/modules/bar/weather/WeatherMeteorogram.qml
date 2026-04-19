@@ -5,6 +5,7 @@ Item {
     id: root
 
     property var hours: []
+    property int currentIndex: -1
     property int hoveredIndex: -1
 
     readonly property var samples: hours ?? []
@@ -21,25 +22,32 @@ Item {
     readonly property int pressureHeight: 118
     readonly property int windTop: 724
     readonly property int windHeight: 112
-    readonly property int cloudTop: 872
-    readonly property int cloudHeight: 150
+    readonly property int cloudCoverTop: 872
+    readonly property int cloudCoverHeight: 72
+    readonly property int cloudLayerGap: 14
+    readonly property int cloudLayerTop: root.cloudCoverTop + root.cloudCoverHeight + root.cloudLayerGap
+    readonly property int cloudLayerHeight: 72
     readonly property real minTempValue: root.extremeAcross(["tempMin", "temp", "dewPoint"], false, 0) - 2
     readonly property real maxTempValue: root.extremeAcross(["tempMax", "temp"], true, 12) + 2
     readonly property real maxPrecipValue: Math.max(1, root.extremeValue("precipAmount", true, 1))
     readonly property real minPressureValue: root.extremeValue("pressureHpa", false, 1000) - 1
     readonly property real maxPressureValue: root.extremeValue("pressureHpa", true, 1025) + 1
     readonly property real maxWindValue: Math.max(20, root.extremeValue("windGustKmh", true, 24) + 4)
+    readonly property real maxCloudAltitudeValue: Math.max(2, root.extremeValue("cloudTopKm", true, 8))
     readonly property real maxVisibilityValue: Math.max(4, root.extremeValue("visibilityKm", true, 8))
     readonly property int tempBottom: root.tempTop + root.tempHeight
     readonly property int precipBottom: root.precipTop + root.precipHeight
     readonly property int pressureBottom: root.pressureTop + root.pressureHeight
     readonly property int windBottom: root.windTop + root.windHeight
-    readonly property int cloudBottom: root.cloudTop + root.cloudHeight
+    readonly property int cloudCoverBottom: root.cloudCoverTop + root.cloudCoverHeight
+    readonly property int cloudLayerBottom: root.cloudLayerTop + root.cloudLayerHeight
+    readonly property int chartBottom: root.cloudLayerBottom
     readonly property real tempTitleCenterY: root.tempTop - 24
     readonly property real precipTitleCenterY: root.tempBottom + ((root.precipTop - root.tempBottom) / 2)
     readonly property real pressureTitleCenterY: root.precipBottom + ((root.pressureTop - root.precipBottom) / 2)
     readonly property real windTitleCenterY: root.pressureBottom + ((root.windTop - root.pressureBottom) / 2)
-    readonly property real cloudTitleCenterY: root.windBottom + ((root.cloudTop - root.windBottom) / 2)
+    readonly property real cloudCoverTitleCenterY: root.windBottom + ((root.cloudCoverTop - root.windBottom) / 2)
+    readonly property real cloudLayerTitleCenterY: root.cloudCoverBottom + ((root.cloudLayerTop - root.cloudCoverBottom) / 2)
     readonly property var labelIndices: {
         const indices = [];
         for (let index = 0; index < root.sampleCount; index += 3)
@@ -52,7 +60,7 @@ Item {
     }
 
     implicitWidth: 820
-    implicitHeight: 1048
+    implicitHeight: 1052
 
     function sampleAt(index): var {
         return index >= 0 && index < root.sampleCount ? root.samples[index] : null;
@@ -149,14 +157,19 @@ Item {
         return root.windTop + root.windHeight - (normalized * root.windHeight);
     }
 
-    function cloudY(value): real {
+    function cloudCoverY(value): real {
         const normalized = root.clamp01(root.valueOr(value, 0) / 100);
-        return root.cloudTop + root.cloudHeight - (normalized * root.cloudHeight);
+        return root.cloudCoverTop + root.cloudCoverHeight - (normalized * root.cloudCoverHeight);
+    }
+
+    function cloudAltitudeY(value): real {
+        const normalized = root.clamp01(root.valueOr(value, 0) / root.maxCloudAltitudeValue);
+        return root.cloudLayerTop + root.cloudLayerHeight - (normalized * root.cloudLayerHeight);
     }
 
     function visibilityY(value): real {
         const normalized = root.valueOr(value, 0) / root.maxVisibilityValue;
-        return root.cloudTop + root.cloudHeight - (normalized * root.cloudHeight);
+        return root.cloudLayerTop + root.cloudLayerHeight - (normalized * root.cloudLayerHeight);
     }
 
     function rgba(color, alpha): string {
@@ -176,6 +189,7 @@ Item {
             root.hoveredIndex = -1;
         root.requestPaint();
     }
+    onCurrentIndexChanged: requestPaint()
     onWidthChanged: requestPaint()
     onHeightChanged: requestPaint()
 
@@ -192,7 +206,7 @@ Item {
         x: root.columnLeft(root.hoveredIndex)
         y: root.tempTop - 10
         width: root.columnRight(root.hoveredIndex) - root.columnLeft(root.hoveredIndex)
-        height: root.cloudTop + root.cloudHeight - y
+        height: root.chartBottom - y
         radius: 12
         color: Qt.rgba(Theme.primary.r, Theme.primary.g, Theme.primary.b, 0.08)
         border.width: 0
@@ -203,8 +217,36 @@ Item {
         x: root.xFor(root.hoveredIndex)
         y: root.tempTop - 10
         width: 1
-        height: root.cloudTop + root.cloudHeight - y
+        height: root.chartBottom - y
         color: Qt.rgba(Theme.primary.r, Theme.primary.g, Theme.primary.b, 0.55)
+    }
+
+    Rectangle {
+        visible: root.currentIndex >= 0 && root.currentIndex < root.sampleCount
+        x: root.xFor(root.currentIndex)
+        y: root.tempTop - 10
+        width: 1
+        height: root.chartBottom - y
+        color: Qt.rgba(Theme.error.r, Theme.error.g, Theme.error.b, 0.82)
+    }
+
+    Rectangle {
+        visible: root.currentIndex >= 0 && root.currentIndex < root.sampleCount
+        x: root.xFor(root.currentIndex) - (width / 2)
+        y: root.tempTop - 34
+        width: 36
+        height: 18
+        radius: 9
+        color: Qt.rgba(Theme.error.r, Theme.error.g, Theme.error.b, 0.9)
+
+        Text {
+            anchors.centerIn: parent
+            text: "now"
+            color: Theme.roleOnError
+            font.family: Theme.fontMono
+            font.pixelSize: 9
+            font.weight: Font.DemiBold
+        }
     }
 
     Canvas {
@@ -257,13 +299,14 @@ Item {
             drawRoundedRect(root.leftInset - 8, root.precipTop - 8, root.chartWidth + 16, root.precipHeight + 16, 16, root.rgba(Theme.surfaceContainerLow, Theme.darkMode ? 0.42 : 0.55), root.rgba(Theme.outline, 0.5));
             drawRoundedRect(root.leftInset - 8, root.pressureTop - 8, root.chartWidth + 16, root.pressureHeight + 16, 16, root.rgba(Theme.tertiary, Theme.darkMode ? 0.08 : 0.12), root.rgba(Theme.outline, 0.5));
             drawRoundedRect(root.leftInset - 8, root.windTop - 8, root.chartWidth + 16, root.windHeight + 16, 16, root.rgba(Theme.secondary, Theme.darkMode ? 0.08 : 0.1), root.rgba(Theme.outline, 0.5));
-            drawRoundedRect(root.leftInset - 8, root.cloudTop - 8, root.chartWidth + 16, root.cloudHeight + 16, 16, root.rgba(Theme.roleOnSurface, Theme.darkMode ? 0.04 : 0.06), root.rgba(Theme.outline, 0.5));
+            drawRoundedRect(root.leftInset - 8, root.cloudCoverTop - 8, root.chartWidth + 16, root.cloudCoverHeight + 16, 16, root.rgba(Theme.roleOnSurface, Theme.darkMode ? 0.04 : 0.06), root.rgba(Theme.outline, 0.5));
+            drawRoundedRect(root.leftInset - 8, root.cloudLayerTop - 8, root.chartWidth + 16, root.cloudLayerHeight + 16, 16, root.rgba(Theme.primary, Theme.darkMode ? 0.05 : 0.08), root.rgba(Theme.outline, 0.5));
 
             ctx.strokeStyle = root.rgba(Theme.outline, 0.55);
             ctx.lineWidth = 1;
             for (let index = 0; index < root.sampleCount; index += 3) {
                 const x = root.xFor(index);
-                const segments = [[root.tempTop, root.tempBottom], [root.precipTop, root.precipBottom], [root.pressureTop, root.pressureBottom], [root.windTop, root.windBottom], [root.cloudTop, root.cloudBottom]];
+                const segments = [[root.tempTop, root.tempBottom], [root.precipTop, root.precipBottom], [root.pressureTop, root.pressureBottom], [root.windTop, root.windBottom], [root.cloudCoverTop, root.cloudCoverBottom], [root.cloudLayerTop, root.cloudLayerBottom]];
                 for (let segmentIndex = 0; segmentIndex < segments.length; segmentIndex += 1) {
                     const segment = segments[segmentIndex];
                     ctx.beginPath();
@@ -277,7 +320,8 @@ Item {
             strokeHorizontalGrid(root.precipTop, root.precipHeight, 3, 0.35);
             strokeHorizontalGrid(root.pressureTop, root.pressureHeight, 3, 0.35);
             strokeHorizontalGrid(root.windTop, root.windHeight, 3, 0.35);
-            strokeHorizontalGrid(root.cloudTop, root.cloudHeight, 3, 0.35);
+            strokeHorizontalGrid(root.cloudCoverTop, root.cloudCoverHeight, 3, 0.35);
+            strokeHorizontalGrid(root.cloudLayerTop, root.cloudLayerHeight, 3, 0.35);
 
             if (root.sampleCount > 1) {
                 ctx.beginPath();
@@ -435,20 +479,20 @@ Item {
 
             if (root.sampleCount > 1) {
                 ctx.beginPath();
-                ctx.moveTo(root.xFor(0), root.cloudBottom);
+                ctx.moveTo(root.xFor(0), root.cloudCoverBottom);
                 for (let index = 0; index < root.sampleCount; index += 1) {
                     const sample = root.sampleAt(index);
-                    ctx.lineTo(root.xFor(index), root.cloudY(sample?.cloudCover));
+                    ctx.lineTo(root.xFor(index), root.cloudCoverY(sample?.cloudCover));
                 }
-                ctx.lineTo(root.xFor(root.sampleCount - 1), root.cloudBottom);
+                ctx.lineTo(root.xFor(root.sampleCount - 1), root.cloudCoverBottom);
                 ctx.closePath();
                 ctx.fillStyle = root.rgba(Theme.roleOnSurface, 0.2);
                 ctx.fill();
             }
 
-            const cloudLines = [["cloudLow", Theme.secondary, 0.95], ["cloudMid", Theme.primary, 0.9], ["cloudHigh", Theme.roleOnSurfaceVariant, 0.9]];
-            for (let cloudLineIndex = 0; cloudLineIndex < cloudLines.length; cloudLineIndex += 1) {
-                const cloudLine = cloudLines[cloudLineIndex];
+            const cloudLayerLines = [["cloudVeryLow", Theme.secondary, 0.96], ["cloudLow", Theme.primary, 0.94], ["cloudMid", Theme.tertiary, 0.9], ["cloudHigh", Theme.roleOnSurfaceVariant, 0.88]];
+            for (let cloudLineIndex = 0; cloudLineIndex < cloudLayerLines.length; cloudLineIndex += 1) {
+                const cloudLine = cloudLayerLines[cloudLineIndex];
                 const key = cloudLine[0];
                 const color = cloudLine[1];
                 const alpha = cloudLine[2];
@@ -456,16 +500,72 @@ Item {
                 for (let index = 0; index < root.sampleCount; index += 1) {
                     const sample = root.sampleAt(index);
                     const x = root.xFor(index);
-                    const y = root.cloudY(sample ? sample[key] : null);
+                    const y = root.cloudCoverY(sample ? sample[key] : null);
                     if (index === 0)
                         ctx.moveTo(x, y);
                     else
                         ctx.lineTo(x, y);
                 }
-                ctx.lineWidth = 1.6;
+                ctx.lineWidth = 1.4;
                 ctx.strokeStyle = root.rgba(color, alpha);
                 ctx.stroke();
             }
+
+            if (root.sampleCount > 1) {
+                ctx.beginPath();
+                for (let index = 0; index < root.sampleCount; index += 1) {
+                    const sample = root.sampleAt(index);
+                    const baseAltitude = root.valueOr(sample?.cloudBaseKm, 0);
+                    const topAltitude = Math.max(baseAltitude, root.valueOr(sample?.cloudTopKm, baseAltitude));
+                    const x = root.xFor(index);
+                    const y = root.cloudAltitudeY(topAltitude);
+                    if (index === 0)
+                        ctx.moveTo(x, y);
+                    else
+                        ctx.lineTo(x, y);
+                }
+
+                for (let index = root.sampleCount - 1; index >= 0; index -= 1) {
+                    const sample = root.sampleAt(index);
+                    const baseAltitude = root.valueOr(sample?.cloudBaseKm, 0);
+                    ctx.lineTo(root.xFor(index), root.cloudAltitudeY(baseAltitude));
+                }
+
+                ctx.closePath();
+                ctx.fillStyle = root.rgba(Theme.primary, 0.22);
+                ctx.fill();
+            }
+
+            ctx.beginPath();
+            for (let index = 0; index < root.sampleCount; index += 1) {
+                const sample = root.sampleAt(index);
+                const baseAltitude = root.valueOr(sample?.cloudBaseKm, 0);
+                const x = root.xFor(index);
+                const y = root.cloudAltitudeY(baseAltitude);
+                if (index === 0)
+                    ctx.moveTo(x, y);
+                else
+                    ctx.lineTo(x, y);
+            }
+            ctx.lineWidth = 1.5;
+            ctx.strokeStyle = root.rgba(Theme.secondary, 0.95);
+            ctx.stroke();
+
+            ctx.beginPath();
+            for (let index = 0; index < root.sampleCount; index += 1) {
+                const sample = root.sampleAt(index);
+                const baseAltitude = root.valueOr(sample?.cloudBaseKm, 0);
+                const topAltitude = Math.max(baseAltitude, root.valueOr(sample?.cloudTopKm, baseAltitude));
+                const x = root.xFor(index);
+                const y = root.cloudAltitudeY(topAltitude);
+                if (index === 0)
+                    ctx.moveTo(x, y);
+                else
+                    ctx.lineTo(x, y);
+            }
+            ctx.lineWidth = 1.5;
+            ctx.strokeStyle = root.rgba(Theme.primary, 0.96);
+            ctx.stroke();
 
             ctx.beginPath();
             for (let index = 0; index < root.sampleCount; index += 1) {
@@ -615,16 +715,25 @@ Item {
 
     Text {
         x: root.leftInset + (root.chartWidth * 0.25) - (implicitWidth / 2)
-        y: root.cloudTitleCenterY - (implicitHeight / 2)
-        text: "cloud %"
+        y: root.cloudCoverTitleCenterY - (implicitHeight / 2)
+        text: "cloud layers %"
         color: Theme.roleOnSurface
         font.family: Theme.fontMono
         font.pixelSize: 11
     }
 
     Text {
+        x: root.leftInset + (root.chartWidth * 0.25) - (implicitWidth / 2)
+        y: root.cloudLayerTitleCenterY - (implicitHeight / 2)
+        text: "cloud alt km"
+        color: Theme.primary
+        font.family: Theme.fontMono
+        font.pixelSize: 11
+    }
+
+    Text {
         x: root.leftInset + (root.chartWidth * 0.75) - (implicitWidth / 2)
-        y: root.cloudTitleCenterY - (implicitHeight / 2)
+        y: root.cloudLayerTitleCenterY - (implicitHeight / 2)
         text: "vis km"
         color: Theme.tertiary
         font.family: Theme.fontMono
@@ -638,7 +747,7 @@ Item {
             required property int index
 
             x: 0
-            y: root.cloudTop + (root.cloudHeight * index / 3) - (implicitHeight / 2)
+            y: root.cloudCoverTop + (root.cloudCoverHeight * index / 3) - (implicitHeight / 2)
             width: root.leftInset - 8
             horizontalAlignment: Text.AlignRight
             text: `${Math.round(100 - (index * 100 / 3))}%`
@@ -654,8 +763,25 @@ Item {
         delegate: Text {
             required property int index
 
+            x: 0
+            y: root.cloudLayerTop + (root.cloudLayerHeight * index / 3) - (implicitHeight / 2)
+            width: root.leftInset - 8
+            horizontalAlignment: Text.AlignRight
+            text: `${root.formatValue(root.maxCloudAltitudeValue * (1 - (index / 3)), 1, "0.0")}`
+            color: index === 0 ? Theme.primary : Theme.roleOnSurfaceVariant
+            font.family: Theme.fontMono
+            font.pixelSize: 10
+        }
+    }
+
+    Repeater {
+        model: 4
+
+        delegate: Text {
+            required property int index
+
             x: root.width - root.rightInset + 8
-            y: root.cloudTop + (root.cloudHeight * index / 3) - (implicitHeight / 2)
+            y: root.cloudLayerTop + (root.cloudLayerHeight * index / 3) - (implicitHeight / 2)
             width: root.rightInset - 8
             text: `${root.formatValue(root.maxVisibilityValue * (1 - (index / 3)), root.maxVisibilityValue >= 10 ? 0 : 1, "0")}`
             color: index === 0 ? Theme.tertiary : Theme.roleOnSurfaceVariant
@@ -743,7 +869,7 @@ Item {
     Rectangle {
         visible: root.hoveredSample !== null
         z: 10
-        width: 178
+        width: 242
         height: tooltipColumn.implicitHeight + 16
         x: Math.max(8, Math.min(root.width - width - 8, root.xFor(root.hoveredIndex) - (width / 2)))
         y: 4
@@ -796,7 +922,7 @@ Item {
             }
 
             Text {
-                text: root.hoveredSample ? `cloud ${Math.round(root.hoveredSample.cloudCover ?? 0)}%  vis ${root.formatValue(root.hoveredSample.visibilityKm, 1, "--")} km` : ""
+                text: root.hoveredSample ? `cloud ${Math.round(root.hoveredSample.cloudCover ?? 0)}%  base ${root.formatValue(root.hoveredSample.cloudBaseKm, 1, "--")} / top ${root.formatValue(root.hoveredSample.cloudTopKm, 1, "--")} km  vis ${root.formatValue(root.hoveredSample.visibilityKm, 1, "--")} km` : ""
                 color: Theme.roleOnSurfaceVariant
                 font.family: Theme.fontMono
                 font.pixelSize: 10
