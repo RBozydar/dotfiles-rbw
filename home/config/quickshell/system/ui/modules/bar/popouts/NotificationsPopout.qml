@@ -154,6 +154,7 @@ Item {
                             anchors.top: parent.top
                             anchors.margins: Theme.padding
                             spacing: 8
+                            z: 1
 
                             RowLayout {
                                 width: parent.width

@@ -1927,3 +1927,20 @@ Validation snapshot:
 
 - `make -C /home/rbw/repo/dotfiles-rbw/home/config/quickshell lint`
 - `make -C /home/rbw/repo/dotfiles-rbw/home/config/quickshell qmltest`
+
+### Notification Center Per-Entry Clear Interaction Fix (2026-04-21)
+
+- Fixed notification center item-level clear interaction in
+  `system/ui/modules/bar/popouts/NotificationsPopout.qml`:
+    - raised notification content layer above the card-wide activation
+      hit-target so the inline close (`×`) button receives pointer events.
+    - this restores intended one-by-one clear behavior while preserving
+      card-level click-to-activate behavior.
+- Runtime check:
+    - restarted shell via
+      `/home/rbw/repo/dotfiles-rbw/home/config/quickshell/scripts/restart-quickshell.sh`.
+
+Validation snapshot:
+
+- `make -C /home/rbw/repo/dotfiles-rbw/home/config/quickshell lint`
+- `make -C /home/rbw/repo/dotfiles-rbw/home/config/quickshell qmltest`

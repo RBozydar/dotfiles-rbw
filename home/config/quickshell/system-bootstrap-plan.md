@@ -156,6 +156,9 @@ The bootstrap is successful when:
     - tray interaction reliability pass delivered:
       tray icon activation now dispatches on click semantics (`onClicked`)
       rather than press semantics to improve app-open behavior consistency.
+    - notification center interaction fix delivered:
+      per-entry clear (`×`) in the notifications popout now receives pointer
+      events correctly while preserving card-level activation behavior.
     - static theme preset pass delivered:
       named variants (`evangelion`, `moon-space`) now apply through the
       existing theme control plane (`theme.variant.set`) with canonical MD3
