@@ -1707,3 +1707,30 @@ Validation snapshot:
 - live runtime check:
     - `/home/rbw/repo/dotfiles-rbw/home/config/quickshell/scripts/restart-quickshell.sh`
     - `tail -n 60 /run/user/$UID/quickshell/by-id/*/log.log` (latest instance)
+
+### Static Theme Presets (2026-04-20)
+
+- Added named static-theme variants for quick preset switching:
+    - `evangelion`
+    - `moon-space` (aliases: `moon`, `space`)
+- Implementation details:
+    - expanded `system/adapters/theming/static-theme-provider.js` with
+      variant normalization + role override maps for both dark/light modes.
+    - static provider capability metadata now reports `supportsVariants: true`.
+    - static provider generation now applies named variant role overrides while
+      preserving canonical MD3 role vocabulary.
+- Added coverage:
+    - `tests/tst_ThemeProviderPortSlice.qml` now asserts variant override
+      application for both `evangelion` (dark) and `moon-space` (light).
+
+Validation snapshot:
+
+- `make -C home/config/quickshell format`
+- `make -C home/config/quickshell lint`
+- `make -C home/config/quickshell qmltest`
+- `make -C home/config/quickshell arch-check`
+- live variant smoke:
+    - `shellctl theme.provider.set static`
+    - `shellctl theme.variant.set evangelion`
+    - `shellctl theme.variant.set moon-space`
+    - verified role values through `shellctl theme.describe`

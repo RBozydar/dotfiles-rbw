@@ -98,6 +98,38 @@ TestCase {
         compare(scheme.kind, "shell.theme.scheme");
     }
 
+    function test_staticThemeProvider_generate_applies_named_variant_overrides() {
+        const adapter = StaticThemeProviderAdapters.createStaticThemeProvider({
+            providerId: "static"
+        });
+        const port = ThemeProviderPort.createThemeProviderPort(adapter);
+        const evangelionRequest = ThemeContracts.createThemeGenerationRequest({
+            provider: "static",
+            mode: "dark",
+            variant: "evangelion",
+            sourceKind: "static",
+            sourceValue: ""
+        });
+        const evangelionRawScheme = port.generate(evangelionRequest);
+        const evangelionScheme = ThemeContracts.validateThemeSchemeDocument(evangelionRawScheme);
+
+        compare(evangelionScheme.roles.primary, "#95ff00");
+        compare(evangelionScheme.roles.onPrimary, "#102300");
+
+        const moonSpaceRequest = ThemeContracts.createThemeGenerationRequest({
+            provider: "static",
+            mode: "light",
+            variant: "moon-space",
+            sourceKind: "static",
+            sourceValue: ""
+        });
+        const moonSpaceRawScheme = port.generate(moonSpaceRequest);
+        const moonSpaceScheme = ThemeContracts.validateThemeSchemeDocument(moonSpaceRawScheme);
+
+        compare(moonSpaceScheme.roles.primary, "#365ba8");
+        compare(moonSpaceScheme.roles.onBackground, "#151c2c");
+    }
+
     function test_matugenThemeProvider_generate_extracts_nested_roles() {
         const darkRoles = ThemeContracts.createDefaultThemeRoleMap("dark");
         const adapter = MatugenThemeProviderAdapters.createMatugenThemeProvider({

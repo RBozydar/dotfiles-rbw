@@ -133,6 +133,10 @@ The bootstrap is successful when:
       explicit default output/input switching (device catalog probe + previous/
       next controls) through the `Audio` service boundary and system-owned
       control-center popup.
+    - static theme preset pass delivered:
+      named variants (`evangelion`, `moon-space`) now apply through the
+      existing theme control plane (`theme.variant.set`) with canonical MD3
+      role output and test coverage.
 - Legacy cutover + packaging hardening: completed for current scope
     - removed stale backup artifacts (`*.bak`) from active system UI paths and elevated this to an architecture gate.
     - decommissioned dead legacy Home Assistant singleton wiring from `qs.services`; system adapter remains the sole runtime path.
