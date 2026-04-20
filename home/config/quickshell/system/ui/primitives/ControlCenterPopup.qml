@@ -1,3 +1,4 @@
+pragma ComponentBehavior: Bound
 import QtQuick
 import QtQuick.Layouts
 import qs
@@ -8,6 +9,9 @@ Item {
 
     required property var chromeBridge
     property var setThemeModeAction: null
+    property var setThemeVariantAction: null
+    property string currentThemeVariant: "tonal-spot"
+    property var themeVariantOptions: []
     property var brightnessMonitor: null
     readonly property var audioState: root.chromeBridge ? root.chromeBridge.audio : null
     readonly property var connectivityState: root.chromeBridge ? root.chromeBridge.connectivity : null
@@ -15,6 +19,22 @@ Item {
 
     implicitWidth: popupColumn.implicitWidth
     implicitHeight: popupColumn.implicitHeight
+
+    function normalizedVariantId(value): string {
+        return String(value === undefined ? "" : value).trim().toLowerCase();
+    }
+
+    function variantOptionId(option): string {
+        if (option && typeof option === "object" && option.id !== undefined)
+            return String(option.id);
+        return String(option === undefined ? "" : option);
+    }
+
+    function variantOptionLabel(option): string {
+        if (option && typeof option === "object" && option.label !== undefined)
+            return String(option.label);
+        return String(option === undefined ? "" : option);
+    }
 
     Column {
         id: popupColumn
@@ -313,6 +333,74 @@ Item {
                 onClicked: {
                     if (root.nightModeState)
                         root.nightModeState.toggle();
+                }
+            }
+        }
+
+        Rectangle {
+            width: parent.width
+            radius: Theme.chipRadius
+            color: Theme.surfaceContainer
+            border.width: 1
+            border.color: Theme.outline
+            implicitHeight: themePresetColumn.implicitHeight + 20
+
+            Column {
+                id: themePresetColumn
+
+                anchors.fill: parent
+                anchors.margins: 10
+                spacing: 8
+
+                Text {
+                    text: "Theme Presets"
+                    color: Theme.roleOnSurfaceVariant
+                    font.family: Theme.fontSans
+                    font.pixelSize: 13
+                }
+
+                Flow {
+                    width: parent.width
+                    spacing: 8
+
+                    Repeater {
+                        model: Array.isArray(root.themeVariantOptions) ? root.themeVariantOptions : []
+
+                        Rectangle {
+                            id: themePresetChip
+
+                            required property var modelData
+                            readonly property string variantId: root.variantOptionId(modelData)
+                            readonly property string variantLabel: root.variantOptionLabel(modelData)
+                            readonly property bool active: root.normalizedVariantId(root.currentThemeVariant) === root.normalizedVariantId(variantId)
+                            readonly property bool selectable: variantId.length > 0 && typeof root.setThemeVariantAction === "function"
+
+                            radius: 13
+                            implicitHeight: 28
+                            implicitWidth: label.implicitWidth + 18
+                            color: active ? Qt.rgba(Theme.primary.r, Theme.primary.g, Theme.primary.b, 0.18) : Theme.surfaceContainerLow
+                            border.width: 1
+                            border.color: active ? Qt.rgba(Theme.primary.r, Theme.primary.g, Theme.primary.b, 0.45) : Theme.outline
+                            opacity: selectable ? 1 : 0.55
+
+                            Text {
+                                id: label
+
+                                anchors.centerIn: parent
+                                text: themePresetChip.variantLabel
+                                color: themePresetChip.active ? Theme.primary : Theme.roleOnSurface
+                                font.family: Theme.fontSans
+                                font.pixelSize: 12
+                                font.weight: themePresetChip.active ? Font.DemiBold : Font.Normal
+                            }
+
+                            MouseArea {
+                                anchors.fill: parent
+                                enabled: themePresetChip.selectable
+                                onClicked: root.setThemeVariantAction(themePresetChip.variantId)
+                            }
+                        }
+                    }
                 }
             }
         }

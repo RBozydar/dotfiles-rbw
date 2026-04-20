@@ -1944,3 +1944,27 @@ Validation snapshot:
 
 - `make -C /home/rbw/repo/dotfiles-rbw/home/config/quickshell lint`
 - `make -C /home/rbw/repo/dotfiles-rbw/home/config/quickshell qmltest`
+
+### Control Center Theme Preset Switcher (2026-04-21)
+
+- Added control-center theme preset switching path:
+    - `ControlCenterPopup` now renders a `Theme Presets` chip row.
+    - presets are wired through system-owned shell action dispatch
+      (`setThemeVariant`) rather than direct UI singleton mutation.
+    - current variant is reflected in chip active styling.
+- Initial preset set (owner-request-aligned):
+    - `tonal-spot` (`Default`)
+    - `evangelion`
+    - `moon-space`
+- Wiring points:
+    - `system/ui/modules/bar/BarScreen.qml`
+    - `system/ui/modules/bar/popouts/ControlCenterPopout.qml`
+    - `system/ui/primitives/ControlCenterPopup.qml`
+- Runtime check:
+    - restarted shell via
+      `/home/rbw/repo/dotfiles-rbw/home/config/quickshell/scripts/restart-quickshell.sh`.
+
+Validation snapshot:
+
+- `make -C /home/rbw/repo/dotfiles-rbw/home/config/quickshell lint`
+- `make -C /home/rbw/repo/dotfiles-rbw/home/config/quickshell qmltest`

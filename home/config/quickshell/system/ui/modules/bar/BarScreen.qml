@@ -212,6 +212,12 @@ PanelWindow {
                             return;
                         root.shell.setThemeMode(mode);
                     }
+                    setThemeVariantAction: function (variant) {
+                        if (!root.shell || typeof root.shell.setThemeVariant !== "function")
+                            return;
+                        root.shell.setThemeVariant(variant);
+                    }
+                    currentThemeVariant: root.shell && root.shell.themeVariant !== undefined ? String(root.shell.themeVariant) : "tonal-spot"
                 }
             }
 

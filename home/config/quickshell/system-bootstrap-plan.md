@@ -159,6 +159,10 @@ The bootstrap is successful when:
     - notification center interaction fix delivered:
       per-entry clear (`×`) in the notifications popout now receives pointer
       events correctly while preserving card-level activation behavior.
+    - control-center theming breadth pass delivered:
+      added theme preset chips (`Default`, `Evangelion`, `Moon Space`) wired
+      through the system settings/theme command path for persistent variant
+      switching.
     - static theme preset pass delivered:
       named variants (`evangelion`, `moon-space`) now apply through the
       existing theme control plane (`theme.variant.set`) with canonical MD3
