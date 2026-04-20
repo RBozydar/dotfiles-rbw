@@ -90,6 +90,36 @@ function scoreQueryMatch(title, subtitle, normalizedQuery) {
     };
 }
 
+function isPathLikeQuery(normalizedQuery) {
+    if (!normalizedQuery) return false;
+    return (
+        normalizedQuery.indexOf("/") >= 0 ||
+        normalizedQuery.indexOf("~") >= 0 ||
+        normalizedQuery.indexOf("\\") >= 0
+    );
+}
+
+function providerIntentBoost(item, normalizedQuery) {
+    const provider = lowercase(item && item.provider);
+    if (!normalizedQuery) return 0;
+
+    const titleText = lowercase(item && item.title);
+    const pathLike = isPathLikeQuery(normalizedQuery);
+
+    if (provider === "apps") {
+        if (titleText === normalizedQuery) return 480;
+        if (titleText.indexOf(normalizedQuery) === 0) return 220;
+        return pathLike ? -120 : 120;
+    }
+
+    if (provider === "files") {
+        if (pathLike) return 220;
+        return -220;
+    }
+
+    return 0;
+}
+
 function scoreLauncherItem(item, query, options) {
     const config = options && typeof options === "object" ? options : {};
     const usageByItemId = normalizeUsageByItemId(config.usageByItemId);
@@ -98,6 +128,7 @@ function scoreLauncherItem(item, query, options) {
     const normalizedQuery = lowercase(query).trim();
     const baseScore = Number(item.score || 0);
     const queryScore = scoreQueryMatch(item.title, item.subtitle, normalizedQuery);
+    const providerIntentScore = providerIntentBoost(item, normalizedQuery);
     let usageFrequencyScore = 0;
     let usageRecencyScore = 0;
 
@@ -109,7 +140,12 @@ function scoreLauncherItem(item, query, options) {
         }
     }
 
-    const score = baseScore + queryScore.score + usageFrequencyScore + usageRecencyScore;
+    const score =
+        baseScore +
+        queryScore.score +
+        providerIntentScore +
+        usageFrequencyScore +
+        usageRecencyScore;
 
     return {
         score: score,
@@ -117,6 +153,7 @@ function scoreLauncherItem(item, query, options) {
             base: baseScore,
             queryTitleBoost: queryScore.titleBoost,
             querySubtitleBoost: queryScore.subtitleBoost,
+            providerIntentBoost: providerIntentScore,
             usageFrequencyBoost: usageFrequencyScore,
             usageRecencyBoost: usageRecencyScore,
             personalizationEnabled: personalizationEnabled,

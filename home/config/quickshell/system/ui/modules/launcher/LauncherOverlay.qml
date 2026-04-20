@@ -1,5 +1,6 @@
 pragma ComponentBehavior: Bound
 import QtQuick
+import QtQuick.Controls
 import QtQuick.Layouts
 import Quickshell
 import Quickshell.Wayland
@@ -19,11 +20,12 @@ Variants {
 
         required property var modelData
 
-        readonly property var launcherState: root.shell && root.shell.launcherStore ? root.shell.launcherStore.state : ({
+        readonly property var launcherState: root.shell && root.shell.launcherState ? root.shell.launcherState : ({
                 phase: "idle",
                 error: "",
                 pendingProviders: []
             })
+        readonly property int launcherStoreRevision: root.shell ? Number(root.shell.launcherStoreRevision) : 0
         readonly property int pendingProviderCount: launcherState && Array.isArray(launcherState.pendingProviders) ? launcherState.pendingProviders.length : 0
         property string queryText: ""
         property string pendingSearchSourceCode: "launcher.ui.input"
@@ -72,6 +74,32 @@ Variants {
             if (!root.shell || typeof root.shell.runLauncherSearchQuery !== "function")
                 return;
             root.shell.runLauncherSearchQuery(queryText, sourceCode === undefined ? "launcher.ui.search" : String(sourceCode));
+        }
+
+        function handleNavigationEvent(event): bool {
+            const action = LauncherOverlayController.decideNavigationAction({
+                key: event.key,
+                controlPressed: (event.modifiers & Qt.ControlModifier) !== 0,
+                hasAutocompleteCandidate: panel.canApplyCommandAutocomplete(),
+                totalItemCount: presentationModel.totalItemCount,
+                keyCodes: panel.navigationKeyCodes
+            });
+            if (!action || action.kind === "noop")
+                return false;
+
+            if (action.kind === "close")
+                root.shell.closeLauncherOverlay();
+            else if (action.kind === "autocomplete")
+                panel.applyCommandAutocomplete();
+            else if (action.kind === "move")
+                presentationModel.moveHighlight(Number(action.delta));
+            else if (action.kind === "set_index")
+                presentationModel.highlightedIndex = Number(action.index);
+            else if (action.kind === "activate")
+                panel.activateHighlighted();
+
+            event.accepted = true;
+            return true;
         }
 
         function globalIndexFor(sectionIndex, itemIndex): int {
@@ -206,7 +234,8 @@ Variants {
         LauncherPresentationModel {
             id: presentationModel
 
-            store: root.shell.launcherStore
+            launcherState: panel.launcherState
+            stateRevision: panel.launcherStoreRevision
         }
 
         Connections {
@@ -233,28 +262,7 @@ Variants {
             focus: panel.visible
 
             Keys.onPressed: event => {
-                const action = LauncherOverlayController.decideNavigationAction({
-                    key: event.key,
-                    controlPressed: (event.modifiers & Qt.ControlModifier) !== 0,
-                    hasAutocompleteCandidate: panel.canApplyCommandAutocomplete(),
-                    totalItemCount: presentationModel.totalItemCount,
-                    keyCodes: panel.navigationKeyCodes
-                });
-                if (!action || action.kind === "noop")
-                    return;
-
-                if (action.kind === "close")
-                    root.shell.closeLauncherOverlay();
-                else if (action.kind === "autocomplete")
-                    panel.applyCommandAutocomplete();
-                else if (action.kind === "move")
-                    presentationModel.moveHighlight(Number(action.delta));
-                else if (action.kind === "set_index")
-                    presentationModel.highlightedIndex = Number(action.index);
-                else if (action.kind === "activate")
-                    panel.activateHighlighted();
-
-                event.accepted = true;
+                panel.handleNavigationEvent(event);
             }
 
             MouseArea {
@@ -345,6 +353,10 @@ Variants {
                                 selectedTextColor: Theme.surfaceContainer
                                 cursorVisible: true
                                 clip: true
+                                Keys.priority: Keys.BeforeItem
+                                Keys.onPressed: event => {
+                                    panel.handleNavigationEvent(event);
+                                }
                                 onTextEdited: {
                                     panel.queryText = text;
                                     presentationModel.resetSurfaceState();
@@ -373,6 +385,46 @@ Variants {
                         clip: true
                         boundsBehavior: Flickable.StopAtBounds
                         interactive: contentHeight > height
+                        maximumFlickVelocity: 5200
+                        flickDeceleration: 1700
+
+                        WheelHandler {
+                            acceptedDevices: PointerDevice.Mouse | PointerDevice.TouchPad
+                            onWheel: event => {
+                                const maxContentY = Math.max(0, resultFlick.contentHeight - resultFlick.height);
+                                if (maxContentY <= 0)
+                                    return;
+                                const delta = Number(event.pixelDelta.y);
+                                const fallback = Number(event.angleDelta.y) * 0.45;
+                                const step = Number.isFinite(delta) && delta !== 0 ? delta * 1.35 : fallback;
+                                if (!Number.isFinite(step) || step === 0)
+                                    return;
+                                resultFlick.contentY = Math.max(0, Math.min(maxContentY, resultFlick.contentY - step));
+                                event.accepted = true;
+                            }
+                        }
+
+                        ScrollBar.vertical: ScrollBar {
+                            id: launcherScrollBar
+
+                            policy: ScrollBar.AsNeeded
+                            width: 8
+                            minimumSize: 0.08
+                            visible: resultFlick.contentHeight > resultFlick.height
+                            anchors.right: parent.right
+                            anchors.rightMargin: 4
+
+                            contentItem: Rectangle {
+                                implicitWidth: launcherScrollBar.width
+                                radius: launcherScrollBar.width / 2
+                                color: Qt.rgba(Theme.primary.r, Theme.primary.g, Theme.primary.b, launcherScrollBar.pressed ? 0.72 : 0.56)
+                            }
+
+                            background: Rectangle {
+                                radius: launcherScrollBar.width / 2
+                                color: Qt.rgba(Theme.surfaceContainerHighest.r, Theme.surfaceContainerHighest.g, Theme.surfaceContainerHighest.b, 0.34)
+                            }
+                        }
 
                         Column {
                             id: resultColumn

@@ -4,9 +4,14 @@ import QtQml
 QtObject {
     id: root
 
-    required property var store
+    required property var launcherState
+    required property int stateRevision
     property int highlightedIndex: 0
-    readonly property var sections: LauncherSelectors.selectLauncherSections(store ? store.state.results : [], 6)
+    readonly property var sections: {
+        const _stateRevision = stateRevision;
+        const results = launcherState && Array.isArray(launcherState.results) ? launcherState.results : [];
+        return LauncherSelectors.selectLauncherSections(results, 6);
+    }
     readonly property int totalItemCount: LauncherSelectors.countLauncherItems(sections)
 
     function resetSurfaceState() {

@@ -107,6 +107,8 @@ ShellRoot {
     }
     property var settingsStore: SettingsStore.createSettingsStore()
     property var launcherStore: LauncherStore.createLauncherStore()
+    property int launcherStoreRevision: 0
+    property var launcherState: LauncherStore.createInitialLauncherState()
     property int launcherGenerationCounter: 0
     property var launcherTelemetryQueue: []
     property int launcherTelemetryQueueCapacity: 2048
@@ -1015,6 +1017,15 @@ ShellRoot {
         return parsed;
     }
 
+    function currentLauncherCandidatePoolSize() {
+        const pool = currentLauncherMaxResults() * 8;
+        if (pool < 48)
+            return 48;
+        if (pool > 320)
+            return 320;
+        return pool;
+    }
+
     function currentLauncherTelemetrySummary() {
         const launcherState = root.settingsStore && root.settingsStore.state && root.settingsStore.state.durableState && root.settingsStore.state.durableState.launcher && typeof root.settingsStore.state.durableState.launcher === "object" ? root.settingsStore.state.durableState.launcher : {
             queryHistory: [],
@@ -1105,12 +1116,33 @@ ShellRoot {
         ensureLauncherAsyncProviderRuntime().reset();
     }
 
+    function syncLauncherStateProjection() {
+        const sourceState = root.launcherStore && root.launcherStore.state && typeof root.launcherStore.state === "object" ? root.launcherStore.state : LauncherStore.createInitialLauncherState();
+        const sourcePendingProviders = Array.isArray(sourceState.pendingProviders) ? sourceState.pendingProviders : [];
+        const nextPendingProviders = [];
+
+        for (let index = 0; index < sourcePendingProviders.length; index += 1)
+            nextPendingProviders.push(String(sourcePendingProviders[index] || ""));
+
+        root.launcherState = {
+            query: String(sourceState.query || ""),
+            generation: Number(sourceState.generation || 0),
+            phase: String(sourceState.phase || "idle"),
+            results: Array.isArray(sourceState.results) ? sourceState.results.slice() : [],
+            sourceItems: Array.isArray(sourceState.sourceItems) ? sourceState.sourceItems.slice() : [],
+            pendingProviders: nextPendingProviders,
+            lastOutcome: sourceState.lastOutcome || null,
+            error: String(sourceState.error || "")
+        };
+        root.launcherStoreRevision += 1;
+    }
+
     function currentLauncherAsyncProviderRuntimeOptions(nowMs) {
         return {
             nowMs: nowMs === undefined ? Date.now() : Number(nowMs),
             timeoutMs: currentLauncherAsyncProviderTimeoutMs(),
             failureRetention: currentLauncherAsyncProviderFailureRetention(),
-            fallbackQuery: root.launcherStore && root.launcherStore.state && root.launcherStore.state.query ? root.launcherStore.state.query : ""
+            fallbackQuery: root.launcherState && root.launcherState.query ? root.launcherState.query : ""
         };
     }
 
@@ -1119,7 +1151,10 @@ ShellRoot {
             markPending: function (event) {
                 if (!root.launcherStore || typeof root.launcherStore.markAsyncProviderPending !== "function")
                     return false;
-                return root.launcherStore.markAsyncProviderPending(event);
+                const marked = root.launcherStore.markAsyncProviderPending(event);
+                if (marked)
+                    root.syncLauncherStateProjection();
+                return marked;
             },
             resolve: function (event, rawItems) {
                 return root.applyLauncherAsyncProviderResolved(event, rawItems);
@@ -1276,7 +1311,7 @@ ShellRoot {
             "outcomes": OperationOutcomes,
             "searchAdapter": LauncherSearchAdapters.createSystemLauncherSearchAdapter({
                 "commandPrefix": launcherSettings.commandPrefix,
-                "maxResults": currentLauncherMaxResults(),
+                "maxResults": currentLauncherCandidatePoolSize(),
                 "commandSpecs": root.shellIpcCommandSpecs,
                 "pinnedCommandIds": launcherSettings.pinnedCommandIds,
                 "appSearchAdapter": root.launcherAppCatalogAdapter,
@@ -1315,11 +1350,19 @@ ShellRoot {
     }
 
     function applyLauncherAsyncProviderResolved(event, rawItems) {
-        return LauncherAsyncProviderUseCases.applyLauncherAsyncProviderResult(launcherAsyncProviderDeps(), root.launcherStore, event, rawItems);
+        const stateBefore = root.launcherStore ? root.launcherStore.state : null;
+        const outcome = LauncherAsyncProviderUseCases.applyLauncherAsyncProviderResult(launcherAsyncProviderDeps(), root.launcherStore, event, rawItems);
+        if (root.launcherStore && root.launcherStore.state !== stateBefore)
+            root.syncLauncherStateProjection();
+        return outcome;
     }
 
     function applyLauncherAsyncProviderRejected(event, error) {
-        return LauncherAsyncProviderUseCases.failLauncherAsyncProviderResult(launcherAsyncProviderDeps(), root.launcherStore, event, error);
+        const stateBefore = root.launcherStore ? root.launcherStore.state : null;
+        const outcome = LauncherAsyncProviderUseCases.failLauncherAsyncProviderResult(launcherAsyncProviderDeps(), root.launcherStore, event, error);
+        if (root.launcherStore && root.launcherStore.state !== stateBefore)
+            root.syncLauncherStateProjection();
+        return outcome;
     }
 
     function handleLauncherAsyncProviderPending(event) {
@@ -1366,6 +1409,7 @@ ShellRoot {
         resetLauncherAsyncProviderRuntime();
         const command = LauncherContracts.createLauncherSearchCommand(String(query || ""), nextLauncherGeneration(), "shell.ipc");
         const outcome = LauncherSearchUseCases.runLauncherSearch(launcherSearchDeps(), root.launcherStore, command);
+        root.syncLauncherStateProjection();
 
         if (outcome && outcome.status === "applied")
             root.enqueueLauncherTelemetryEvent(root.createLauncherTelemetryQueryEvent(String(query || ""), sourceCode === undefined ? "launcher.search" : String(sourceCode)));
@@ -1401,20 +1445,21 @@ ShellRoot {
     }
 
     function describeLauncher() {
-        const sections = LauncherSelectors.selectLauncherSections(root.launcherStore.state.results || [], currentLauncherMaxResults());
+        const launcherState = root.launcherState && typeof root.launcherState === "object" ? root.launcherState : LauncherStore.createInitialLauncherState();
+        const sections = LauncherSelectors.selectLauncherSections(launcherState.results || [], currentLauncherMaxResults());
         const totalItems = LauncherSelectors.countLauncherItems(sections);
-        const pendingProviders = Array.isArray(root.launcherStore.state.pendingProviders) ? root.launcherStore.state.pendingProviders : [];
+        const pendingProviders = Array.isArray(launcherState.pendingProviders) ? launcherState.pendingProviders : [];
         const runtimeDiagnostics = describeLauncherAsyncProviderRuntime(Date.now());
 
         return OperationOutcomes.applied({
             code: "launcher.snapshot",
             targetId: "launcher",
-            generation: Number(root.launcherStore.state.generation),
+            generation: Number(launcherState.generation),
             meta: {
-                query: root.launcherStore.state.query,
-                phase: root.launcherStore.state.phase,
+                query: launcherState.query,
+                phase: launcherState.phase,
                 totalItems: totalItems,
-                sourceItemCount: Array.isArray(root.launcherStore.state.sourceItems) ? root.launcherStore.state.sourceItems.length : 0,
+                sourceItemCount: Array.isArray(launcherState.sourceItems) ? launcherState.sourceItems.length : 0,
                 pendingProviders: pendingProviders,
                 pendingProviderCount: pendingProviders.length,
                 trackedPendingProviderCount: Number(runtimeDiagnostics.pendingProviderCount),

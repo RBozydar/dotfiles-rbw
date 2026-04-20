@@ -1734,3 +1734,69 @@ Validation snapshot:
     - `shellctl theme.variant.set evangelion`
     - `shellctl theme.variant.set moon-space`
     - verified role values through `shellctl theme.describe`
+
+### Launcher Overlay Reactive Projection Fix (2026-04-20)
+
+- Fixed launcher overlay not repainting results while typing from the bar path.
+- Root cause:
+    - launcher domain state lived in a plain JS object (`launcherStore.state`),
+      and `LauncherOverlay`/`LauncherPresentationModel` read nested fields
+      directly (`launcherStore.state.results`), which is not reliably reactive
+      in QML bindings.
+- Implementation:
+    - added a reactive projection in `SystemShell.qml`:
+      `launcherState` + `launcherStoreRevision`.
+    - added `syncLauncherStateProjection()` and invoked it after launcher state
+      mutations:
+      search execution, async provider pending, async provider resolve/reject.
+    - switched launcher UI to consume projected state:
+      `LauncherOverlay.qml` now binds to `root.shell.launcherState`.
+    - updated `LauncherPresentationModel.qml` contract to accept projected
+      `launcherState` and explicit `stateRevision` invalidation.
+    - updated launcher diagnostics/read paths to use projected state where
+      applicable (`describeLauncher`, async fallback query source).
+
+Validation snapshot:
+
+- `make -C home/config/quickshell format`
+- `make -C home/config/quickshell lint`
+- `make -C home/config/quickshell qmltest`
+- `make -C home/config/quickshell arch-check`
+- live IPC probe (outside sandbox):
+    - `shellctl launcher.search firefox`
+    - `shellctl launcher.describe`
+
+### Launcher UX Tuning: Ranking + Navigation + Scrolling (2026-04-20)
+
+- Tuned launcher ranking so app intent is prioritized for app-like queries:
+    - added provider-intent scoring in
+      `system/core/policies/launcher/launcher-scoring-policy.js`.
+    - for non-path queries:
+      apps receive positive intent boost (largest for exact title match),
+      files receive a negative intent penalty.
+    - for path-like queries (`/`, `~`, `\`):
+      files receive a positive intent boost.
+- Increased candidate pool before final truncation:
+    - `SystemShell` now requests a larger adapter pool
+      (`currentLauncherCandidatePoolSize()`) and still applies final runtime
+      max-results limit after core scoring.
+    - avoids dropping app candidates too early when one provider dominates.
+- Fixed keyboard navigation when query input has focus:
+    - extracted overlay navigation into `handleNavigationEvent`.
+    - wired both overlay root and `TextInput.Keys.onPressed` through the same
+      navigation handler.
+- Improved launcher results scrolling UX:
+    - added explicit vertical scrollbar to launcher `Flickable`.
+    - tuned wheel handling + flick dynamics for faster movement.
+
+Validation snapshot:
+
+- `make -C home/config/quickshell format`
+- `make -C home/config/quickshell lint`
+- `make -C home/config/quickshell qmltest`
+- `make -C home/config/quickshell arch-check`
+- live IPC probe (outside sandbox):
+    - `shellctl launcher.search firefox`
+    - `shellctl launcher.describe` (apps now ranked ahead of file hits)
+- runtime refresh:
+    - `/home/rbw/repo/dotfiles-rbw/home/config/quickshell/scripts/restart-quickshell.sh`

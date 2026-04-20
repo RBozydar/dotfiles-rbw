@@ -81,5 +81,74 @@ TestCase {
         compare(scored[0].iconName, "firefox");
     }
 
+    function test_scoreLauncherItems_prefers_exact_app_match_over_file_candidates() {
+        const items = [
+            {
+                id: "file:/home/rbw/.config/mozilla/firefox",
+                title: "firefox",
+                subtitle: "/home/rbw/.config/mozilla",
+                provider: "files",
+                score: 1180,
+                action: {
+                    type: "file.open",
+                    targetId: "/home/rbw/.config/mozilla/firefox"
+                }
+            },
+            {
+                id: "app:firefox.desktop",
+                title: "Firefox",
+                subtitle: "Web Browser",
+                provider: "apps",
+                score: 1060,
+                action: {
+                    type: "app.launch",
+                    targetId: "firefox.desktop"
+                }
+            }
+        ];
+        const scored = LauncherScoringPolicy.scoreLauncherItems(items, "firefox", {
+            nowIso: "2026-04-20T12:00:00.000Z"
+        });
+
+        compare(scored.length, 2);
+        compare(scored[0].id, "app:firefox.desktop");
+        verify(Number(scored[0].scoreMeta.providerIntentBoost) > 0);
+        verify(Number(scored[1].scoreMeta.providerIntentBoost) < 0);
+    }
+
+    function test_scoreLauncherItems_prefers_files_for_path_like_queries() {
+        const items = [
+            {
+                id: "file:/home/rbw/projects/readme.md",
+                title: "readme.md",
+                subtitle: "/home/rbw/projects",
+                provider: "files",
+                score: 300,
+                action: {
+                    type: "file.open",
+                    targetId: "/home/rbw/projects/readme.md"
+                }
+            },
+            {
+                id: "app:readme.desktop",
+                title: "Readme",
+                subtitle: "Tool",
+                provider: "apps",
+                score: 300,
+                action: {
+                    type: "app.launch",
+                    targetId: "readme.desktop"
+                }
+            }
+        ];
+        const scored = LauncherScoringPolicy.scoreLauncherItems(items, "/home/rbw/pro", {
+            nowIso: "2026-04-20T12:00:00.000Z"
+        });
+
+        compare(scored.length, 2);
+        compare(scored[0].provider, "files");
+        verify(Number(scored[0].scoreMeta.providerIntentBoost) > 0);
+    }
+
     name: "LauncherScoringPolicySlice"
 }
