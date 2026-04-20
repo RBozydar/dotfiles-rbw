@@ -153,6 +153,9 @@ The bootstrap is successful when:
       explicit default output/input switching (device catalog probe + previous/
       next controls) through the `Audio` service boundary and system-owned
       control-center popup.
+    - tray interaction reliability pass delivered:
+      tray icon activation now dispatches on click semantics (`onClicked`)
+      rather than press semantics to improve app-open behavior consistency.
     - static theme preset pass delivered:
       named variants (`evangelion`, `moon-space`) now apply through the
       existing theme control plane (`theme.variant.set`) with canonical MD3

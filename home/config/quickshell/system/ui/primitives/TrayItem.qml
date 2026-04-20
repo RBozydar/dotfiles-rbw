@@ -10,6 +10,7 @@ MouseArea {
     required property SystemTrayItem item
 
     hoverEnabled: true
+    cursorShape: Qt.PointingHandCursor
     acceptedButtons: Qt.LeftButton | Qt.RightButton | Qt.MiddleButton
     implicitWidth: 18
     implicitHeight: 18
@@ -23,22 +24,20 @@ MouseArea {
         root.item.display(root.QsWindow.window, anchorX, anchorY);
     }
 
-    onPressed: event => {
-        if (event.button === Qt.LeftButton) {
+    onClicked: mouse => {
+        if (mouse.button === Qt.LeftButton) {
             if (root.item.onlyMenu && root.item.hasMenu)
                 root.showMenu();
             else
                 root.item.activate();
-        } else if (event.button === Qt.RightButton) {
+        } else if (mouse.button === Qt.RightButton) {
             if (root.item.hasMenu)
                 root.showMenu();
             else
                 root.item.secondaryActivate();
-        } else if (event.button === Qt.MiddleButton) {
+        } else if (mouse.button === Qt.MiddleButton) {
             root.item.secondaryActivate();
         }
-
-        event.accepted = true;
     }
 
     onWheel: wheel => {

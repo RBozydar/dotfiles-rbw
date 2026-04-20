@@ -1907,3 +1907,23 @@ Validation snapshot:
 - `make -C /home/rbw/repo/dotfiles-rbw/home/config/quickshell lint`
 - `make -C /home/rbw/repo/dotfiles-rbw/home/config/quickshell qmltest`
 - `make -C /home/rbw/repo/dotfiles-rbw/home/config/quickshell arch-check`
+
+### Tray Activation Reliability Pass (2026-04-21)
+
+- Implemented tray click handling reliability fix in
+  `system/ui/primitives/TrayItem.qml`:
+    - switched icon interaction dispatch from `onPressed` to `onClicked` so
+      left-click app activation follows standard click semantics.
+    - retained existing left/right/middle behavior contract:
+      left (`activate` or menu for `onlyMenu` items),
+      right (menu or secondary activate),
+      middle (`secondaryActivate`).
+    - added pointer cursor feedback for tray icon hit targets.
+- Runtime check:
+    - restarted shell via
+      `/home/rbw/repo/dotfiles-rbw/home/config/quickshell/scripts/restart-quickshell.sh`.
+
+Validation snapshot:
+
+- `make -C /home/rbw/repo/dotfiles-rbw/home/config/quickshell lint`
+- `make -C /home/rbw/repo/dotfiles-rbw/home/config/quickshell qmltest`
