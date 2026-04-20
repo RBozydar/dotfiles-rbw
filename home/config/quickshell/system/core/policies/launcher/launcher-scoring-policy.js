@@ -120,6 +120,15 @@ function providerIntentBoost(item, normalizedQuery) {
     return 0;
 }
 
+function copyOptionalMetadata(source, target) {
+    const item = source && typeof source === "object" ? source : {};
+    const next = target && typeof target === "object" ? target : {};
+    const parsedPinOrder = Number(item.pinOrder);
+
+    if (item.pinned !== undefined) next.pinned = item.pinned === true;
+    if (Number.isInteger(parsedPinOrder)) next.pinOrder = parsedPinOrder;
+}
+
 function scoreLauncherItem(item, query, options) {
     const config = options && typeof options === "object" ? options : {};
     const usageByItemId = normalizeUsageByItemId(config.usageByItemId);
@@ -181,6 +190,7 @@ function scoreLauncherItems(items, query, options) {
 
         if (item.detail !== undefined) normalizedItem.detail = String(item.detail);
         if (item.iconName !== undefined) normalizedItem.iconName = String(item.iconName);
+        copyOptionalMetadata(item, normalizedItem);
         if (includeScoreMeta) normalizedItem.scoreMeta = scoredItem.breakdown;
         next.push(normalizedItem);
     }

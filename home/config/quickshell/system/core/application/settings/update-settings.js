@@ -809,6 +809,92 @@ function unpinLauncherCommand(deps, store, commandId) {
     );
 }
 
+function movePinnedLauncherCommandUp(deps, store, commandId) {
+    const normalizedCommandId = String(commandId || "").trim();
+    if (!normalizedCommandId) {
+        return deps.outcomes.rejected({
+            code: "settings.launcher.pin_command.move_up.invalid",
+            reason: "Pinned command id must be non-empty",
+            targetId: "shell",
+        });
+    }
+
+    return applySettingsUpdate(
+        deps,
+        store,
+        "settings.launcher.pin_command.move_up.updated",
+        "Pinned launcher command cannot move higher",
+        function (_configDocument, stateDocument) {
+            const currentPinned = Array.isArray(stateDocument.launcher.pinnedCommandIds)
+                ? stateDocument.launcher.pinnedCommandIds
+                : [];
+            let currentIndex = -1;
+
+            for (let index = 0; index < currentPinned.length; index += 1) {
+                if (String(currentPinned[index]) === normalizedCommandId) {
+                    currentIndex = index;
+                    break;
+                }
+            }
+
+            if (currentIndex <= 0) return false;
+
+            const nextPinned = [];
+            for (let index = 0; index < currentPinned.length; index += 1)
+                nextPinned.push(String(currentPinned[index]));
+
+            const previous = nextPinned[currentIndex - 1];
+            nextPinned[currentIndex - 1] = nextPinned[currentIndex];
+            nextPinned[currentIndex] = previous;
+            stateDocument.launcher.pinnedCommandIds = nextPinned;
+            return true;
+        },
+    );
+}
+
+function movePinnedLauncherCommandDown(deps, store, commandId) {
+    const normalizedCommandId = String(commandId || "").trim();
+    if (!normalizedCommandId) {
+        return deps.outcomes.rejected({
+            code: "settings.launcher.pin_command.move_down.invalid",
+            reason: "Pinned command id must be non-empty",
+            targetId: "shell",
+        });
+    }
+
+    return applySettingsUpdate(
+        deps,
+        store,
+        "settings.launcher.pin_command.move_down.updated",
+        "Pinned launcher command cannot move lower",
+        function (_configDocument, stateDocument) {
+            const currentPinned = Array.isArray(stateDocument.launcher.pinnedCommandIds)
+                ? stateDocument.launcher.pinnedCommandIds
+                : [];
+            let currentIndex = -1;
+
+            for (let index = 0; index < currentPinned.length; index += 1) {
+                if (String(currentPinned[index]) === normalizedCommandId) {
+                    currentIndex = index;
+                    break;
+                }
+            }
+
+            if (currentIndex < 0 || currentIndex >= currentPinned.length - 1) return false;
+
+            const nextPinned = [];
+            for (let index = 0; index < currentPinned.length; index += 1)
+                nextPinned.push(String(currentPinned[index]));
+
+            const next = nextPinned[currentIndex + 1];
+            nextPinned[currentIndex + 1] = nextPinned[currentIndex];
+            nextPinned[currentIndex] = next;
+            stateDocument.launcher.pinnedCommandIds = nextPinned;
+            return true;
+        },
+    );
+}
+
 function applyLauncherTelemetryBatch(deps, store, events, policy) {
     const telemetryEvents = normalizeLauncherTelemetryEvents(events);
     if (telemetryEvents.length === 0) {

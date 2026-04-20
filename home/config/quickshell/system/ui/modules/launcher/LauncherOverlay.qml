@@ -41,6 +41,7 @@ Variants {
                 pageUp: Qt.Key_PageUp,
                 home: Qt.Key_Home,
                 end: Qt.Key_End,
+                space: Qt.Key_Space,
                 returnKey: Qt.Key_Return,
                 enter: Qt.Key_Enter
             })
@@ -80,7 +81,12 @@ Variants {
             const action = LauncherOverlayController.decideNavigationAction({
                 key: event.key,
                 controlPressed: (event.modifiers & Qt.ControlModifier) !== 0,
+                shiftPressed: (event.modifiers & Qt.ShiftModifier) !== 0,
                 hasAutocompleteCandidate: panel.canApplyCommandAutocomplete(),
+                hasPreviewCandidate: panel.canPreviewHighlighted(),
+                hasPinCandidate: panel.canToggleHighlightedPin(),
+                canMovePinUp: panel.canMoveHighlightedPinUp(),
+                canMovePinDown: panel.canMoveHighlightedPinDown(),
                 totalItemCount: presentationModel.totalItemCount,
                 keyCodes: panel.navigationKeyCodes
             });
@@ -97,6 +103,14 @@ Variants {
                 presentationModel.highlightedIndex = Number(action.index);
             else if (action.kind === "activate")
                 panel.activateHighlighted();
+            else if (action.kind === "preview")
+                panel.previewHighlighted();
+            else if (action.kind === "pin_toggle")
+                panel.toggleHighlightedPin();
+            else if (action.kind === "pin_move_up")
+                panel.moveHighlightedPinUp();
+            else if (action.kind === "pin_move_down")
+                panel.moveHighlightedPinDown();
 
             event.accepted = true;
             return true;
@@ -131,6 +145,81 @@ Variants {
             if (!highlighted || !root.shell || typeof root.shell.activateLauncherItemFromUi !== "function")
                 return;
             root.shell.activateLauncherItemFromUi(highlighted.id);
+        }
+
+        function canPreviewHighlighted(): bool {
+            const highlighted = itemAtGlobalIndex(presentationModel.highlightedIndex);
+            if (!highlighted || !highlighted.action)
+                return false;
+            return String(highlighted.action.type || "") === "file.open";
+        }
+
+        function previewHighlighted(): void {
+            const highlighted = itemAtGlobalIndex(presentationModel.highlightedIndex);
+            if (!highlighted || !root.shell || typeof root.shell.previewLauncherItemFromUi !== "function")
+                return;
+            root.shell.previewLauncherItemFromUi(highlighted.id);
+        }
+
+        function stablePinnedCommandName(item): string {
+            const candidate = item && typeof item === "object" ? item : null;
+            if (!candidate || !candidate.action)
+                return "";
+            if (String(candidate.action.type || "") !== "shell.ipc.dispatch")
+                return "";
+
+            const commandName = String(candidate.action.command || "").trim();
+            if (!commandName)
+                return "";
+
+            if (candidate.action.args === undefined)
+                return commandName;
+            if (!Array.isArray(candidate.action.args))
+                return "";
+            if (candidate.action.args.length !== 0)
+                return "";
+            return commandName;
+        }
+
+        function highlightedCommandName(): string {
+            return stablePinnedCommandName(itemAtGlobalIndex(presentationModel.highlightedIndex));
+        }
+
+        function canToggleHighlightedPin(): bool {
+            return highlightedCommandName().length > 0;
+        }
+
+        function canMoveHighlightedPinUp(): bool {
+            if (!root.shell || typeof root.shell.canMovePinnedLauncherCommand !== "function")
+                return false;
+            return root.shell.canMovePinnedLauncherCommand(highlightedCommandName(), -1);
+        }
+
+        function canMoveHighlightedPinDown(): bool {
+            if (!root.shell || typeof root.shell.canMovePinnedLauncherCommand !== "function")
+                return false;
+            return root.shell.canMovePinnedLauncherCommand(highlightedCommandName(), 1);
+        }
+
+        function toggleHighlightedPin(): void {
+            const commandName = highlightedCommandName();
+            if (!commandName || !root.shell || typeof root.shell.toggleLauncherCommandPinFromUi !== "function")
+                return;
+            root.shell.toggleLauncherCommandPinFromUi(commandName);
+        }
+
+        function moveHighlightedPinUp(): void {
+            const commandName = highlightedCommandName();
+            if (!commandName || !root.shell || typeof root.shell.movePinnedLauncherCommandUpFromUi !== "function")
+                return;
+            root.shell.movePinnedLauncherCommandUpFromUi(commandName);
+        }
+
+        function moveHighlightedPinDown(): void {
+            const commandName = highlightedCommandName();
+            if (!commandName || !root.shell || typeof root.shell.movePinnedLauncherCommandDownFromUi !== "function")
+                return;
+            root.shell.movePinnedLauncherCommandDownFromUi(commandName);
         }
 
         function currentCommandPrefix(): string {
@@ -375,6 +464,14 @@ Variants {
                         font.pixelSize: 12
                     }
 
+                    Text {
+                        text: "Ctrl+Shift+P pin command  |  Ctrl+Shift+↑/↓ reorder pin  |  Ctrl+Space preview file"
+                        color: Theme.roleOnSurfaceVariant
+                        opacity: 0.82
+                        font.family: Theme.fontMono
+                        font.pixelSize: 11
+                    }
+
                     Flickable {
                         id: resultFlick
 
@@ -505,6 +602,9 @@ Variants {
                                             readonly property bool hasDetailText: detailText.length > 0 && detailText !== subtitleText
                                             readonly property string iconName: resultCard.modelData.iconName === undefined ? "" : String(resultCard.modelData.iconName)
                                             readonly property string iconSource: iconName.length > 0 ? Quickshell.iconPath(iconName) : ""
+                                            readonly property int pinOrder: Number(resultCard.modelData.pinOrder)
+                                            readonly property bool pinned: resultCard.modelData.pinned === true || (Number.isInteger(pinOrder) && pinOrder >= 0)
+                                            readonly property string pinBadgeText: (Number.isInteger(pinOrder) && pinOrder >= 0) ? "#" + String(pinOrder + 1) : "PIN"
                                             readonly property string fallbackGlyph: {
                                                 const provider = String(resultCard.modelData.provider || "");
                                                 if (provider === "calculator")
@@ -517,6 +617,10 @@ Variants {
                                                     return "󰅌";
                                                 if (provider === "emoji")
                                                     return "󰞅";
+                                                if (provider === "web")
+                                                    return "󰖟";
+                                                if (provider === "windows")
+                                                    return "󰖲";
                                                 return "󰈔";
                                             }
 
@@ -569,7 +673,7 @@ Variants {
                                                 }
 
                                                 Column {
-                                                    width: parent.width - 46
+                                                    width: parent.width - 46 - (pinBadge.visible ? pinBadge.width + 8 : 0)
                                                     spacing: 2
 
                                                     Text {
@@ -596,6 +700,28 @@ Variants {
                                                         font.family: Theme.fontSans
                                                         font.pixelSize: 11
                                                         elide: Text.ElideRight
+                                                    }
+                                                }
+
+                                                Rectangle {
+                                                    id: pinBadge
+
+                                                    visible: resultCard.pinned
+                                                    width: 44
+                                                    height: 22
+                                                    radius: 11
+                                                    anchors.verticalCenter: parent.verticalCenter
+                                                    color: Qt.rgba(Theme.primary.r, Theme.primary.g, Theme.primary.b, 0.18)
+                                                    border.width: 1
+                                                    border.color: Qt.rgba(Theme.primary.r, Theme.primary.g, Theme.primary.b, 0.42)
+
+                                                    Text {
+                                                        anchors.centerIn: parent
+                                                        text: resultCard.pinBadgeText
+                                                        color: Theme.primary
+                                                        font.family: Theme.fontMono
+                                                        font.pixelSize: 10
+                                                        font.weight: Font.DemiBold
                                                     }
                                                 }
                                             }

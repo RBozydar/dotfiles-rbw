@@ -101,26 +101,37 @@ function normalizePinnedCommandIds(pinnedCommandIds) {
     if (Array.isArray(pinnedCommandIds)) {
         for (let index = 0; index < pinnedCommandIds.length; index += 1)
             source.push(pinnedCommandIds[index]);
-    } else if (
-        pinnedCommandIds &&
-        typeof pinnedCommandIds === "object" &&
-        typeof pinnedCommandIds.length === "number"
-    ) {
-        for (let index = 0; index < pinnedCommandIds.length; index += 1)
-            source.push(pinnedCommandIds[index]);
+    } else if (pinnedCommandIds && typeof pinnedCommandIds === "object") {
+        if (typeof pinnedCommandIds.length === "number") {
+            for (let index = 0; index < pinnedCommandIds.length; index += 1)
+                source.push(pinnedCommandIds[index]);
+        } else {
+            for (const key in pinnedCommandIds) source.push(pinnedCommandIds[key]);
+        }
     } else {
-        return {};
+        return {
+            byId: {},
+            orderById: {},
+        };
     }
 
     const byId = {};
+    const orderById = {};
+    let order = 0;
 
     for (let index = 0; index < source.length; index += 1) {
         const id = String(source[index] || "").trim();
         if (!id) continue;
+        if (byId[id]) continue;
         byId[id] = true;
+        orderById[id] = order;
+        order += 1;
     }
 
-    return byId;
+    return {
+        byId: byId,
+        orderById: orderById,
+    };
 }
 
 function normalizeMaxResults(maxResults) {
@@ -147,9 +158,166 @@ function stripCommandPrefix(query, commandPrefix) {
     return normalizedQuery.slice(normalizedPrefix.length).trim();
 }
 
+function splitFirstToken(value) {
+    const source = String(value || "").trim();
+    if (!source)
+        return {
+            token: "",
+            remainder: "",
+        };
+
+    const splitIndex = source.search(/\s/);
+    if (splitIndex < 0) {
+        return {
+            token: source,
+            remainder: "",
+        };
+    }
+
+    return {
+        token: source.slice(0, splitIndex),
+        remainder: source.slice(splitIndex + 1).trim(),
+    };
+}
+
+function normalizeRouteKey(value) {
+    const normalized = lowercase(value).trim();
+    return normalized || "default";
+}
+
+function resolveCommandRoute(commandTerm) {
+    const normalizedTerm = String(commandTerm || "").trim();
+    if (!normalizedTerm) {
+        return {
+            mode: "command",
+            routeKey: "default",
+            term: "",
+        };
+    }
+
+    const head = splitFirstToken(normalizedTerm);
+    const token = lowercase(head.token);
+
+    if (token === "cmd" || token === "command" || token === "exec")
+        return {
+            mode: "command",
+            routeKey: "cmd",
+            term: head.remainder,
+        };
+    if (token === "web" || token === "w")
+        return {
+            mode: "query",
+            routeKey: "web",
+            term: head.remainder,
+        };
+    if (token === "app" || token === "apps")
+        return {
+            mode: "query",
+            routeKey: "apps",
+            term: head.remainder,
+        };
+    if (token === "clip" || token === "clipboard")
+        return {
+            mode: "query",
+            routeKey: "clipboard",
+            term: head.remainder,
+        };
+    if (token === "emoji" || token === "em")
+        return {
+            mode: "query",
+            routeKey: "emoji",
+            term: head.remainder,
+        };
+    if (token === "file" || token === "files")
+        return {
+            mode: "query",
+            routeKey: "files",
+            term: head.remainder,
+        };
+    if (token === "win" || token === "window" || token === "windows")
+        return {
+            mode: "query",
+            routeKey: "windows",
+            term: head.remainder,
+        };
+    if (token === "home" || token === "ha" || token === "hass")
+        return {
+            mode: "query",
+            routeKey: "homeassistant",
+            term: head.remainder,
+        };
+    if (token === "wall" || token === "wallpaper")
+        return {
+            mode: "query",
+            routeKey: "wallpaper",
+            term: head.remainder,
+        };
+    if (token === "calc" || token === "math")
+        return {
+            mode: "query",
+            routeKey: "calculator",
+            term: head.remainder,
+        };
+
+    return {
+        mode: "command",
+        routeKey: "default",
+        term: normalizedTerm,
+    };
+}
+
+function resolveSearchProjection(query, commandPrefix) {
+    const normalizedQuery = String(query || "");
+    const trimmedQuery = normalizedQuery.trim();
+    const prefix = String(commandPrefix || "").trim();
+
+    if (!isCommandModeQuery(trimmedQuery, prefix)) {
+        return {
+            mode: "query",
+            routeKey: "default",
+            queryTerm: trimmedQuery,
+            commandTerm: "",
+        };
+    }
+
+    const stripped = stripCommandPrefix(trimmedQuery, prefix);
+    const route = resolveCommandRoute(stripped);
+
+    if (route.mode === "query") {
+        return {
+            mode: "query",
+            routeKey: normalizeRouteKey(route.routeKey),
+            queryTerm: String(route.term || "").trim(),
+            commandTerm: "",
+        };
+    }
+
+    return {
+        mode: "command",
+        routeKey: normalizeRouteKey(route.routeKey),
+        queryTerm: "",
+        commandTerm: String(route.term || "").trim(),
+    };
+}
+
+function createQueryCommand(command, query) {
+    const source = command && typeof command === "object" ? command : {};
+    const payload = source.payload && typeof source.payload === "object" ? source.payload : {};
+    const meta = source.meta && typeof source.meta === "object" ? source.meta : {};
+    return {
+        type: source.type === undefined ? "launcher.run_search" : String(source.type),
+        payload: {
+            query: query === undefined ? String(payload.query || "") : String(query),
+        },
+        meta: meta,
+    };
+}
+
 function searchIpcCommandSpecs(commandSpecs, commandTerm, pinnedCommandIds) {
     const normalizedTerm = lowercase(commandTerm).trim();
-    const pinnedById = normalizePinnedCommandIds(pinnedCommandIds);
+    const pinnedState = normalizePinnedCommandIds(pinnedCommandIds);
+    const pinnedById = pinnedState.byId;
+    const pinnedOrderById = pinnedState.orderById;
     const items = [];
 
     for (let index = 0; index < commandSpecs.length; index += 1) {
@@ -157,6 +325,7 @@ function searchIpcCommandSpecs(commandSpecs, commandTerm, pinnedCommandIds) {
         const name = lowercase(spec.name);
         const summary = lowercase(spec.summary);
         const pinned = pinnedById[spec.name] === true;
+        const pinnedOrder = pinned ? Number(pinnedOrderById[spec.name]) : -1;
 
         if (normalizedTerm) {
             if (name.indexOf(normalizedTerm) < 0 && summary.indexOf(normalizedTerm) < 0) continue;
@@ -164,6 +333,7 @@ function searchIpcCommandSpecs(commandSpecs, commandTerm, pinnedCommandIds) {
 
         let score = 750;
         if (pinned) score += 260;
+        if (pinnedOrder >= 0) score += Math.max(0, 220 - pinnedOrder * 12);
         if (!normalizedTerm) score += 25;
         else if (name === normalizedTerm) score += 500;
         else if (name.indexOf(normalizedTerm) === 0) score += 250;
@@ -174,6 +344,8 @@ function searchIpcCommandSpecs(commandSpecs, commandTerm, pinnedCommandIds) {
             title: spec.name,
             subtitle: spec.summary,
             provider: "commands",
+            pinned: pinned,
+            pinOrder: pinnedOrder,
             score: score,
             action: {
                 type: "shell.ipc.dispatch",
@@ -186,21 +358,162 @@ function searchIpcCommandSpecs(commandSpecs, commandTerm, pinnedCommandIds) {
     return items;
 }
 
-function createExternalCommandCandidate(commandTerm) {
+function createExternalCommandCandidate(commandTerm, options) {
     const normalizedTerm = String(commandTerm || "").trim();
     if (!normalizedTerm) return null;
+    const config = options && typeof options === "object" ? options : {};
+    const subtitle =
+        config.subtitle === undefined ? "Run external command" : String(config.subtitle);
+    const score = Number(config.score);
 
     return {
         id: "exec:" + normalizedTerm,
         title: normalizedTerm,
-        subtitle: "Run external command",
-        provider: "commands",
-        score: 920,
+        subtitle: subtitle,
+        detail: "External command",
+        iconName: "utilities-terminal",
+        provider: config.provider === undefined ? "commands" : String(config.provider),
+        score: Number.isFinite(score) ? score : 920,
         action: {
             type: "shell.command.run",
             command: normalizedTerm,
         },
     };
+}
+
+function normalizeRecentExternalCommands(recentExternalCommands) {
+    const source = [];
+
+    if (Array.isArray(recentExternalCommands)) {
+        for (let index = 0; index < recentExternalCommands.length; index += 1)
+            source.push(recentExternalCommands[index]);
+    } else if (
+        recentExternalCommands &&
+        typeof recentExternalCommands === "object" &&
+        typeof recentExternalCommands.length === "number"
+    ) {
+        for (let index = 0; index < recentExternalCommands.length; index += 1)
+            source.push(recentExternalCommands[index]);
+    } else {
+        return [];
+    }
+
+    const normalized = [];
+    const byCommand = {};
+
+    for (let index = 0; index < source.length; index += 1) {
+        const commandText = String(source[index] || "").trim();
+        if (!commandText) continue;
+        const key = lowercase(commandText);
+        if (byCommand[key]) continue;
+        byCommand[key] = true;
+        normalized.push(commandText);
+    }
+
+    return normalized;
+}
+
+function searchRecentExternalCommands(recentExternalCommands, query, limit) {
+    const commands = normalizeRecentExternalCommands(recentExternalCommands);
+    if (commands.length === 0) return [];
+
+    const normalizedQuery = lowercase(query).trim();
+    const normalizedLimit = normalizeMaxResults(limit);
+    const items = [];
+
+    for (let index = 0; index < commands.length && items.length < normalizedLimit; index += 1) {
+        const commandText = commands[index];
+        const normalizedCommand = lowercase(commandText);
+
+        if (normalizedQuery && normalizedCommand.indexOf(normalizedQuery) < 0) continue;
+
+        let score = 1080 - index * 4;
+        if (!normalizedQuery) score += 60;
+        else if (normalizedCommand === normalizedQuery) score += 240;
+        else if (normalizedCommand.indexOf(normalizedQuery) === 0) score += 150;
+
+        items.push(
+            createExternalCommandCandidate(commandText, {
+                subtitle: "Recent command",
+                score: score,
+            }),
+        );
+    }
+
+    return items;
+}
+
+function normalizeCatalogTerm(commandTerm) {
+    const split = splitFirstToken(commandTerm);
+    return String(split.token || "").trim();
+}
+
+function searchExternalCommandCatalog(commandCatalogAdapter, commandTerm) {
+    const term = normalizeCatalogTerm(commandTerm);
+    if (!commandCatalogAdapter || typeof commandCatalogAdapter !== "object") return [];
+
+    let rawItems = [];
+
+    if (typeof commandCatalogAdapter.searchTerm === "function")
+        rawItems = commandCatalogAdapter.searchTerm(term);
+    else if (typeof commandCatalogAdapter.search === "function")
+        rawItems = commandCatalogAdapter.search({
+            payload: {
+                query: term,
+            },
+        });
+
+    return Array.isArray(rawItems) ? rawItems : [];
+}
+
+function createWebSearchCandidate(query) {
+    const normalizedQuery = String(query || "").trim();
+    if (!normalizedQuery) return null;
+
+    const encodedQuery = encodeURIComponent(normalizedQuery);
+    const url = "https://duckduckgo.com/?q=" + encodedQuery;
+
+    return {
+        id: "web:" + encodedQuery,
+        title: 'Search web for "' + normalizedQuery + '"',
+        subtitle: url,
+        detail: "Open in default browser",
+        iconName: "internet-web-browser",
+        provider: "web",
+        score: 780,
+        action: {
+            type: "shell.command.run",
+            command: 'xdg-open "' + url + '"',
+        },
+    };
+}
+
+function dedupeByIdAndCommand(items) {
+    if (!Array.isArray(items)) return [];
+
+    const normalized = [];
+    const byId = {};
+    const byCommand = {};
+
+    for (let index = 0; index < items.length; index += 1) {
+        const item = items[index];
+        if (!item || typeof item !== "object") continue;
+        if (typeof item.id !== "string" || !item.id) continue;
+
+        const command =
+            item.action && typeof item.action.command === "string"
+                ? lowercase(item.action.command)
+                : "";
+
+        if (byId[item.id]) continue;
+        if (command && byCommand[command]) continue;
+
+        byId[item.id] = true;
+        if (command) byCommand[command] = true;
+        normalized.push(item);
+    }
+
+    return normalized;
 }
 
 function tokenizeExpression(expression) {
@@ -407,6 +720,29 @@ function normalizeProviderModes(rawModes) {
     return modes;
 }
 
+function normalizeProviderRouteKeys(rawRouteKeys) {
+    const source = [];
+    if (Array.isArray(rawRouteKeys)) {
+        for (let index = 0; index < rawRouteKeys.length; index += 1)
+            source.push(rawRouteKeys[index]);
+    } else if (typeof rawRouteKeys === "string") {
+        source.push(rawRouteKeys);
+    }
+
+    const routeKeys = [];
+    const byKey = {};
+
+    for (let index = 0; index < source.length; index += 1) {
+        const routeKey = normalizeRouteKey(source[index]);
+        if (!routeKey) continue;
+        if (byKey[routeKey]) continue;
+        byKey[routeKey] = true;
+        routeKeys.push(routeKey);
+    }
+
+    return routeKeys;
+}
+
 function normalizeProviderSpec(provider, fallbackId, fallbackOrder) {
     if (!provider || typeof provider !== "object") return null;
     if (typeof provider.search !== "function") return null;
@@ -417,11 +753,13 @@ function normalizeProviderSpec(provider, fallbackId, fallbackOrder) {
     const parsedOrder = Number(provider.order);
     const order = Number.isFinite(parsedOrder) ? parsedOrder : Number(fallbackOrder);
     const kind = provider.kind === "async" ? "async" : "sync";
+    const routeKeys = normalizeProviderRouteKeys(provider.routeKeys);
 
     return {
         id: id,
         order: order,
         kind: kind,
+        routeKeys: routeKeys,
         modes: normalizeProviderModes(provider.modes),
         search: provider.search,
     };
@@ -450,6 +788,19 @@ function providerSupportsMode(provider, mode) {
     return provider.modes[mode] === true;
 }
 
+function providerMatchesRoute(provider, routeKey) {
+    const normalizedRouteKey = normalizeRouteKey(routeKey);
+    const providerRouteKeys =
+        provider && Array.isArray(provider.routeKeys) ? provider.routeKeys : [];
+    if (providerRouteKeys.length === 0) return normalizedRouteKey === "default";
+
+    for (let index = 0; index < providerRouteKeys.length; index += 1) {
+        if (normalizeRouteKey(providerRouteKeys[index]) === normalizedRouteKey) return true;
+    }
+
+    return false;
+}
+
 function normalizeProviderItems(rawItems, fallbackProviderId) {
     if (!Array.isArray(rawItems)) return [];
     const normalized = [];
@@ -474,6 +825,9 @@ function normalizeProviderItems(rawItems, fallbackProviderId) {
             score: Number(item.score || 0),
             action: item.action,
         };
+        const parsedPinOrder = Number(item.pinOrder);
+        if (item.pinned !== undefined) normalizedItem.pinned = item.pinned === true;
+        if (Number.isInteger(parsedPinOrder)) normalizedItem.pinOrder = parsedPinOrder;
 
         normalized.push(normalizedItem);
     }
@@ -487,6 +841,7 @@ function createDefaultProviderSpecs() {
             id: "commands.external",
             order: 10,
             kind: "sync",
+            routeKeys: ["default", "cmd"],
             modes: {
                 command: true,
             },
@@ -496,9 +851,41 @@ function createDefaultProviderSpecs() {
             },
         },
         {
+            id: "commands.recent",
+            order: 15,
+            kind: "sync",
+            routeKeys: ["cmd"],
+            modes: {
+                command: true,
+            },
+            search: function (context) {
+                return searchRecentExternalCommands(
+                    context.recentExternalCommands,
+                    context.commandTerm,
+                    20,
+                );
+            },
+        },
+        {
+            id: "commands.command_catalog",
+            order: 18,
+            kind: "sync",
+            routeKeys: ["cmd"],
+            modes: {
+                command: true,
+            },
+            search: function (context) {
+                return searchExternalCommandCatalog(
+                    context.commandCatalogAdapter,
+                    context.commandTerm,
+                );
+            },
+        },
+        {
             id: "commands.catalog",
             order: 20,
             kind: "sync",
+            routeKeys: ["default"],
             modes: {
                 command: true,
             },
@@ -514,11 +901,12 @@ function createDefaultProviderSpecs() {
             id: "calculator.expression",
             order: 10,
             kind: "sync",
+            routeKeys: ["default", "calculator"],
             modes: {
                 query: true,
             },
             search: function (context) {
-                const item = createCalculatorResult(context.query);
+                const item = createCalculatorResult(context.queryTerm);
                 return item ? [item] : [];
             },
         },
@@ -526,6 +914,7 @@ function createDefaultProviderSpecs() {
             id: "apps.catalog",
             order: 20,
             kind: "sync",
+            routeKeys: ["default", "apps"],
             modes: {
                 query: true,
             },
@@ -534,11 +923,24 @@ function createDefaultProviderSpecs() {
                     context.appSearchAdapter &&
                     typeof context.appSearchAdapter.search === "function"
                 ) {
-                    const appItems = context.appSearchAdapter.search(context.command);
+                    const appItems = context.appSearchAdapter.search(context.queryCommand);
                     return Array.isArray(appItems) ? appItems : [];
                 }
 
-                return searchFallbackApps(context.command);
+                return searchFallbackApps(context.queryCommand);
+            },
+        },
+        {
+            id: "web.search",
+            order: 30,
+            kind: "sync",
+            routeKeys: ["web"],
+            modes: {
+                query: true,
+            },
+            search: function (context) {
+                const item = createWebSearchCandidate(context.queryTerm);
+                return item ? [item] : [];
             },
         },
     ];
@@ -568,6 +970,7 @@ function collectProviderItems(providerSpecs, searchContext, onAsyncProviderResul
     for (let index = 0; index < providerSpecs.length; index += 1) {
         const provider = providerSpecs[index];
         if (!providerSupportsMode(provider, searchContext.mode)) continue;
+        if (!providerMatchesRoute(provider, searchContext.routeKey)) continue;
 
         const rawItems = provider.search(searchContext);
         if (provider.kind === "async" || isThenable(rawItems)) {
@@ -614,6 +1017,8 @@ function createSystemLauncherSearchAdapter(options) {
             const maxResults = normalizeMaxResults(config.maxResults);
             const pinnedCommandIds = config.pinnedCommandIds;
             const appSearchAdapter = config.appSearchAdapter;
+            const commandCatalogAdapter = config.commandCatalogAdapter;
+            const recentExternalCommands = config.recentExternalCommands;
             const includeDefaultProviders = config.includeDefaultProviders !== false;
             const customProviderSpecs = normalizeProviderSpecs(config.providers, 100);
             const onAsyncProviderResult =
@@ -621,8 +1026,11 @@ function createSystemLauncherSearchAdapter(options) {
                     ? config.onAsyncProviderResult
                     : null;
 
-            const mode = isCommandModeQuery(query, commandPrefix) ? "command" : "query";
-            const commandTerm = mode === "command" ? stripCommandPrefix(query, commandPrefix) : "";
+            const projection = resolveSearchProjection(query, commandPrefix);
+            const mode = projection.mode;
+            const routeKey = projection.routeKey;
+            const commandTerm = projection.commandTerm;
+            const queryTerm = projection.queryTerm;
 
             const providerSpecs = [];
             if (includeDefaultProviders) {
@@ -637,14 +1045,19 @@ function createSystemLauncherSearchAdapter(options) {
 
             const searchContext = {
                 mode: mode,
+                routeKey: routeKey,
                 query: query,
+                queryTerm: queryTerm,
                 commandTerm: commandTerm,
                 generation: commandGeneration(command),
                 command: command,
+                queryCommand: createQueryCommand(command, queryTerm),
                 commandPrefix: commandPrefix,
                 commandSpecs: commandSpecs,
                 pinnedCommandIds: pinnedCommandIds,
                 appSearchAdapter: appSearchAdapter,
+                commandCatalogAdapter: commandCatalogAdapter,
+                recentExternalCommands: recentExternalCommands,
             };
 
             const merged = collectProviderItems(
@@ -652,8 +1065,9 @@ function createSystemLauncherSearchAdapter(options) {
                 searchContext,
                 onAsyncProviderResult,
             );
-            sortLauncherItems(merged);
-            return limitItems(merged, maxResults);
+            const deduped = dedupeByIdAndCommand(merged);
+            sortLauncherItems(deduped);
+            return limitItems(deduped, maxResults);
         },
     };
 

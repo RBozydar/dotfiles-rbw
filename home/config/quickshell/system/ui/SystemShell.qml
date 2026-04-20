@@ -46,6 +46,10 @@ ShellRoot {
     property var commandExecutionAdapter: QuickshellAdapters.CommandExecutionAdapter {}
     readonly property var commandExecutionPort: CommandExecutionPort.createCommandExecutionPort(commandExecutionAdapter)
     readonly property var launcherAppCatalogAdapter: SearchAdapters.DesktopAppCatalogAdapter {}
+    readonly property var launcherCommandCatalogAdapter: SearchAdapters.CommandCatalogAdapter {}
+    readonly property var launcherWindowAdapter: SearchAdapters.WindowLauncherAdapter {
+        windowSwitcherState: root.windowSwitcherBridge ? root.windowSwitcherBridge.state : null
+    }
     property bool launcherEmojiIntegrationEnabled: true
     property bool launcherClipboardIntegrationEnabled: true
     property bool launcherFileSearchIntegrationEnabled: true
@@ -219,6 +223,12 @@ ShellRoot {
             minArgs: 0,
             maxArgs: 0
         }), IpcContracts.createShellIpcCommandSpec({
+            name: "window_switcher.focus",
+            summary: "Focus a window directly by Hyprland address",
+            usage: "window_switcher.focus <address>",
+            minArgs: 1,
+            maxArgs: 1
+        }), IpcContracts.createShellIpcCommandSpec({
             name: "launcher.activate",
             summary: "Activate one launcher result item by id",
             usage: "launcher.activate <item-id>",
@@ -306,6 +316,18 @@ ShellRoot {
             name: "settings.launcher.unpin_command",
             summary: "Remove a pinned launcher command id",
             usage: "settings.launcher.unpin_command <command-id>",
+            minArgs: 1,
+            maxArgs: 1
+        }), IpcContracts.createShellIpcCommandSpec({
+            name: "settings.launcher.pin_command.move_up",
+            summary: "Move a pinned launcher command id one slot up",
+            usage: "settings.launcher.pin_command.move_up <command-id>",
+            minArgs: 1,
+            maxArgs: 1
+        }), IpcContracts.createShellIpcCommandSpec({
+            name: "settings.launcher.pin_command.move_down",
+            summary: "Move a pinned launcher command id one slot down",
+            usage: "settings.launcher.pin_command.move_down <command-id>",
             minArgs: 1,
             maxArgs: 1
         }), IpcContracts.createShellIpcCommandSpec({
@@ -601,6 +623,9 @@ ShellRoot {
             "window_switcher.describe": function () {
                 return root.describeWindowSwitcher();
             },
+            "window_switcher.focus": function (args) {
+                return root.focusWindowSwitcherByAddress(args[0]);
+            },
             "launcher.activate": function (args) {
                 return root.activateLauncherItemById(args[0]);
             },
@@ -645,6 +670,12 @@ ShellRoot {
             },
             "settings.launcher.unpin_command": function (args) {
                 return root.unpinLauncherCommandSetting(args[0]);
+            },
+            "settings.launcher.pin_command.move_up": function (args) {
+                return root.movePinnedLauncherCommandUpSetting(args[0]);
+            },
+            "settings.launcher.pin_command.move_down": function (args) {
+                return root.movePinnedLauncherCommandDownSetting(args[0]);
             },
             "settings.launcher.personalization.reset": function () {
                 return root.resetLauncherPersonalizationSetting();
@@ -1044,6 +1075,38 @@ ShellRoot {
         };
     }
 
+    function currentLauncherRecentExternalCommands() {
+        const launcherSettings = currentLauncherSettings();
+        const commandPrefix = String(launcherSettings && launcherSettings.commandPrefix !== undefined ? launcherSettings.commandPrefix : ">").trim();
+        const commandModePrefix = commandPrefix + "cmd ";
+        const launcherState = root.settingsStore && root.settingsStore.state && root.settingsStore.state.durableState && root.settingsStore.state.durableState.launcher && typeof root.settingsStore.state.durableState.launcher === "object" ? root.settingsStore.state.durableState.launcher : {
+            queryHistory: []
+        };
+        const queryHistory = Array.isArray(launcherState.queryHistory) ? launcherState.queryHistory : [];
+        const recent = [];
+        const seen = {};
+
+        for (let index = queryHistory.length - 1; index >= 0; index -= 1) {
+            const entry = queryHistory[index];
+            const query = String(entry && entry.query ? entry.query : "").trim();
+            if (!query.startsWith(commandModePrefix))
+                continue;
+            const commandText = query.slice(commandModePrefix.length).trim();
+            if (!commandText)
+                continue;
+            if (seen[commandText])
+                continue;
+
+            seen[commandText] = true;
+            recent.push(commandText);
+
+            if (recent.length >= 120)
+                break;
+        }
+
+        return recent;
+    }
+
     function currentNotificationsPersistenceSummary() {
         const durableState = root.settingsStore && root.settingsStore.state && root.settingsStore.state.durableState && typeof root.settingsStore.state.durableState === "object" ? root.settingsStore.state.durableState : {};
         const notificationsState = durableState.notifications && typeof durableState.notifications === "object" ? durableState.notifications : {
@@ -1242,13 +1305,26 @@ ShellRoot {
     function launcherOptionalProviders() {
         const providers = [];
 
+        if (root.launcherWindowAdapter && typeof root.launcherWindowAdapter.search === "function") {
+            providers.push({
+                id: "core.windows",
+                order: 24,
+                routeKeys: ["default", "windows"],
+                modes: ["query"],
+                search: function (context) {
+                    return root.launcherWindowAdapter.search(context.queryCommand);
+                }
+            });
+        }
+
         if (root.launcherEmojiCatalogAdapter && typeof root.launcherEmojiCatalogAdapter.search === "function") {
             providers.push({
                 id: "optional.emoji",
                 order: 40,
+                routeKeys: ["default", "emoji"],
                 modes: ["query"],
                 search: function (context) {
-                    return root.launcherEmojiCatalogAdapter.search(context.command);
+                    return root.launcherEmojiCatalogAdapter.search(context.queryCommand);
                 }
             });
         }
@@ -1257,9 +1333,10 @@ ShellRoot {
             providers.push({
                 id: "optional.clipboard",
                 order: 50,
+                routeKeys: ["default", "clipboard"],
                 modes: ["query"],
                 search: function (context) {
-                    return root.launcherClipboardHistoryAdapter.search(context.command);
+                    return root.launcherClipboardHistoryAdapter.search(context.queryCommand);
                 }
             });
         }
@@ -1269,9 +1346,10 @@ ShellRoot {
                 id: "optional.file_search",
                 order: 60,
                 kind: "async",
+                routeKeys: ["default", "files"],
                 modes: ["query"],
                 search: function (context) {
-                    return root.launcherFileSearchAdapter.search(context.command);
+                    return root.launcherFileSearchAdapter.search(context.queryCommand);
                 }
             });
         }
@@ -1280,9 +1358,10 @@ ShellRoot {
             providers.push({
                 id: "optional.homeassistant",
                 order: 65,
+                routeKeys: ["default", "homeassistant"],
                 modes: ["query"],
                 search: function (context) {
-                    return root.launcherHomeAssistantAdapter.search(context.command);
+                    return root.launcherHomeAssistantAdapter.search(context.queryCommand);
                 }
             });
         }
@@ -1291,9 +1370,10 @@ ShellRoot {
             providers.push({
                 id: "optional.wallpaper",
                 order: 70,
+                routeKeys: ["default", "wallpaper"],
                 modes: ["query"],
                 search: function (context) {
-                    return root.launcherWallpaperCatalogAdapter.search(context.command);
+                    return root.launcherWallpaperCatalogAdapter.search(context.queryCommand);
                 }
             });
         }
@@ -1315,6 +1395,8 @@ ShellRoot {
                 "commandSpecs": root.shellIpcCommandSpecs,
                 "pinnedCommandIds": launcherSettings.pinnedCommandIds,
                 "appSearchAdapter": root.launcherAppCatalogAdapter,
+                "commandCatalogAdapter": root.launcherCommandCatalogAdapter,
+                "recentExternalCommands": currentLauncherRecentExternalCommands(),
                 "providers": root.launcherOptionalProviders(),
                 "onAsyncProviderResult": function (event) {
                     root.handleLauncherAsyncProviderPending(event);
@@ -1435,12 +1517,107 @@ ShellRoot {
         return outcome;
     }
 
+    function previewLauncherItemById(itemId) {
+        const normalizedId = String(itemId || "");
+        if (!normalizedId) {
+            return OperationOutcomes.rejected({
+                code: "launcher.preview.item_required",
+                reason: "launcher.preview requires an item id",
+                targetId: "launcher"
+            });
+        }
+
+        return LauncherActivationUseCases.previewLauncherItem(launcherActivationDeps(), root.launcherStore, normalizedId);
+    }
+
     function activateLauncherItemFromUi(itemId) {
         const outcome = activateLauncherItemById(itemId);
 
         if (outcome && outcome.status === "applied")
             setLauncherOverlayOpen(false, "launcher.overlay.closed");
 
+        return outcome;
+    }
+
+    function previewLauncherItemFromUi(itemId) {
+        return previewLauncherItemById(itemId);
+    }
+
+    function launcherCurrentQuery() {
+        const launcherState = root.launcherState && typeof root.launcherState === "object" ? root.launcherState : {};
+        return String(launcherState.query || "");
+    }
+
+    function refreshLauncherQueryFromUi(sourceCode) {
+        return runLauncherSearchQuery(launcherCurrentQuery(), sourceCode === undefined ? "launcher.ui.refresh" : String(sourceCode));
+    }
+
+    function launcherPinnedCommandIds() {
+        const launcherSettings = currentLauncherSettings();
+        return Array.isArray(launcherSettings.pinnedCommandIds) ? launcherSettings.pinnedCommandIds : [];
+    }
+
+    function indexOfPinnedLauncherCommand(commandName) {
+        const normalizedCommand = String(commandName || "").trim();
+        if (!normalizedCommand)
+            return -1;
+
+        const pinnedCommandIds = launcherPinnedCommandIds();
+        for (let index = 0; index < pinnedCommandIds.length; index += 1) {
+            if (String(pinnedCommandIds[index]) === normalizedCommand)
+                return index;
+        }
+
+        return -1;
+    }
+
+    function isLauncherCommandPinned(commandName) {
+        return indexOfPinnedLauncherCommand(commandName) >= 0;
+    }
+
+    function canMovePinnedLauncherCommand(commandName, direction) {
+        const pinnedIndex = indexOfPinnedLauncherCommand(commandName);
+        if (pinnedIndex < 0)
+            return false;
+
+        const normalizedDirection = Number(direction);
+        const pinnedCount = launcherPinnedCommandIds().length;
+        if (normalizedDirection < 0)
+            return pinnedIndex > 0;
+        if (normalizedDirection > 0)
+            return pinnedIndex >= 0 && pinnedIndex < pinnedCount - 1;
+        return false;
+    }
+
+    function toggleLauncherCommandPinFromUi(commandName) {
+        const normalizedCommand = String(commandName || "").trim();
+        if (!normalizedCommand) {
+            return OperationOutcomes.rejected({
+                code: "settings.launcher.pin_command.invalid",
+                reason: "Pinned command id must be non-empty",
+                targetId: "shell"
+            });
+        }
+
+        const outcome = isLauncherCommandPinned(normalizedCommand) ? unpinLauncherCommandSetting(normalizedCommand) : pinLauncherCommandSetting(normalizedCommand);
+
+        if (outcome && outcome.status === "applied")
+            refreshLauncherQueryFromUi("launcher.ui.pin.toggle");
+
+        return outcome;
+    }
+
+    function movePinnedLauncherCommandUpFromUi(commandName) {
+        const outcome = movePinnedLauncherCommandUpSetting(commandName);
+        if (outcome && outcome.status === "applied")
+            refreshLauncherQueryFromUi("launcher.ui.pin.move_up");
+        return outcome;
+    }
+
+    function movePinnedLauncherCommandDownFromUi(commandName) {
+        const outcome = movePinnedLauncherCommandDownSetting(commandName);
+        if (outcome && outcome.status === "applied")
+            refreshLauncherQueryFromUi("launcher.ui.pin.move_down");
         return outcome;
     }
 
@@ -1485,10 +1662,13 @@ ShellRoot {
     }
 
     function describeLauncherCatalog() {
-        if (!root.launcherAppCatalogAdapter || typeof root.launcherAppCatalogAdapter.describe !== "function") {
+        const appCatalogAvailable = root.launcherAppCatalogAdapter && typeof root.launcherAppCatalogAdapter.describe === "function";
+        const commandCatalogAvailable = root.launcherCommandCatalogAdapter && typeof root.launcherCommandCatalogAdapter.describe === "function";
+
+        if (!appCatalogAvailable && !commandCatalogAvailable) {
             return OperationOutcomes.rejected({
                 code: "launcher.catalog.adapter_unavailable",
-                reason: "Launcher app catalog adapter is unavailable",
+                reason: "Launcher catalog adapters are unavailable",
                 targetId: "launcher"
             });
         }
@@ -1497,7 +1677,8 @@ ShellRoot {
             code: "launcher.catalog.snapshot",
             targetId: "launcher",
             meta: {
-                catalog: root.launcherAppCatalogAdapter.describe()
+                appCatalog: appCatalogAvailable ? root.launcherAppCatalogAdapter.describe() : null,
+                commandCatalog: commandCatalogAvailable ? root.launcherCommandCatalogAdapter.describe() : null
             }
         });
     }
@@ -2039,6 +2220,16 @@ ShellRoot {
     function unpinLauncherCommandSetting(commandId) {
         const outcome = SettingsUpdateUseCases.unpinLauncherCommand(settingsUpdateDeps(), root.settingsStore, commandId);
         return finalizeSettingsMutation(outcome, "settings.launcher.unpin_command.updated");
+    }
+
+    function movePinnedLauncherCommandUpSetting(commandId) {
+        const outcome = SettingsUpdateUseCases.movePinnedLauncherCommandUp(settingsUpdateDeps(), root.settingsStore, commandId);
+        return finalizeSettingsMutation(outcome, "settings.launcher.pin_command.move_up.updated");
+    }
+
+    function movePinnedLauncherCommandDownSetting(commandId) {
+        const outcome = SettingsUpdateUseCases.movePinnedLauncherCommandDown(settingsUpdateDeps(), root.settingsStore, commandId);
+        return finalizeSettingsMutation(outcome, "settings.launcher.pin_command.move_down.updated");
     }
 
     function resetLauncherPersonalizationSetting() {
@@ -2960,6 +3151,14 @@ ShellRoot {
             return guard;
 
         return root.windowSwitcherBridge.accept("shell.ipc.window_switcher.accept");
+    }
+
+    function focusWindowSwitcherByAddress(address) {
+        const guard = ensureWindowSwitcherBridgeMethod("focusAddress", "window_switcher.bridge_unavailable");
+        if (guard)
+            return guard;
+
+        return root.windowSwitcherBridge.focusAddress(String(address || ""), "shell.ipc.window_switcher.focus");
     }
 
     function cancelWindowSwitcher() {

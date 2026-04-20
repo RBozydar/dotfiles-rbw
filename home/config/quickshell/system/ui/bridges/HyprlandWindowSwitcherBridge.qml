@@ -68,6 +68,12 @@ Scope {
         return outcome;
     }
 
+    function focusAddress(address, sourceCode) {
+        const outcome = WindowSwitcherUseCases.focusWindowByAddress(useCaseDeps(), root.store, address, sourceCode === undefined ? "window_switcher.focus.bridge" : String(sourceCode));
+        commitStoreRevision();
+        return outcome;
+    }
+
     function cancel(sourceCode) {
         const outcome = WindowSwitcherUseCases.cancelWindowSwitcherSelection(useCaseDeps(), root.store, sourceCode === undefined ? "window_switcher.cancel.bridge" : String(sourceCode));
         commitStoreRevision();

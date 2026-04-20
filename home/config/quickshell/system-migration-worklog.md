@@ -1800,3 +1800,110 @@ Validation snapshot:
     - `shellctl launcher.describe` (apps now ranked ahead of file hits)
 - runtime refresh:
     - `/home/rbw/repo/dotfiles-rbw/home/config/quickshell/scripts/restart-quickshell.sh`
+
+### Launcher Routed Commands + File Preview (2026-04-20)
+
+- Delivered launcher routed-command behavior and external command autocomplete:
+    - command routing in `system-launcher-search-adapter.js` now supports:
+      `>cmd`, `>web`, `>emoji`, `>clip`, `>file`, `>home`, `>wall`, `>app`,
+      plus generic `>` command mode fallback.
+    - integrated `CommandCatalogAdapter` into launcher search deps and added
+      command catalog model support for empty-query suggestion lists.
+    - added query-history-backed recent external command suggestions in `>cmd`
+      mode (deduped, recency-ordered).
+- Delivered command-mode autocomplete improvements:
+    - `launcher-overlay-controller.js` command autocomplete now supports
+      both `shell.ipc.dispatch` and `shell.command.run` results.
+    - `>cmd` autocomplete now preserves routed prefix (`>cmd <command>`).
+- Delivered file quick-preview action:
+    - added `previewLauncherItem` use case path in
+      `core/application/launcher/activate-launcher-item.js`.
+    - file preview dispatch now uses `sushi <path>` for `file.open` entries.
+    - launcher overlay adds preview navigation intent (`Ctrl+Space`) for
+      highlighted file items without closing the launcher.
+- Delivered launcher catalog diagnostics expansion:
+    - `launcher.catalog.describe` now returns both app catalog and command
+      catalog diagnostics when available.
+
+Validation snapshot:
+
+- `make -C home/config/quickshell format`
+- `make -C home/config/quickshell lint`
+- `make -C home/config/quickshell qmltest`
+- `make -C /home/rbw/repo/dotfiles-rbw/home/config/quickshell verify`
+    - functional checks passed through architecture/tests/smoke/integration.
+    - blocked at review stage by stale secondary-review evidence fingerprint
+      (`home/config/quickshell/.review/evidence/codex-secondary.json` mismatch).
+- live IPC probes (outside sandbox):
+    - `/home/rbw/repo/dotfiles-rbw/home/config/quickshell/scripts/shellctl launcher.search '>cmd fire'`
+    - `/home/rbw/repo/dotfiles-rbw/home/config/quickshell/scripts/shellctl launcher.search '>emoji grin'`
+    - `/home/rbw/repo/dotfiles-rbw/home/config/quickshell/scripts/shellctl launcher.search '>web quickshell launcher'`
+
+### Launcher Pinned Command Reorder Controls (2026-04-20)
+
+- Implemented explicit pinned-command ordering controls (decision path `B`):
+    - added new settings mutations in `update-settings.js`:
+      `movePinnedLauncherCommandUp` and `movePinnedLauncherCommandDown`.
+    - exposed new command-surface entries:
+      `settings.launcher.pin_command.move_up <command-id>` and
+      `settings.launcher.pin_command.move_down <command-id>`.
+- Added launcher UI control path for manual + shortcut pin operations:
+    - launcher overlay keyboard controls:
+      `Ctrl+Shift+P` toggle pin for highlighted stable IPC command,
+      `Ctrl+Shift+↑/↓` reorder pinned command.
+    - `SystemShell` now exposes UI helpers for pin-state checks and pin
+      mutations with immediate query refresh to keep ordering feedback visible.
+- Updated launcher command ranking behavior:
+    - command search adapter now preserves explicit pinned-id order and applies
+      deterministic order-aware score boosts among pinned commands.
+- Test coverage updates:
+    - `tst_SettingsMutationSlice.qml`: move up/down reorder behavior and noop
+      edge cases.
+    - `tst_LauncherSearchAdapterSlice.qml`: pinned command ordering respected in
+      command-mode ranking.
+    - `tst_LauncherOverlayControllerSlice.qml`: keyboard intent mapping for pin
+      toggle/reorder and non-actionable noop behavior.
+
+Validation snapshot:
+
+- `make -C /home/rbw/repo/dotfiles-rbw/home/config/quickshell format`
+- `make -C /home/rbw/repo/dotfiles-rbw/home/config/quickshell lint`
+- `make -C /home/rbw/repo/dotfiles-rbw/home/config/quickshell qmltest`
+- `make -C /home/rbw/repo/dotfiles-rbw/home/config/quickshell arch-check`
+- live IPC checks:
+    - `/home/rbw/repo/dotfiles-rbw/home/config/quickshell/scripts/shellctl commands`
+    - `/home/rbw/repo/dotfiles-rbw/home/config/quickshell/scripts/shellctl settings.launcher.pin_command.move_down settings.reload`
+    - `/home/rbw/repo/dotfiles-rbw/home/config/quickshell/scripts/shellctl settings.describe`
+
+### Launcher Windows Provider + Pin Section Parity (2026-04-21)
+
+- Delivered launcher windows provider route parity:
+    - command routing now maps `>win`, `>window`, and `>windows` to query-mode
+      `windows` route key in `system-launcher-search-adapter.js`.
+    - `WindowLauncherAdapter` now participates in launcher provider registry
+      and returns `shell.ipc.dispatch` focus actions bound to
+      `window_switcher.focus <address>`.
+    - window switcher core use case now includes explicit
+      `focusWindowByAddress(...)` flow with rejected/failed/applied outcomes
+      and bridge wiring.
+- Delivered pinned-section UX parity for launcher:
+    - launcher selectors now materialize a top `Pinned` section for stable IPC
+      command items only (zero-arg dispatch actions), sorted by explicit pin
+      order and deduplicated from provider sections.
+    - pinned metadata (`pinned`, `pinOrder`) is preserved through launcher item
+      normalization and score projection so UI sectioning remains deterministic.
+    - launcher result cards now render a visible pin badge and keyboard
+      pin/reorder controls are gated to stable IPC command actions only.
+- Test coverage updates:
+    - added `tst_WindowLauncherModelSlice.qml`.
+    - added `tst_LauncherSectionSelectorSlice.qml`.
+    - extended `tst_LauncherSearchAdapterSlice.qml` for pin metadata and
+      `>win` route behavior.
+    - extended `tst_WindowSwitcherSlice.qml` for direct focus flow.
+
+Validation snapshot:
+
+- `make -C /home/rbw/repo/dotfiles-rbw/home/config/quickshell format`
+- `make -C /home/rbw/repo/dotfiles-rbw/home/config/quickshell lint`
+- `make -C /home/rbw/repo/dotfiles-rbw/home/config/quickshell qmltest`
+- `make -C /home/rbw/repo/dotfiles-rbw/home/config/quickshell arch-check`

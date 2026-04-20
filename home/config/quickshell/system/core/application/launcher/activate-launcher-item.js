@@ -252,6 +252,27 @@ function activateClipboardHistoryCopyAction(deps, action, item) {
     );
 }
 
+function previewFileAction(deps, action, item) {
+    const path = String(action.targetId || "").trim();
+    if (!path) {
+        return deps.outcomes.rejected({
+            code: "launcher.preview.file_target_missing",
+            reason: "File preview action requires a path",
+            targetId: item.id,
+        });
+    }
+
+    return dispatchExternalCommand(
+        deps,
+        ["sushi", path],
+        item.id,
+        "launcher.preview.file_dispatched",
+        {
+            path: path,
+        },
+    );
+}
+
 function activateLauncherItem(deps, store, itemId) {
     const item = findResultById(store, itemId);
     if (!item) {
@@ -281,6 +302,28 @@ function activateLauncherItem(deps, store, itemId) {
     return deps.outcomes.rejected({
         code: "launcher.activate.unsupported_action",
         reason: "Unsupported launcher action type: " + String(action.type),
+        targetId: validatedItem.id,
+    });
+}
+
+function previewLauncherItem(deps, store, itemId) {
+    const item = findResultById(store, itemId);
+    if (!item) {
+        return deps.outcomes.stale({
+            code: "launcher.preview.item_missing",
+            reason: "Launcher item is no longer present in current results",
+            targetId: String(itemId || ""),
+        });
+    }
+
+    const validatedItem = deps.validateLauncherItem(item);
+    const action = validatedItem.action;
+
+    if (action.type === "file.open") return previewFileAction(deps, action, validatedItem);
+
+    return deps.outcomes.rejected({
+        code: "launcher.preview.unsupported_action",
+        reason: "Unsupported launcher preview action type: " + String(action.type),
         targetId: validatedItem.id,
     });
 }

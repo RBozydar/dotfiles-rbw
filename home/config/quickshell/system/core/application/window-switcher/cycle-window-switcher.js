@@ -2,6 +2,11 @@ function normalizeDirection(direction) {
     return Number(direction) < 0 ? -1 : 1;
 }
 
+function errorReason(error, fallbackReason) {
+    if (error && error.message) return String(error.message);
+    return String(fallbackReason);
+}
+
 function findIndexByAddress(entries, address) {
     const normalizedAddress = String(address || "").trim();
     if (!normalizedAddress) return -1;
@@ -257,6 +262,62 @@ function acceptWindowSwitcherSelection(deps, store, sourceCode) {
         outcome,
     );
 
+    return outcome;
+}
+
+function focusWindowByAddress(deps, store, address, sourceCode) {
+    const state = store && store.state ? store.state : null;
+    const entries = state && Array.isArray(state.entries) ? state.entries : [];
+    let focusCommand = null;
+
+    try {
+        focusCommand = deps.createFocusWindowCommand(address);
+        deps.validateFocusWindowCommand(focusCommand);
+    } catch (error) {
+        return deps.outcomes.rejected({
+            code: "window_switcher.focus.invalid_address",
+            targetId: "window_switcher",
+            reason: errorReason(error, "Window focus command requires a non-empty address"),
+            meta: {
+                source: sourceCode === undefined ? "window_switcher.focus" : String(sourceCode),
+            },
+        });
+    }
+
+    try {
+        deps.dispatchFocusWindow(focusCommand);
+    } catch (error) {
+        return deps.outcomes.failed({
+            code: "window_switcher.focus.dispatch_failed",
+            targetId: "window_switcher",
+            reason: errorReason(error, "Window focus dispatch failed"),
+            meta: {
+                source: sourceCode === undefined ? "window_switcher.focus" : String(sourceCode),
+                address: String(focusCommand.payload.address || ""),
+            },
+        });
+    }
+
+    const focusedAddress = String(focusCommand.payload.address || "");
+    const outcome = deps.outcomes.applied({
+        code: "window_switcher.focused",
+        targetId: "window_switcher",
+        meta: {
+            source: sourceCode === undefined ? "window_switcher.focus" : String(sourceCode),
+            address: focusedAddress,
+        },
+    });
+
+    store.applyState(
+        {
+            open: false,
+            entries: entries,
+            focusedAddress: focusedAddress,
+            selectedIndex: -1,
+            selectedAddress: "",
+        },
+        outcome,
+    );
     return outcome;
 }
 

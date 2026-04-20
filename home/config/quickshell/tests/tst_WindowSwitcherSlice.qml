@@ -51,13 +51,19 @@ TestCase {
         ];
     }
 
-    function createDeps(dispatchCalls) {
+    function createDeps(dispatchCalls, options) {
+        const config = options && typeof options === "object" ? options : {};
+
         return {
             validateWindowSwitcherSnapshot: WindowSwitcherContracts.validateWindowSwitcherSnapshot,
             createFocusWindowCommand: WindowSwitcherContracts.createFocusWindowCommand,
             validateFocusWindowCommand: WindowSwitcherContracts.validateFocusWindowCommand,
             pickInitialSelectionIndex: WindowSwitcherAdapter.pickInitialSelectionIndex,
             dispatchFocusWindow: function (command) {
+                if (typeof config.dispatchFocusWindow === "function") {
+                    config.dispatchFocusWindow(command);
+                    return;
+                }
                 dispatchCalls.push(command);
             },
             outcomes: OperationOutcomes
@@ -164,6 +170,56 @@ TestCase {
         compare(outcome.code, "window_switcher.cancelled");
         compare(dispatchCalls.length, 0);
         compare(store.state.open, false);
+    }
+
+    function test_focusWindowByAddress_dispatches_focus_and_closes_overlay_state() {
+        const store = WindowSwitcherStore.createWindowSwitcherStore();
+        const dispatchCalls = [];
+        const deps = createDeps(dispatchCalls);
+        const snapshot = WindowSwitcherAdapter.createSnapshotFromObjects(sampleClients(), {
+            address: "0x2"
+        });
+
+        WindowSwitcherUseCases.cycleWindowSwitcher(deps, store, snapshot, 1, "test.focus.open");
+        compare(store.state.open, true);
+        const outcome = WindowSwitcherUseCases.focusWindowByAddress(deps, store, "0x1", "test.focus");
+
+        compare(outcome.status, "applied");
+        compare(outcome.code, "window_switcher.focused");
+        compare(dispatchCalls.length, 1);
+        compare(dispatchCalls[0].payload.address, "0x1");
+        compare(store.state.open, false);
+        compare(store.state.focusedAddress, "0x1");
+        compare(store.state.selectedIndex, -1);
+        compare(store.state.selectedAddress, "");
+    }
+
+    function test_focusWindowByAddress_rejects_empty_address() {
+        const store = WindowSwitcherStore.createWindowSwitcherStore();
+        const dispatchCalls = [];
+        const deps = createDeps(dispatchCalls);
+
+        const outcome = WindowSwitcherUseCases.focusWindowByAddress(deps, store, "", "test.focus.invalid");
+
+        compare(outcome.status, "rejected");
+        compare(outcome.code, "window_switcher.focus.invalid_address");
+        compare(dispatchCalls.length, 0);
+    }
+
+    function test_focusWindowByAddress_returns_failed_when_dispatch_throws() {
+        const store = WindowSwitcherStore.createWindowSwitcherStore();
+        const dispatchCalls = [];
+        const deps = createDeps(dispatchCalls, {
+            dispatchFocusWindow: function () {
+                throw new Error("dispatch unavailable");
+            }
+        });
+
+        const outcome = WindowSwitcherUseCases.focusWindowByAddress(deps, store, "0x1", "test.focus.failed");
+
+        compare(outcome.status, "failed");
+        compare(outcome.code, "window_switcher.focus.dispatch_failed");
+        verify(String(outcome.reason || "").indexOf("dispatch unavailable") >= 0);
     }
 
     name: "WindowSwitcherSlice"

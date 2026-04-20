@@ -15,16 +15,17 @@ TestCase {
             pageUp: Qt.Key_PageUp,
             home: Qt.Key_Home,
             end: Qt.Key_End,
+            space: Qt.Key_Space,
             returnKey: Qt.Key_Return,
             enter: Qt.Key_Enter
         };
     }
 
-    function sampleCommandItem(commandName) {
+    function sampleCommandItem(commandName, actionType) {
         return {
             id: "ipc:" + commandName,
             action: {
-                type: "shell.ipc.dispatch",
+                type: actionType === undefined ? "shell.ipc.dispatch" : actionType,
                 command: commandName
             }
         };
@@ -49,12 +50,17 @@ TestCase {
             }
         }), "");
         compare(LauncherOverlayController.commandAutocompleteCandidate(">set", ">", sampleCommandItem("settings.reload")), "settings.reload");
+        compare(LauncherOverlayController.commandAutocompleteCandidate(">cmd py", ">", sampleCommandItem("python", "shell.command.run")), "python");
     }
 
     function test_autocompleteQuery_applies_when_candidate_exists() {
         const applied = LauncherOverlayController.autocompleteQuery(">set", ">", sampleCommandItem("settings.reload"));
         compare(applied.applied, true);
         compare(applied.query, ">settings.reload");
+
+        const commandApplied = LauncherOverlayController.autocompleteQuery(">cmd py", ">", sampleCommandItem("python", "shell.command.run"));
+        compare(commandApplied.applied, true);
+        compare(commandApplied.query, ">cmd python");
 
         const skipped = LauncherOverlayController.autocompleteQuery("set", ">", sampleCommandItem("settings.reload"));
         compare(skipped.applied, false);
@@ -76,6 +82,47 @@ TestCase {
             keyCodes: keyCodes()
         });
         compare(action.kind, "autocomplete");
+
+        action = LauncherOverlayController.decideNavigationAction({
+            key: Qt.Key_Space,
+            controlPressed: true,
+            hasPreviewCandidate: true,
+            totalItemCount: 4,
+            keyCodes: keyCodes()
+        });
+        compare(action.kind, "preview");
+
+        action = LauncherOverlayController.decideNavigationAction({
+            key: Qt.Key_P,
+            controlPressed: true,
+            shiftPressed: true,
+            hasPinCandidate: true,
+            totalItemCount: 4,
+            keyCodes: keyCodes()
+        });
+        compare(action.kind, "pin_toggle");
+
+        action = LauncherOverlayController.decideNavigationAction({
+            key: Qt.Key_Up,
+            controlPressed: true,
+            shiftPressed: true,
+            hasPinCandidate: true,
+            canMovePinUp: true,
+            totalItemCount: 4,
+            keyCodes: keyCodes()
+        });
+        compare(action.kind, "pin_move_up");
+
+        action = LauncherOverlayController.decideNavigationAction({
+            key: Qt.Key_Down,
+            controlPressed: true,
+            shiftPressed: true,
+            hasPinCandidate: true,
+            canMovePinDown: true,
+            totalItemCount: 4,
+            keyCodes: keyCodes()
+        });
+        compare(action.kind, "pin_move_down");
 
         action = LauncherOverlayController.decideNavigationAction({
             key: Qt.Key_N,
@@ -137,6 +184,16 @@ TestCase {
         action = LauncherOverlayController.decideNavigationAction({
             key: Qt.Key_Return,
             totalItemCount: 0,
+            keyCodes: keyCodes()
+        });
+        compare(action.kind, "noop");
+
+        action = LauncherOverlayController.decideNavigationAction({
+            key: Qt.Key_P,
+            controlPressed: true,
+            shiftPressed: true,
+            hasPinCandidate: false,
+            totalItemCount: 4,
             keyCodes: keyCodes()
         });
         compare(action.kind, "noop");

@@ -30,11 +30,36 @@ function commandAutocompleteCandidate(queryText, commandPrefix, highlightedItem)
     if (!isCommandModeQuery(queryText, commandPrefix)) return "";
 
     const item = highlightedItem && typeof highlightedItem === "object" ? highlightedItem : null;
-    if (!item || !item.action || item.action.type !== "shell.ipc.dispatch") return "";
+    if (!item || !item.action) return "";
+    if (item.action.type !== "shell.ipc.dispatch" && item.action.type !== "shell.command.run")
+        return "";
 
     const commandName = String(item.action.command || "").trim();
     if (!commandName) return "";
     return commandName;
+}
+
+function resolveAutocompletePrefix(queryText, commandPrefix, highlightedItem) {
+    const normalizedPrefix = String(commandPrefix || "").trim();
+    if (!normalizedPrefix) return "";
+
+    const item = highlightedItem && typeof highlightedItem === "object" ? highlightedItem : null;
+    const actionType = item && item.action ? String(item.action.type || "") : "";
+    if (actionType !== "shell.command.run") return normalizedPrefix;
+
+    const commandModeTerm = String(queryText || "")
+        .trim()
+        .slice(normalizedPrefix.length)
+        .trim();
+    const splitIndex = commandModeTerm.search(/\s/);
+    const token = splitIndex < 0 ? commandModeTerm : commandModeTerm.slice(0, splitIndex);
+    const normalizedToken = String(token || "")
+        .trim()
+        .toLowerCase();
+    if (normalizedToken === "cmd" || normalizedToken === "command" || normalizedToken === "exec")
+        return normalizedPrefix + "cmd ";
+
+    return normalizedPrefix;
 }
 
 function autocompleteQuery(queryText, commandPrefix, highlightedItem) {
@@ -54,9 +79,10 @@ function autocompleteQuery(queryText, commandPrefix, highlightedItem) {
         };
     }
 
+    const prefix = resolveAutocompletePrefix(queryText, normalizedPrefix, highlightedItem);
     return {
         applied: true,
-        query: normalizedPrefix + commandName,
+        query: prefix + commandName,
     };
 }
 
@@ -75,10 +101,16 @@ function decideNavigationAction(input) {
     const keyPageUp = Number(keyCodes.pageUp);
     const keyHome = Number(keyCodes.home);
     const keyEnd = Number(keyCodes.end);
+    const keySpace = Number(keyCodes.space);
     const keyReturn = Number(keyCodes.returnKey);
     const keyEnter = Number(keyCodes.enter);
     const controlPressed = context.controlPressed === true;
+    const shiftPressed = context.shiftPressed === true;
     const hasAutocompleteCandidate = context.hasAutocompleteCandidate === true;
+    const hasPreviewCandidate = context.hasPreviewCandidate === true;
+    const hasPinCandidate = context.hasPinCandidate === true;
+    const canMovePinUp = context.canMovePinUp === true;
+    const canMovePinDown = context.canMovePinDown === true;
     const totalItemCount = normalizeTotalItemCount(context.totalItemCount);
 
     if (key === keyEscape)
@@ -90,13 +122,44 @@ function decideNavigationAction(input) {
         return {
             kind: "autocomplete",
         };
+    if (controlPressed && key === keySpace && hasPreviewCandidate)
+        return {
+            kind: "preview",
+        };
+    if (controlPressed && shiftPressed && key === keyP) {
+        if (hasPinCandidate)
+            return {
+                kind: "pin_toggle",
+            };
+        return {
+            kind: "noop",
+        };
+    }
+    if (controlPressed && shiftPressed && key === keyUp) {
+        if (hasPinCandidate && canMovePinUp)
+            return {
+                kind: "pin_move_up",
+            };
+        return {
+            kind: "noop",
+        };
+    }
+    if (controlPressed && shiftPressed && key === keyDown) {
+        if (hasPinCandidate && canMovePinDown)
+            return {
+                kind: "pin_move_down",
+            };
+        return {
+            kind: "noop",
+        };
+    }
 
-    if (controlPressed && key === keyN)
+    if (controlPressed && !shiftPressed && key === keyN)
         return {
             kind: "move",
             delta: 1,
         };
-    if (controlPressed && key === keyP)
+    if (controlPressed && !shiftPressed && key === keyP)
         return {
             kind: "move",
             delta: -1,

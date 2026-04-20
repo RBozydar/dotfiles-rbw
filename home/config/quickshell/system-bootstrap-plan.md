@@ -20,7 +20,7 @@ The bootstrap is successful when:
 - Hyprland and Quickshell are contained behind explicit roles
 - the launcher can be built as a subsystem, not as the architecture
 
-## Roadmap Status (as of 2026-04-20)
+## Roadmap Status (as of 2026-04-21)
 
 - Phase 0 (`Foundation`): completed
     - `system/` scaffold, ADR set, architecture guardrails, and verification harness are in place.
@@ -56,6 +56,26 @@ The bootstrap is successful when:
       launcher overlay surface + bar entrypoint + launcher IPC open/close/toggle command path, keyboard navigation (including command-mode tab completion), highlighted-item auto-scroll, and richer result rendering with icon/detail metadata.
     - delivered async-provider timeout governance + diagnostics:
       pending-registry tracking with timeout sweeps, late-result suppression, failure history capture, and diagnostics command (`launcher.providers.describe`).
+    - delivered routed launcher command surface and command-execution suggestions:
+      `>cmd`, `>web`, `>emoji`, `>clip`, `>file`, `>home`, `>wall`, `>app` routing,
+      command-catalog adapter integration, and query-history-backed recent external command suggestions.
+    - delivered launcher file quick-preview action:
+      highlighted `file.open` results now support preview dispatch (`sushi`) via
+      launcher overlay navigation (`Ctrl+Space`) without closing the launcher.
+    - delivered explicit pinned-command ordering controls:
+      `settings.launcher.pin_command.move_up` and
+      `settings.launcher.pin_command.move_down` are now part of the command
+      surface, launcher command ranking now respects pin order, and launcher UI
+      provides day-1 keyboard controls (`Ctrl+Shift+P`, `Ctrl+Shift+↑/↓`) for
+      manual pin toggle/reorder on stable IPC commands.
+    - delivered launcher windows provider parity slice:
+      launcher search now supports `>win` / `>window` / `>windows` route aliases,
+      can surface live compositor windows as launcher results, and dispatches
+      direct focus through `window_switcher.focus <address>`.
+    - delivered pinned-section UX parity slice:
+      pinned stable IPC commands now render in a dedicated `Pinned` section at
+      top of launcher results with duplicate suppression in provider sections,
+      and pinned metadata survives normalization + scoring projections.
 - Phase 5 (`Notifications Subsystem`): completed for planned core scope
     - delivered notification policy depth:
       replace-by-id handling, content deduplication windowing, repeat-count tracking, and policy diagnostics in ingest outcomes.

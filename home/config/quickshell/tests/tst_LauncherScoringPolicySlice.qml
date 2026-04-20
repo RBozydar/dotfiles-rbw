@@ -81,6 +81,30 @@ TestCase {
         compare(scored[0].iconName, "firefox");
     }
 
+    function test_scoreLauncherItems_preserves_pin_metadata() {
+        const item = {
+            id: "ipc:settings.reload",
+            title: "settings.reload",
+            subtitle: "Reload settings",
+            provider: "commands",
+            score: 400,
+            pinned: true,
+            pinOrder: 2,
+            action: {
+                type: "shell.ipc.dispatch",
+                command: "settings.reload",
+                args: []
+            }
+        };
+        const scored = LauncherScoringPolicy.scoreLauncherItems([item], "set", {
+            nowIso: "2026-04-20T12:00:00.000Z"
+        });
+
+        compare(scored.length, 1);
+        compare(scored[0].pinned, true);
+        compare(scored[0].pinOrder, 2);
+    }
+
     function test_scoreLauncherItems_prefers_exact_app_match_over_file_candidates() {
         const items = [
             {

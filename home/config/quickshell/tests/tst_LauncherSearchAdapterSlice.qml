@@ -18,6 +18,13 @@ TestCase {
                 usage: "settings.reload",
                 minArgs: 0,
                 maxArgs: 0
+            },
+            {
+                name: "launcher.toggle",
+                summary: "Toggle launcher overlay",
+                usage: "launcher.toggle",
+                minArgs: 0,
+                maxArgs: 0
             }
         ];
     }
@@ -97,6 +104,126 @@ TestCase {
 
         verify(items.length >= 1);
         compare(items[0].id, "ipc:settings.reload");
+    }
+
+    function test_command_mode_exposes_pin_metadata_for_pinned_items() {
+        const adapter = SystemLauncherSearchAdapter.createSystemLauncherSearchAdapter({
+            "commandPrefix": ">",
+            "maxResults": 8,
+            "commandSpecs": commandSpecs(),
+            "pinnedCommandIds": ["settings.reload"]
+        });
+        const items = adapter.search({
+            payload: {
+                query: ">settings"
+            }
+        });
+        const pinnedItem = findItemById(items, "ipc:settings.reload");
+
+        verify(pinnedItem !== null);
+        compare(pinnedItem.pinned, true);
+        compare(pinnedItem.pinOrder, 0);
+    }
+
+    function test_command_mode_respects_explicit_pinned_command_order() {
+        const adapter = SystemLauncherSearchAdapter.createSystemLauncherSearchAdapter({
+            "commandPrefix": ">",
+            "maxResults": 8,
+            "commandSpecs": commandSpecs(),
+            "pinnedCommandIds": ["launcher.toggle", "settings.reload"]
+        });
+        const items = adapter.search({
+            payload: {
+                query: ">"
+            }
+        });
+
+        verify(items.length >= 2);
+        compare(items[0].id, "ipc:launcher.toggle");
+        compare(items[1].id, "ipc:settings.reload");
+    }
+
+    function test_cmd_route_returns_external_catalog_without_ipc_commands() {
+        const adapter = SystemLauncherSearchAdapter.createSystemLauncherSearchAdapter({
+            "commandPrefix": ">",
+            "maxResults": 12,
+            "commandSpecs": commandSpecs(),
+            "recentExternalCommands": ["python -m http.server"],
+            "commandCatalogAdapter": {
+                "searchTerm": function () {
+                    return [createItem("cmd:firefox", "firefox", "commands", 320, {
+                            type: "shell.command.run",
+                            command: "firefox"
+                        })];
+                }
+            }
+        });
+        const items = adapter.search({
+            payload: {
+                query: ">cmd fire"
+            }
+        });
+
+        verify(findItemById(items, "cmd:firefox") !== null);
+        verify(findItemById(items, "ipc:settings.reload") === null);
+    }
+
+    function test_web_route_returns_browser_search_candidate() {
+        const adapter = createAdapter();
+        const items = adapter.search({
+            payload: {
+                query: ">web quickshell launcher"
+            }
+        });
+
+        verify(items.length >= 1);
+        compare(items[0].provider, "web");
+        compare(items[0].action.type, "shell.command.run");
+        verify(String(items[0].action.command || "").indexOf("xdg-open") === 0);
+    }
+
+    function test_windows_route_alias_maps_to_query_providers() {
+        let routedQueryTerm = "";
+        const adapter = SystemLauncherSearchAdapter.createSystemLauncherSearchAdapter({
+            includeDefaultProviders: false,
+            providers: [
+                {
+                    id: "custom.default",
+                    order: 10,
+                    routeKeys: ["default"],
+                    modes: ["query"],
+                    search: function () {
+                        return [createItem("default:item", "Default Item", "custom", 40, {
+                                type: "shell.command.run",
+                                command: "echo default"
+                            })];
+                    }
+                },
+                {
+                    id: "custom.windows",
+                    order: 20,
+                    routeKeys: ["windows"],
+                    modes: ["query"],
+                    search: function (context) {
+                        routedQueryTerm = String(context.queryTerm || "");
+                        return [createItem("windows:item", "Windows Item", "windows", 120, {
+                                type: "shell.ipc.dispatch",
+                                command: "window_switcher.focus",
+                                args: ["0x1"]
+                            })];
+                    }
+                }
+            ]
+        });
+        const items = adapter.search({
+            payload: {
+                query: ">win fire"
+            }
+        });
+
+        compare(items.length, 1);
+        compare(items[0].id, "windows:item");
+        compare(routedQueryTerm, "fire");
     }
 
     function test_math_query_returns_calculator_result() {
@@ -211,6 +338,54 @@ TestCase {
         });
         compare(commandItems.length, 1);
         compare(commandItems[0].id, "custom:command");
+    }
+
+    function test_provider_registry_applies_route_alias_filtering() {
+        const adapter = SystemLauncherSearchAdapter.createSystemLauncherSearchAdapter({
+            includeDefaultProviders: false,
+            providers: [
+                {
+                    id: "custom.query",
+                    order: 10,
+                    routeKeys: ["default"],
+                    modes: ["query"],
+                    search: function () {
+                        return [createItem("custom:query", "Query Item", "custom", 50, {
+                                type: "shell.command.run",
+                                command: "echo query"
+                            })];
+                    }
+                },
+                {
+                    id: "custom.emoji",
+                    order: 10,
+                    routeKeys: ["emoji"],
+                    modes: ["query"],
+                    search: function () {
+                        return [createItem("custom:emoji", "Emoji Item", "emoji", 60, {
+                                type: "clipboard.copy_text",
+                                targetId: "😀"
+                            })];
+                    }
+                }
+            ]
+        });
+
+        const defaultQueryItems = adapter.search({
+            payload: {
+                query: "abc"
+            }
+        });
+        compare(defaultQueryItems.length, 1);
+        compare(defaultQueryItems[0].id, "custom:query");
+
+        const routedItems = adapter.search({
+            payload: {
+                query: ">emoji grin"
+            }
+        });
+        compare(routedItems.length, 1);
+        compare(routedItems[0].id, "custom:emoji");
     }
 
     function test_async_provider_reports_pending_callback_and_keeps_sync_results() {

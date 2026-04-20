@@ -169,6 +169,52 @@ TestCase {
         compare(dispatchedArgv[1], "/home/rbw/repo/docs/plan.md");
     }
 
+    function test_previewLauncherItem_previews_file_path_with_sushi() {
+        let dispatchedArgv = [];
+
+        const store = readyStore([LauncherContracts.createLauncherItem({
+                id: "file:/home/rbw/repo/docs/plan.md",
+                title: "plan.md",
+                provider: "files",
+                action: {
+                    type: "file.open",
+                    targetId: "/home/rbw/repo/docs/plan.md"
+                }
+            })]);
+
+        const outcome = LauncherActivationUseCases.previewLauncherItem(activationDeps({
+            "commandExecutionPort": {
+                "execute": function (argv) {
+                    dispatchedArgv = argv;
+                    return true;
+                }
+            }
+        }), store, "file:/home/rbw/repo/docs/plan.md");
+
+        compare(outcome.status, "applied");
+        compare(outcome.code, "launcher.preview.file_dispatched");
+        compare(dispatchedArgv[0], "sushi");
+        compare(dispatchedArgv[1], "/home/rbw/repo/docs/plan.md");
+    }
+
+    function test_previewLauncherItem_rejects_non_file_actions() {
+        const store = readyStore([LauncherContracts.createLauncherItem({
+                id: "ipc:session.toggle",
+                title: "session.toggle",
+                provider: "commands",
+                action: {
+                    type: "shell.ipc.dispatch",
+                    command: "session.toggle",
+                    args: []
+                }
+            })]);
+
+        const outcome = LauncherActivationUseCases.previewLauncherItem(activationDeps(), store, "ipc:session.toggle");
+
+        compare(outcome.status, "rejected");
+        compare(outcome.code, "launcher.preview.unsupported_action");
+    }
+
     function test_activateLauncherItem_dispatches_desktop_entry_launch() {
         let dispatchedArgv = [];
 

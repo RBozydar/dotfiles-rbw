@@ -183,6 +183,45 @@ TestCase {
         compare(store.state.runtime.launcher.pinnedCommandIds.length, 0);
     }
 
+    function test_movePinnedLauncherCommand_reorders_pinned_list() {
+        const store = readyStore();
+        SettingsUpdateUseCases.pinLauncherCommand(updateDeps(), store, "settings.reload");
+        SettingsUpdateUseCases.pinLauncherCommand(updateDeps(), store, "session.toggle");
+        SettingsUpdateUseCases.pinLauncherCommand(updateDeps(), store, "launcher.toggle");
+
+        const moveUp = SettingsUpdateUseCases.movePinnedLauncherCommandUp(updateDeps(), store, "launcher.toggle");
+        compare(moveUp.status, "applied");
+        compare(moveUp.code, "settings.launcher.pin_command.move_up.updated");
+        compare(store.state.runtime.launcher.pinnedCommandIds.length, 3);
+        compare(store.state.runtime.launcher.pinnedCommandIds[0], "settings.reload");
+        compare(store.state.runtime.launcher.pinnedCommandIds[1], "launcher.toggle");
+        compare(store.state.runtime.launcher.pinnedCommandIds[2], "session.toggle");
+
+        const moveDown = SettingsUpdateUseCases.movePinnedLauncherCommandDown(updateDeps(), store, "launcher.toggle");
+        compare(moveDown.status, "applied");
+        compare(moveDown.code, "settings.launcher.pin_command.move_down.updated");
+        compare(store.state.runtime.launcher.pinnedCommandIds[0], "settings.reload");
+        compare(store.state.runtime.launcher.pinnedCommandIds[1], "session.toggle");
+        compare(store.state.runtime.launcher.pinnedCommandIds[2], "launcher.toggle");
+    }
+
+    function test_movePinnedLauncherCommand_noops_when_position_cannot_change() {
+        const store = readyStore();
+        SettingsUpdateUseCases.pinLauncherCommand(updateDeps(), store, "session.toggle");
+
+        const moveUpAtTop = SettingsUpdateUseCases.movePinnedLauncherCommandUp(updateDeps(), store, "session.toggle");
+        compare(moveUpAtTop.status, "noop");
+        compare(moveUpAtTop.code, "settings.launcher.pin_command.move_up.updated.noop");
+
+        const moveDownAtBottom = SettingsUpdateUseCases.movePinnedLauncherCommandDown(updateDeps(), store, "session.toggle");
+        compare(moveDownAtBottom.status, "noop");
+        compare(moveDownAtBottom.code, "settings.launcher.pin_command.move_down.updated.noop");
+
+        const moveUnknown = SettingsUpdateUseCases.movePinnedLauncherCommandUp(updateDeps(), store, "settings.reload");
+        compare(moveUnknown.status, "noop");
+        compare(moveUnknown.code, "settings.launcher.pin_command.move_up.updated.noop");
+    }
+
     function test_applyLauncherTelemetryBatch_tracks_query_history_and_usage() {
         const store = readyStore();
         const first = SettingsUpdateUseCases.applyLauncherTelemetryBatch(updateDeps(), store, [
