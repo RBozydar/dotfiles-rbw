@@ -129,6 +129,10 @@ The bootstrap is successful when:
       current-hour anchoring for bar chip state, deterministic preview-current
       indexing, persistent meteorogram "now" marker, split cloud panels
       (coverage + altitude), and side legend support in the weather popout.
+    - control-center audio pass delivered:
+      explicit default output/input switching (device catalog probe + previous/
+      next controls) through the `Audio` service boundary and system-owned
+      control-center popup.
 - Legacy cutover + packaging hardening: completed for current scope
     - removed stale backup artifacts (`*.bak`) from active system UI paths and elevated this to an architecture gate.
     - decommissioned dead legacy Home Assistant singleton wiring from `qs.services`; system adapter remains the sole runtime path.

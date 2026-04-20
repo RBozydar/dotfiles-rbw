@@ -1685,3 +1685,25 @@ Validation snapshot:
 - restart/runtime log check:
     - `/home/rbw/repo/dotfiles-rbw/home/config/quickshell/scripts/restart-quickshell.sh`
     - `tail -n 40 /run/user/$UID/quickshell/by-id/*/log.log` (latest instance)
+
+### Control Center Audio Device Switching (2026-04-20)
+
+- Delivered output/input default-device control in the system-owned control center path:
+    - added `scripts/audio-status.sh` probe (pactl JSON + jq shaping) for default sink/source plus output/input catalogs.
+    - expanded `services/Audio.qml` with:
+        - runtime device snapshot state (`outputDevices`, `inputDevices`, default ids),
+        - derived presentation state (`currentOutputLabel`, `currentInputLabel`, switchability),
+        - explicit mutation actions (`setDefaultOutput`, `setDefaultInput`, previous/next cycling),
+        - periodic + post-mutation refresh flow.
+    - expanded `system/ui/primitives/ControlCenterPopup.qml` with an `Audio Devices` card:
+      output and input rows, current device labels, and previous/next controls.
+
+Validation snapshot:
+
+- `make -C home/config/quickshell format`
+- `make -C home/config/quickshell lint`
+- `make -C home/config/quickshell qmltest`
+- `make -C home/config/quickshell arch-check`
+- live runtime check:
+    - `/home/rbw/repo/dotfiles-rbw/home/config/quickshell/scripts/restart-quickshell.sh`
+    - `tail -n 60 /run/user/$UID/quickshell/by-id/*/log.log` (latest instance)

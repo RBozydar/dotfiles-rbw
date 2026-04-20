@@ -42,6 +42,194 @@ Item {
             }
         }
 
+        Rectangle {
+            width: parent.width
+            radius: Theme.chipRadius
+            color: Theme.surfaceContainer
+            border.width: 1
+            border.color: Theme.outline
+            implicitHeight: audioDeviceColumn.implicitHeight + 20
+
+            Column {
+                id: audioDeviceColumn
+
+                anchors.fill: parent
+                anchors.margins: 10
+                spacing: 8
+
+                Text {
+                    text: "Audio Devices"
+                    color: Theme.roleOnSurfaceVariant
+                    font.family: Theme.fontSans
+                    font.pixelSize: 13
+                }
+
+                RowLayout {
+                    width: parent.width
+                    spacing: 8
+
+                    Text {
+                        text: "Output"
+                        color: Theme.roleOnSurfaceVariant
+                        font.family: Theme.fontSans
+                        font.pixelSize: 12
+                        Layout.preferredWidth: 52
+                    }
+
+                    Text {
+                        Layout.fillWidth: true
+                        text: {
+                            if (!root.audioState)
+                                return "unavailable";
+                            if (root.audioState.devicesAvailable)
+                                return root.audioState.currentOutputLabel;
+                            return root.audioState.devicesError.length > 0 ? root.audioState.devicesError : "unavailable";
+                        }
+                        color: root.audioState && root.audioState.devicesAvailable ? Theme.roleOnSurface : Theme.roleOnSurfaceVariant
+                        font.family: Theme.fontMono
+                        font.pixelSize: 11
+                        elide: Text.ElideRight
+                    }
+
+                    Row {
+                        spacing: 6
+
+                        Rectangle {
+                            width: 26
+                            height: 22
+                            radius: 6
+                            color: root.audioState && root.audioState.canSelectOutput ? Theme.surfaceContainerHigh : Theme.surfaceContainerLow
+                            border.width: 1
+                            border.color: Theme.outline
+                            opacity: root.audioState && root.audioState.canSelectOutput ? 1 : 0.55
+
+                            Text {
+                                anchors.centerIn: parent
+                                text: "◀"
+                                color: Theme.roleOnSurface
+                                font.family: Theme.fontSans
+                                font.pixelSize: 10
+                                font.weight: Font.DemiBold
+                            }
+
+                            MouseArea {
+                                anchors.fill: parent
+                                enabled: root.audioState && root.audioState.canSelectOutput
+                                onClicked: root.audioState.selectPreviousOutput()
+                            }
+                        }
+
+                        Rectangle {
+                            width: 26
+                            height: 22
+                            radius: 6
+                            color: root.audioState && root.audioState.canSelectOutput ? Theme.surfaceContainerHigh : Theme.surfaceContainerLow
+                            border.width: 1
+                            border.color: Theme.outline
+                            opacity: root.audioState && root.audioState.canSelectOutput ? 1 : 0.55
+
+                            Text {
+                                anchors.centerIn: parent
+                                text: "▶"
+                                color: Theme.roleOnSurface
+                                font.family: Theme.fontSans
+                                font.pixelSize: 10
+                                font.weight: Font.DemiBold
+                            }
+
+                            MouseArea {
+                                anchors.fill: parent
+                                enabled: root.audioState && root.audioState.canSelectOutput
+                                onClicked: root.audioState.selectNextOutput()
+                            }
+                        }
+                    }
+                }
+
+                RowLayout {
+                    width: parent.width
+                    spacing: 8
+
+                    Text {
+                        text: "Input"
+                        color: Theme.roleOnSurfaceVariant
+                        font.family: Theme.fontSans
+                        font.pixelSize: 12
+                        Layout.preferredWidth: 52
+                    }
+
+                    Text {
+                        Layout.fillWidth: true
+                        text: {
+                            if (!root.audioState)
+                                return "unavailable";
+                            if (root.audioState.devicesAvailable)
+                                return root.audioState.currentInputLabel;
+                            return root.audioState.devicesError.length > 0 ? root.audioState.devicesError : "unavailable";
+                        }
+                        color: root.audioState && root.audioState.devicesAvailable ? Theme.roleOnSurface : Theme.roleOnSurfaceVariant
+                        font.family: Theme.fontMono
+                        font.pixelSize: 11
+                        elide: Text.ElideRight
+                    }
+
+                    Row {
+                        spacing: 6
+
+                        Rectangle {
+                            width: 26
+                            height: 22
+                            radius: 6
+                            color: root.audioState && root.audioState.canSelectInput ? Theme.surfaceContainerHigh : Theme.surfaceContainerLow
+                            border.width: 1
+                            border.color: Theme.outline
+                            opacity: root.audioState && root.audioState.canSelectInput ? 1 : 0.55
+
+                            Text {
+                                anchors.centerIn: parent
+                                text: "◀"
+                                color: Theme.roleOnSurface
+                                font.family: Theme.fontSans
+                                font.pixelSize: 10
+                                font.weight: Font.DemiBold
+                            }
+
+                            MouseArea {
+                                anchors.fill: parent
+                                enabled: root.audioState && root.audioState.canSelectInput
+                                onClicked: root.audioState.selectPreviousInput()
+                            }
+                        }
+
+                        Rectangle {
+                            width: 26
+                            height: 22
+                            radius: 6
+                            color: root.audioState && root.audioState.canSelectInput ? Theme.surfaceContainerHigh : Theme.surfaceContainerLow
+                            border.width: 1
+                            border.color: Theme.outline
+                            opacity: root.audioState && root.audioState.canSelectInput ? 1 : 0.55
+
+                            Text {
+                                anchors.centerIn: parent
+                                text: "▶"
+                                color: Theme.roleOnSurface
+                                font.family: Theme.fontSans
+                                font.pixelSize: 10
+                                font.weight: Font.DemiBold
+                            }
+
+                            MouseArea {
+                                anchors.fill: parent
+                                enabled: root.audioState && root.audioState.canSelectInput
+                                onClicked: root.audioState.selectNextInput()
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
         PrimitiveLocal.PopupSlider {
             width: parent.width
             label: "Brightness"
