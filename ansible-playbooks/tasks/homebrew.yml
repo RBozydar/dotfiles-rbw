@@ -20,7 +20,7 @@
     name: "{{ item }}"
     state: present
   environment:
-    PATH: "/home/linuxbrew/.linuxbrew/bin:{{ ansible_env.PATH }}"
+    PATH: "/home/linuxbrew/.linuxbrew/bin:{{ ansible_facts['env']['PATH'] }}"
   loop:
     - jesseduffield/lazydocker
 
@@ -31,7 +31,7 @@
     name: "{{ brew_packages }}"
     state: present
   environment:
-    PATH: "/home/linuxbrew/.linuxbrew/bin:{{ ansible_env.PATH }}"
+    PATH: "/home/linuxbrew/.linuxbrew/bin:{{ ansible_facts['env']['PATH'] }}"
 
 - name: Install Homebrew casks
   become: yes
@@ -40,7 +40,7 @@
     name: "{{ brew_casks }}"
     state: present
   environment:
-    PATH: "/home/linuxbrew/.linuxbrew/bin:{{ ansible_env.PATH }}"
+    PATH: "/home/linuxbrew/.linuxbrew/bin:{{ ansible_facts['env']['PATH'] }}"
 
 - name: Register yazi piper plugin
   become: yes

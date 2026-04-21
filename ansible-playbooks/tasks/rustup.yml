@@ -19,12 +19,12 @@
   register: colgrep_nvidia_smi
   changed_when: false
   failed_when: false
-  when: ansible_system == 'Linux'
+  when: ansible_facts['system'] == 'Linux'
 
 - name: Set colgrep install arguments
   ansible.builtin.set_fact:
     colgrep_cargo_install_args: >-
-      colgrep{% if ansible_system == 'Linux' and (colgrep_nvidia_smi is defined) and colgrep_nvidia_smi.rc == 0 %} --features cuda{% endif %}
+      colgrep{% if ansible_facts['system'] == 'Linux' and (colgrep_nvidia_smi is defined) and colgrep_nvidia_smi.rc == 0 %} --features cuda{% endif %}
 
 - name: Install colgrep
   become: yes
@@ -32,7 +32,7 @@
   ansible.builtin.command:
     cmd: "{{ user_home }}/.cargo/bin/cargo install {{ colgrep_cargo_install_args }}"
   environment:
-    PATH: "{{ user_home }}/.cargo/bin:{{ ansible_env.PATH }}"
+    PATH: "{{ user_home }}/.cargo/bin:{{ ansible_facts['env']['PATH'] }}"
 
 - name: Set GPU colgrep model
   become: yes
@@ -40,9 +40,9 @@
   ansible.builtin.command:
     cmd: "{{ user_home }}/.cargo/bin/colgrep set-model lightonai/LateOn-Code"
   environment:
-    PATH: "{{ user_home }}/.cargo/bin:{{ ansible_env.PATH }}"
+    PATH: "{{ user_home }}/.cargo/bin:{{ ansible_facts['env']['PATH'] }}"
   when:
-    - ansible_system == 'Linux'
+    - ansible_facts['system'] == 'Linux'
     - (colgrep_nvidia_smi is defined) and colgrep_nvidia_smi.rc == 0
 
 - name: Set GPU colgrep precision
@@ -51,9 +51,9 @@
   ansible.builtin.command:
     cmd: "{{ user_home }}/.cargo/bin/colgrep settings --fp32"
   environment:
-    PATH: "{{ user_home }}/.cargo/bin:{{ ansible_env.PATH }}"
+    PATH: "{{ user_home }}/.cargo/bin:{{ ansible_facts['env']['PATH'] }}"
   when:
-    - ansible_system == 'Linux'
+    - ansible_facts['system'] == 'Linux'
     - (colgrep_nvidia_smi is defined) and colgrep_nvidia_smi.rc == 0
 
 - name: Set GPU colgrep pooling
@@ -62,7 +62,7 @@
   ansible.builtin.command:
     cmd: "{{ user_home }}/.cargo/bin/colgrep settings --pool-factor 1"
   environment:
-    PATH: "{{ user_home }}/.cargo/bin:{{ ansible_env.PATH }}"
+    PATH: "{{ user_home }}/.cargo/bin:{{ ansible_facts['env']['PATH'] }}"
   when:
-    - ansible_system == 'Linux'
+    - ansible_facts['system'] == 'Linux'
     - (colgrep_nvidia_smi is defined) and colgrep_nvidia_smi.rc == 0

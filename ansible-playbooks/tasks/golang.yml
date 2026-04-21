@@ -32,6 +32,6 @@
     cmd: /usr/local/go/bin/go install {{ item }}
   environment:
     GOPATH: "{{ user_home }}/go"
-    PATH: "/usr/local/go/bin:{{ ansible_env.PATH }}"
+    PATH: "/usr/local/go/bin:{{ ansible_facts['env']['PATH'] }}"
   loop:
     - mvdan.cc/sh/v3/cmd/shfmt@latest

@@ -9,7 +9,7 @@
   - name: Ensure Universe repository is enabled
     become: yes
     ansible.builtin.apt_repository:
-      repo: "deb http://archive.ubuntu.com/ubuntu {{ ansible_distribution_release }} universe"
+      repo: "deb http://archive.ubuntu.com/ubuntu {{ ansible_facts['distribution_release'] }} universe"
       state: present
     tags:
       - packages
