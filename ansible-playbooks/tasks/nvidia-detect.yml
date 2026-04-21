@@ -1,0 +1,19 @@
+---
+- name: Default NVIDIA GPU fact to false
+  ansible.builtin.set_fact:
+    has_nvidia_gpu: false
+
+- name: Detect NVIDIA PCI devices
+  ansible.builtin.find:
+    paths: /sys/bus/pci/devices
+    patterns: vendor
+    file_type: file
+    recurse: true
+    contains: '^0x10de$'
+    use_regex: true
+  register: nvidia_pci_vendor_files
+  changed_when: false
+
+- name: Set NVIDIA GPU fact
+  ansible.builtin.set_fact:
+    has_nvidia_gpu: "{{ nvidia_pci_vendor_files.matched | int > 0 }}"

@@ -82,6 +82,7 @@
 
   - name: NVIDIA CUDA
     ansible.builtin.include_tasks: tasks/nvidia-cuda-arch.yml
+    when: has_nvidia_gpu | default(false) | bool
     tags:
       - nvidia
 
