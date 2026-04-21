@@ -24,7 +24,11 @@
     ansible.builtin.include_tasks: initial.yml
 
   - name: Detect NVIDIA GPU
-    ansible.builtin.include_tasks: tasks/nvidia-detect.yml
+    ansible.builtin.include_tasks:
+      file: tasks/nvidia-detect.yml
+      apply:
+        tags:
+          - always
     when: ansible_facts['system'] == 'Linux'
     tags:
       - always
@@ -33,9 +37,13 @@
   - name: Ubuntu
     ansible.builtin.include_tasks: ubuntu.yml
     when: ansible_facts['os_family'] == 'Debian'
+    tags:
+      - nvidia
   - name: Arch Linux
     ansible.builtin.include_tasks: arch.yml
     when: ansible_facts['os_family'] == 'Archlinux'
+    tags:
+      - nvidia
 
   # Common tools (distro-agnostic, curl-based installers)
   - name: Go

@@ -16,6 +16,30 @@
     state: present
     update_cache: true
 
+- name: Detect installed CUDA toolkit major version
+  ansible.builtin.shell:
+    cmd: |
+      dpkg-query -W -f='${Package}\n' \
+        | sed -nE 's/^cuda-toolkit-([0-9]+)([.-][0-9]+)?$/\1/p' \
+        | sort -n \
+        | tail -n1
+  register: cuda_toolkit_major_version
+  changed_when: false
+  failed_when: cuda_toolkit_major_version.stdout | trim == ""
+
+- name: Install cuDNN prerequisites
+  become: yes
+  ansible.builtin.apt:
+    name:
+      - zlib1g
+    state: present
+
+- name: Install cuDNN
+  become: yes
+  ansible.builtin.apt:
+    name: "cudnn9-cuda-{{ cuda_toolkit_major_version.stdout | trim }}"
+    state: present
+
 - name: Install NVIDIA container toolkit keyring
   become: yes
   ansible.builtin.shell:

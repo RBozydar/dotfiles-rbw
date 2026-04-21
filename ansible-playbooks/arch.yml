@@ -81,7 +81,11 @@
       - networkmanager
 
   - name: NVIDIA CUDA
-    ansible.builtin.include_tasks: tasks/nvidia-cuda-arch.yml
+    ansible.builtin.include_tasks:
+      file: tasks/nvidia-cuda-arch.yml
+      apply:
+        tags:
+          - nvidia
     when: has_nvidia_gpu | default(false) | bool
     tags:
       - nvidia

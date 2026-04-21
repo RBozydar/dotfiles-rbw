@@ -38,7 +38,11 @@
       - glow
 
   - name: NVIDIA CUDA
-    ansible.builtin.include_tasks: tasks/nvidia-cuda.yml
+    ansible.builtin.include_tasks:
+      file: tasks/nvidia-cuda.yml
+      apply:
+        tags:
+          - nvidia
     when: has_nvidia_gpu | default(false) | bool
     tags:
       - nvidia
