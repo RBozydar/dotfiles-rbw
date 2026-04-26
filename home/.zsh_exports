@@ -25,8 +25,8 @@ function y() {
 	[ "$cwd" != "$PWD" ] && [ -d "$cwd" ] && builtin cd -- "$cwd"
 	rm -f -- "$tmp"
 }
-export ORT_DYLIB_PATH=/home/rbw/ort_gpu/libonnxruntime.so.1.23.0
-export LD_LIBRARY_PATH=/home/rbw/ort_gpu:$LD_LIBRARY_PATH
+export ORT_DYLIB_PATH="$HOME/ort_gpu/libonnxruntime.so"
+export LD_LIBRARY_PATH="$HOME/ort_gpu${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
 export PATH="/home/rbw/.local/llama_cpp_compiled/cuda/bin:$PATH"
 export LD_LIBRARY_PATH="/home/rbw/.local/llama_cpp_compiled/cuda/lib:$LD_LIBRARY_PATH"
 

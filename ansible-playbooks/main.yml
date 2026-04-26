@@ -44,6 +44,19 @@
     when: ansible_facts['os_family'] == 'Archlinux'
     tags:
       - nvidia
+  - name: ONNX Runtime
+    ansible.builtin.include_tasks:
+      file: tasks/onnx-runtime.yml
+      apply:
+        tags:
+          - nvidia
+          - onnxruntime
+    when:
+      - ansible_facts['system'] == 'Linux'
+      - has_nvidia_gpu | default(false) | bool
+    tags:
+      - nvidia
+      - onnxruntime
 
   # Common tools (distro-agnostic, curl-based installers)
   - name: Go
