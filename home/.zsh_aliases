@@ -9,10 +9,108 @@ alias yt-dlp="yt-dlp --remux-video mkv --embed-metadata --embed-info-json"
 # apt aliases
 alias install="sudo apt-get -y install"
 # alias install="sudo pacman -Syu"
-alias update="sudo apt update"
+update() {
+  local target="${1:-apt}"
+
+  case "$target" in
+    apt)
+      sudo apt update
+      ;;
+    brew)
+      brew update
+      ;;
+    npm)
+      npm outdated -g --depth=0
+      ;;
+    bun)
+      bun outdated -g
+      ;;
+    uv|uv-tools)
+      uv tool list
+      ;;
+    cargo)
+      if command -v cargo-install-update >/dev/null 2>&1; then
+        cargo install-update --list
+      else
+        print -u2 "Skipping cargo installs: install cargo-update to enable 'cargo install-update -a'."
+      fi
+      ;;
+    rust|rustup)
+      rustup check
+      ;;
+    all|global|globals)
+      update apt
+      update brew
+      update npm
+      update bun
+      update uv-tools
+      update cargo
+      update rustup
+      ;;
+    help|-h|--help)
+      print "usage: update [apt|brew|npm|bun|uv-tools|cargo|rustup|all]"
+      ;;
+    *)
+      print -u2 "usage: update [apt|brew|npm|bun|uv-tools|cargo|rustup|all]"
+      return 2
+      ;;
+  esac
+}
 #alias update="sudo pacman -Syu"
- alias upgrade="sudo apt upgrade"
+upgrade() {
+  local target="${1:-apt}"
+
+  case "$target" in
+    apt)
+      sudo apt upgrade
+      ;;
+    brew)
+      brew upgrade
+      ;;
+    npm)
+      npm update -g
+      ;;
+    bun)
+      bun update -g
+      ;;
+    uv|uv-tools)
+      uv tool upgrade --all
+      ;;
+    cargo)
+      if command -v cargo-install-update >/dev/null 2>&1; then
+        cargo install-update -a
+      else
+        print -u2 "Skipping cargo installs: install cargo-update to enable 'cargo install-update -a'."
+      fi
+      ;;
+    rust|rustup)
+      rustup update
+      ;;
+    all|global|globals)
+      update apt
+      upgrade apt
+      update brew
+      upgrade brew
+      upgrade npm
+      upgrade bun
+      upgrade uv-tools
+      upgrade cargo
+      upgrade rustup
+      ;;
+    help|-h|--help)
+      print "usage: upgrade [apt|brew|npm|bun|uv-tools|cargo|rustup|all]"
+      ;;
+    *)
+      print -u2 "usage: upgrade [apt|brew|npm|bun|uv-tools|cargo|rustup|all]"
+      return 2
+      ;;
+  esac
+}
 alias upx="sudo apt update && sudo apt upgrade"
+alias update-all="update all"
+alias update-globals="update all"
+alias upgrade-all="upgrade all"
+alias upgrade-globals="upgrade all"
 alias purge="sudo apt-get purge"
 alias aptsrch="apt-cache search"
 alias history="fc -li 1"
@@ -30,4 +128,3 @@ alias sdl="scdl -l"
 # Shield / Jellyfin
 alias sj='shield-jellyfin'
 alias sjn='shield-jellyfin nextup'
-

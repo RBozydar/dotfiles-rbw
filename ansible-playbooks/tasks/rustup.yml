@@ -11,6 +11,15 @@
   ansible.builtin.shell:
     cmd: curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain stable
 
+- name: Install cargo-update
+  become: yes
+  become_user: "{{ username }}"
+  ansible.builtin.command:
+    cmd: "{{ user_home }}/.cargo/bin/cargo install cargo-update"
+    creates: "{{ user_home }}/.cargo/bin/cargo-install-update"
+  environment:
+    PATH: "{{ user_home }}/.cargo/bin:{{ ansible_facts['env']['PATH'] }}"
+
 - name: Check if NVIDIA runtime is available for colgrep CUDA build
   become: yes
   become_user: "{{ username }}"
