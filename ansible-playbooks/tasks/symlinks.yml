@@ -160,6 +160,20 @@
     force: yes
   when: enable_gui | bool
 
+- name: Remove existing quickshell config directory
+  ansible.builtin.file:
+    path: "{{ user_home }}/.config/quickshell"
+    state: absent
+  when: enable_gui | bool
+
+- name: Symlink quickshell config
+  ansible.builtin.file:
+    src: "{{ home_repo }}/config/quickshell"
+    dest: "{{ user_home }}/.config/quickshell"
+    state: link
+    force: yes
+  when: enable_gui | bool
+
 # Yazi
 - name: Ensure yazi config directory exists
   ansible.builtin.file:
