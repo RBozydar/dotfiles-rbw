@@ -28,12 +28,14 @@
   register: colgrep_nvidia_smi
   changed_when: false
   failed_when: false
-  when: ansible_facts['system'] == 'Linux'
+  when:
+    - ansible_facts['system'] == 'Linux'
+    - enable_nvidia | bool
 
 - name: Set colgrep install arguments
   ansible.builtin.set_fact:
     colgrep_cargo_install_args: >-
-      colgrep{% if ansible_facts['system'] == 'Linux' and (colgrep_nvidia_smi is defined) and colgrep_nvidia_smi.rc == 0 %} --features cuda{% endif %}
+      colgrep{% if enable_nvidia | bool and ansible_facts['system'] == 'Linux' and (colgrep_nvidia_smi is defined) and colgrep_nvidia_smi.rc == 0 %} --features cuda{% endif %}
 
 - name: Install colgrep
   become: yes
@@ -52,6 +54,7 @@
     PATH: "{{ user_home }}/.cargo/bin:{{ ansible_facts['env']['PATH'] }}"
   when:
     - ansible_facts['system'] == 'Linux'
+    - enable_nvidia | bool
     - (colgrep_nvidia_smi is defined) and colgrep_nvidia_smi.rc == 0
 
 - name: Set GPU colgrep precision
@@ -63,6 +66,7 @@
     PATH: "{{ user_home }}/.cargo/bin:{{ ansible_facts['env']['PATH'] }}"
   when:
     - ansible_facts['system'] == 'Linux'
+    - enable_nvidia | bool
     - (colgrep_nvidia_smi is defined) and colgrep_nvidia_smi.rc == 0
 
 - name: Set GPU colgrep pooling
@@ -74,4 +78,5 @@
     PATH: "{{ user_home }}/.cargo/bin:{{ ansible_facts['env']['PATH'] }}"
   when:
     - ansible_facts['system'] == 'Linux'
+    - enable_nvidia | bool
     - (colgrep_nvidia_smi is defined) and colgrep_nvidia_smi.rc == 0

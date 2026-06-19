@@ -25,11 +25,13 @@ Install the basic prerequisites first:
 Clone the repo and link the shell files into `$HOME`:
 
 ```sh
-ln -sfn ~/repo/dotfiles-rbw/home/.zshrc ~/.zshrc
-ln -sfn ~/repo/dotfiles-rbw/home/.zsh_exports ~/.zsh_exports
-ln -sfn ~/repo/dotfiles-rbw/home/.zsh_aliases ~/.zsh_aliases
-ln -sfn ~/repo/dotfiles-rbw/home/utils/git-worktree.zsh ~/.zsh_utils_git-worktree
-ln -sfn ~/repo/dotfiles-rbw/home/.zsh_plugins.txt ~/.zsh_plugins.txt
+export DOTFILES_REPO_ROOT="$HOME/repo/dotfiles-rbw"
+
+ln -sfn "$DOTFILES_REPO_ROOT/home/.zshrc" ~/.zshrc
+ln -sfn "$DOTFILES_REPO_ROOT/home/.zsh_exports" ~/.zsh_exports
+ln -sfn "$DOTFILES_REPO_ROOT/home/.zsh_aliases" ~/.zsh_aliases
+ln -sfn "$DOTFILES_REPO_ROOT/home/utils/git-worktree.zsh" ~/.zsh_utils_git-worktree
+ln -sfn "$DOTFILES_REPO_ROOT/home/.zsh_plugins.txt" ~/.zsh_plugins.txt
 ```
 
 Install Antidote into the default location expected by `.zshrc`:
@@ -46,7 +48,7 @@ generated automatically from `~/.zsh_plugins.txt` when needed.
 On a new machine:
 
 ```sh
-cp ~/repo/dotfiles-rbw/home/.zsh_local.example ~/.zsh_local
+cp "$DOTFILES_REPO_ROOT/home/.zsh_local.example" ~/.zsh_local
 ```
 
 Then edit `~/.zsh_local` and uncomment only the variables that apply to that
