@@ -34,6 +34,8 @@ ubuntu_terminal_packages:
   - unzip
   # dev
   - zsh
+  - bat
+  - eza
   - ffmpeg
   - pandoc
   # networking
@@ -55,6 +57,9 @@ ubuntu_terminal_packages:
   - traceroute
   - ethtool
   - iperf3
+  - procps
+  - shellcheck
+  - tree
   # security
   - apparmor
   - apparmor-profiles
@@ -94,7 +99,6 @@ macos_brew_packages:
   - btop
   - colima
   - coreutils
-  - direnv
   - docker
   - docker-buildx
   - docker-compose
@@ -108,11 +112,9 @@ macos_brew_packages:
   - glow
   - go
   - htop
-  - hyperfine
   - imagemagick
   - iperf3
   - jq
-  - just
   - lazydocker
   - lazygit
   - mactop
@@ -178,6 +180,8 @@ arch_terminal_packages:
   - unzip
   # shell & dev
   - zsh
+  - bat
+  - eza
   - python-pip
   - ffmpeg
   - pandoc-cli
@@ -208,6 +212,9 @@ arch_terminal_packages:
   - traceroute
   - ethtool
   - iperf3
+  - procps-ng
+  - shellcheck
+  - tree
   # dev tools
   - github-cli
   - glow
