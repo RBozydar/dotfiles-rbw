@@ -7,32 +7,32 @@
 
 - name: Install fnm
   when: not fnm_installed.stat.exists
-  become: yes
+  become: "{{ user_task_become | bool }}"
   become_user: "{{ username }}"
   ansible.builtin.shell:
     cmd: curl -fsSL https://fnm.vercel.app/install | bash -s -- --skip-shell
 
 - name: Install default Node version via fnm
-  become: yes
+  become: "{{ user_task_become | bool }}"
   become_user: "{{ username }}"
   ansible.builtin.command:
     cmd: "{{ user_home }}/.local/share/fnm/fnm install --lts"
 
 - name: Get latest installed fnm Node version
   ansible.builtin.shell:
-    cmd: "find {{ user_home }}/.local/share/fnm/node-versions -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | sort -V | tail -n1"
+    cmd: "find {{ user_home }}/.local/share/fnm/node-versions -mindepth 1 -maxdepth 1 -type d -exec basename {} \\; | sort | tail -n1"
   register: fnm_default_version
   changed_when: false
 
 - name: Set default Node version via fnm
   when: fnm_default_version.stdout != ""
-  become: yes
+  become: "{{ user_task_become | bool }}"
   become_user: "{{ username }}"
   ansible.builtin.command:
     cmd: "{{ user_home }}/.local/share/fnm/fnm default {{ fnm_default_version.stdout }}"
 
 - name: Install npm global packages
-  become: yes
+  become: "{{ user_task_become | bool }}"
   become_user: "{{ username }}"
   community.general.npm:
     name: "{{ item }}"
@@ -51,7 +51,7 @@
 
 - name: Install uv
   when: not uv_installed.stat.exists
-  become: yes
+  become: "{{ user_task_become | bool }}"
   become_user: "{{ username }}"
   ansible.builtin.shell:
     cmd: curl -LsSf https://astral.sh/uv/install.sh | sh
@@ -64,7 +64,7 @@
 
 - name: Install bun
   when: not bun_installed.stat.exists
-  become: yes
+  become: "{{ user_task_become | bool }}"
   become_user: "{{ username }}"
   ansible.builtin.shell:
     cmd: curl -fsSL https://bun.sh/install | bash

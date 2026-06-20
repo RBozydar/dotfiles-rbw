@@ -88,6 +88,65 @@ brew_packages:
 brew_casks:
   - font-symbols-only-nerd-font
 
+macos_brew_packages:
+  - ast-grep
+  - btop
+  - fd
+  - ffmpeg
+  - fzf
+  - gh
+  - git
+  - glow
+  - go
+  - htop
+  - imagemagick
+  - iperf3
+  - jq
+  - lazydocker
+  - lazygit
+  - mactop
+  - mc
+  - nmap
+  - node
+  - poppler
+  - resvg
+  - ripgrep
+  - sevenzip
+  - shfmt
+  - tmux
+  - wget
+  - yazi
+  - zoxide
+
+macos_common_brew_casks:
+  - chatgpt
+  - claude
+  - codex
+  - codexbar
+  - firefox
+  - font-fira-code
+  - ghostty
+  - github
+  - google-chrome
+  - google-drive
+  - visual-studio-code
+
+macos_private_brew_casks:
+  - home-assistant
+  - iina
+  - moonlight
+  - protonvpn
+  - spotify
+  - transmission
+  - whatsapp
+  - wifiman
+
+macos_brew_casks: >-
+  {{
+    macos_common_brew_casks
+    + (macos_private_brew_casks if enable_private_apps | bool else [])
+  }}
+
 npm_global_packages:
   - "@anthropic-ai/claude-code"
   - "@google/gemini-cli"

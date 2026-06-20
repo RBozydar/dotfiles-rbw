@@ -19,7 +19,7 @@
 
 - name: Install Go to /usr/local
   when: not go_installed.stat.exists
-  become: yes
+  become: "{{ user_task_become | bool }}"
   ansible.builtin.unarchive:
     src: /tmp/go.tar.gz
     dest: /usr/local

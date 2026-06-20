@@ -1,0 +1,4 @@
+---
+enable_gui: true
+enable_nvidia: false
+enable_private_apps: false

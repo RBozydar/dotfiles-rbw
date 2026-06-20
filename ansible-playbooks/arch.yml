@@ -1,12 +1,12 @@
 ---
   - name: Upgrade all packages
-    become: yes
+    become: "{{ user_task_become | bool }}"
     community.general.pacman:
       update_cache: yes
       upgrade: yes
 
   - name: Install arch packages
-    become: yes
+    become: "{{ user_task_become | bool }}"
     community.general.pacman:
       name: "{{ arch_packages }}"
       state: present

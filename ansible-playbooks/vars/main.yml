@@ -16,6 +16,7 @@ ansible_ssh_user: "{{ lookup('env', 'USER') }}"
 
 username: "{{ lookup('env', 'USER') }}"
 user_home: "{{ lookup('env', 'HOME') }}"
+user_task_become: "{{ (ansible_user_id | default(username)) != username }}"
 repo_root: "{{ lookup('env', 'DOTFILES_REPO_ROOT') | default((playbook_dir | dirname), true) }}"
 legacy_repo_root: "{{ user_home }}/repo/dotfiles"
 zshrc_home: "{{ user_home }}/.zshrc"
@@ -54,5 +55,6 @@ miniforge_installer_path: "/tmp/{{ miniforge_installer_filename }}"
 
 enable_gui: false
 enable_nvidia: false
+enable_private_apps: false
 enable_git_role: true
 enable_security_role: true

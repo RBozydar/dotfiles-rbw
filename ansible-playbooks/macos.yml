@@ -1,0 +1,26 @@
+---
+  - name: Check Xcode Command Line Tools
+    ansible.builtin.command:
+      cmd: xcode-select -p
+    register: xcode_clt
+    changed_when: false
+    failed_when: false
+    tags:
+      - macos
+
+  - name: Report missing Xcode Command Line Tools
+    ansible.builtin.debug:
+      msg: "Install Xcode Command Line Tools with: xcode-select --install"
+    when: xcode_clt.rc != 0
+    tags:
+      - macos
+
+  - name: Homebrew
+    ansible.builtin.include_tasks: tasks/homebrew.yml
+    vars:
+      brew_packages: "{{ macos_brew_packages }}"
+      brew_casks: "{{ macos_brew_casks }}"
+    tags:
+      - packages
+      - homebrew
+      - macos

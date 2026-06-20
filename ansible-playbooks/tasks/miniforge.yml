@@ -13,7 +13,7 @@
 
 - name: Install Miniforge3
   when: not miniforge_installed.stat.exists
-  become: yes
+  become: "{{ user_task_become | bool }}"
   become_user: "{{ username }}"
   ansible.builtin.command:
     cmd: "{{ miniforge_installer_path }} -b -p {{ miniforge_root }}"

@@ -164,7 +164,9 @@
   ansible.builtin.file:
     path: "{{ user_home }}/.config/quickshell"
     state: absent
-  when: enable_gui | bool
+  when:
+    - enable_gui | bool
+    - ansible_facts['system'] == 'Linux'
 
 - name: Symlink quickshell config
   ansible.builtin.file:
@@ -172,7 +174,9 @@
     dest: "{{ user_home }}/.config/quickshell"
     state: link
     force: yes
-  when: enable_gui | bool
+  when:
+    - enable_gui | bool
+    - ansible_facts['system'] == 'Linux'
 
 # Yazi
 - name: Ensure yazi config directory exists
@@ -237,7 +241,9 @@
   ansible.builtin.file:
     path: "{{ user_home }}/.config/hypr"
     state: absent
-  when: enable_gui | bool
+  when:
+    - enable_gui | bool
+    - ansible_facts['system'] == 'Linux'
 
 - name: Symlink hypr config
   ansible.builtin.file:
@@ -245,7 +251,9 @@
     dest: "{{ user_home }}/.config/hypr"
     state: link
     force: yes
-  when: enable_gui | bool
+  when:
+    - enable_gui | bool
+    - ansible_facts['system'] == 'Linux'
 
 - name: Reload Hyprland config if running in current session
   ansible.builtin.command: hyprctl reload
@@ -254,6 +262,7 @@
     XDG_RUNTIME_DIR: "{{ lookup('env', 'XDG_RUNTIME_DIR') }}"
   when:
     - enable_gui | bool
+    - ansible_facts['system'] == 'Linux'
     - lookup('env', 'HYPRLAND_INSTANCE_SIGNATURE') | length > 0
     - lookup('env', 'XDG_RUNTIME_DIR') | length > 0
   changed_when: false
@@ -263,7 +272,9 @@
   ansible.builtin.file:
     path: "{{ user_home }}/.config/gtk-3.0"
     state: directory
-  when: enable_gui | bool
+  when:
+    - enable_gui | bool
+    - ansible_facts['system'] == 'Linux'
 
 - name: Symlink gtk-3.0 settings.ini
   ansible.builtin.file:
@@ -271,4 +282,6 @@
     dest: "{{ user_home }}/.config/gtk-3.0/settings.ini"
     state: link
     force: yes
-  when: enable_gui | bool
+  when:
+    - enable_gui | bool
+    - ansible_facts['system'] == 'Linux'

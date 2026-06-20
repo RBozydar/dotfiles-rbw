@@ -6,13 +6,13 @@
 
 - name: Install rustup
   when: not rustup_installed.stat.exists
-  become: yes
+  become: "{{ user_task_become | bool }}"
   become_user: "{{ username }}"
   ansible.builtin.shell:
     cmd: curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain stable
 
 - name: Install cargo-update
-  become: yes
+  become: "{{ user_task_become | bool }}"
   become_user: "{{ username }}"
   ansible.builtin.command:
     cmd: "{{ user_home }}/.cargo/bin/cargo install cargo-update"
@@ -21,7 +21,7 @@
     PATH: "{{ user_home }}/.cargo/bin:{{ ansible_facts['env']['PATH'] }}"
 
 - name: Check if NVIDIA runtime is available for colgrep CUDA build
-  become: yes
+  become: "{{ user_task_become | bool }}"
   become_user: "{{ username }}"
   ansible.builtin.command:
     cmd: nvidia-smi -L
@@ -38,7 +38,7 @@
       colgrep{% if enable_nvidia | bool and ansible_facts['system'] == 'Linux' and (colgrep_nvidia_smi is defined) and colgrep_nvidia_smi.rc == 0 %} --features cuda{% endif %}
 
 - name: Install colgrep
-  become: yes
+  become: "{{ user_task_become | bool }}"
   become_user: "{{ username }}"
   ansible.builtin.command:
     cmd: "{{ user_home }}/.cargo/bin/cargo install {{ colgrep_cargo_install_args }}"
@@ -46,7 +46,7 @@
     PATH: "{{ user_home }}/.cargo/bin:{{ ansible_facts['env']['PATH'] }}"
 
 - name: Set GPU colgrep model
-  become: yes
+  become: "{{ user_task_become | bool }}"
   become_user: "{{ username }}"
   ansible.builtin.command:
     cmd: "{{ user_home }}/.cargo/bin/colgrep set-model lightonai/LateOn-Code"
@@ -58,7 +58,7 @@
     - (colgrep_nvidia_smi is defined) and colgrep_nvidia_smi.rc == 0
 
 - name: Set GPU colgrep precision
-  become: yes
+  become: "{{ user_task_become | bool }}"
   become_user: "{{ username }}"
   ansible.builtin.command:
     cmd: "{{ user_home }}/.cargo/bin/colgrep settings --fp32"
@@ -70,7 +70,7 @@
     - (colgrep_nvidia_smi is defined) and colgrep_nvidia_smi.rc == 0
 
 - name: Set GPU colgrep pooling
-  become: yes
+  become: "{{ user_task_become | bool }}"
   become_user: "{{ username }}"
   ansible.builtin.command:
     cmd: "{{ user_home }}/.cargo/bin/colgrep settings --pool-factor 1"

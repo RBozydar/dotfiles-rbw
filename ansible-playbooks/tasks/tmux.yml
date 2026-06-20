@@ -17,7 +17,7 @@
     state: directory
 
 - name: Install TPM
-  become: yes
+  become: "{{ user_task_become | bool }}"
   become_user: "{{ username }}"
   ansible.builtin.git:
     repo: https://github.com/tmux-plugins/tpm.git
@@ -26,7 +26,7 @@
     update: yes
 
 - name: Install tmux plugins via TPM
-  become: yes
+  become: "{{ user_task_become | bool }}"
   become_user: "{{ username }}"
   ansible.builtin.shell:
     cmd: "{{ user_home }}/.tmux/plugins/tpm/bin/install_plugins"

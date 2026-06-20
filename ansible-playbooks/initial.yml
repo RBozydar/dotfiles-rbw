@@ -4,6 +4,7 @@
     ansible.builtin.package:
       name: "{{ base_packages }}"
       state: present
+    when: ansible_facts['system'] != 'Darwin'
     tags:
       - packages
 
@@ -33,7 +34,7 @@
       mode: '0600'
 
   - name: Install antidote (zsh plugin manager)
-    become: yes
+    become: "{{ user_task_become | bool }}"
     become_user: "{{ username }}"
     ansible.builtin.git:
       repo: https://github.com/mattmc3/antidote.git

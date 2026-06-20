@@ -6,7 +6,7 @@
 
 - name: Install Homebrew
   when: not brew_installed.stat.exists
-  become: yes
+  become: "{{ user_task_become | bool }}"
   become_user: "{{ username }}"
   ansible.builtin.shell:
     cmd: /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
@@ -14,7 +14,7 @@
     NONINTERACTIVE: "1"
 
 - name: Add Homebrew taps
-  become: yes
+  become: "{{ user_task_become | bool }}"
   become_user: "{{ username }}"
   community.general.homebrew_tap:
     name: "{{ item }}"
@@ -25,7 +25,7 @@
     - jesseduffield/lazydocker
 
 - name: Install Homebrew formulae
-  become: yes
+  become: "{{ user_task_become | bool }}"
   become_user: "{{ username }}"
   community.general.homebrew:
     name: "{{ brew_packages }}"
@@ -34,7 +34,7 @@
     PATH: "{{ homebrew_path_env }}"
 
 - name: Install Homebrew casks
-  become: yes
+  become: "{{ user_task_become | bool }}"
   become_user: "{{ username }}"
   community.general.homebrew_cask:
     name: "{{ brew_casks }}"
@@ -44,7 +44,7 @@
     PATH: "{{ homebrew_path_env }}"
 
 - name: Register yazi piper plugin
-  become: yes
+  become: "{{ user_task_become | bool }}"
   become_user: "{{ username }}"
   ansible.builtin.command:
     cmd: "{{ yazi_bin }} pkg add yazi-rs/plugins:piper"
@@ -53,7 +53,7 @@
   failed_when: "yazi_plugin_result.rc != 0 and 'already exists' not in yazi_plugin_result.stderr"
 
 - name: Install yazi plugins
-  become: yes
+  become: "{{ user_task_become | bool }}"
   become_user: "{{ username }}"
   ansible.builtin.command:
     cmd: "{{ yazi_bin }} pkg install"

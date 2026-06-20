@@ -21,10 +21,26 @@ The workstation vars currently enable:
 - `enable_gui`
 - `enable_nvidia`
 
+Run a work Mac profile when the machine should get GUI apps/config but no
+personal apps:
+
+```sh
+ansible-playbook main.yml --extra-vars "@vars/macos-work.yml"
+```
+
+Run a private Mac profile when the machine should also get personal GUI apps:
+
+```sh
+ansible-playbook main.yml --extra-vars "@vars/macos-private.yml"
+```
+
+The private Mac profile adds apps such as Home Assistant, IINA, Moonlight,
+Proton VPN, Spotify, Transmission, WhatsApp, and WiFiman.
+
 You can also pass either flag directly for one-off runs:
 
 ```sh
-ansible-playbook main.yml -e enable_gui=true -e enable_nvidia=false
+ansible-playbook main.yml -e enable_gui=true -e enable_nvidia=false -e enable_private_apps=false
 ```
 
 The main play targets `localhost`, so inventory `host_vars` are not used for
