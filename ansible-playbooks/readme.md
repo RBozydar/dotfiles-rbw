@@ -37,6 +37,9 @@ ansible-playbook main.yml --extra-vars "@vars/macos-private.yml"
 The private Mac profile adds apps such as Home Assistant, IINA, Moonlight,
 Proton VPN, Spotify, Transmission, WhatsApp, and WiFiman.
 
+macOS container tooling uses Colima plus the Docker CLI packages. Docker Desktop
+is intentionally not managed.
+
 You can also pass either flag directly for one-off runs:
 
 ```sh
