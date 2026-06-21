@@ -63,8 +63,8 @@ defaults write com.apple.desktopservices DSDontWriteUSBStores -bool true
 # Save screenshots as PNG files.
 defaults write com.apple.screencapture type -string "png"
 
-# Store screenshots in Downloads instead of cluttering the Desktop.
-defaults write com.apple.screencapture location -string "${HOME}/Downloads"
+# Leave screenshot location unmanaged so macOS keeps its default Desktop target,
+# or whatever location was selected manually.
 
 # Disable the modern desktop-click behavior that hides windows and shows the
 # desktop when clicking the wallpaper.
