@@ -56,5 +56,6 @@ miniforge_installer_path: "/tmp/{{ miniforge_installer_filename }}"
 enable_gui: false
 enable_nvidia: false
 enable_private_apps: false
+configure_macos_defaults: true
 enable_git_role: true
 enable_security_role: true

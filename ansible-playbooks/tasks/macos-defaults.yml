@@ -1,0 +1,10 @@
+---
+- name: Apply macOS defaults
+  ansible.builtin.command:
+    argv:
+      - sh
+      - "{{ playbook_dir }}/files/macos/defaults.sh"
+  changed_when: false
+  tags:
+    - macos
+    - macos-defaults

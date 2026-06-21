@@ -40,6 +40,11 @@ Proton VPN, Spotify, Transmission, WhatsApp, and WiFiman.
 macOS container tooling uses Colima plus the Docker CLI packages. Docker Desktop
 is intentionally not managed.
 
+macOS defaults are applied by `files/macos/defaults.sh` when
+`configure_macos_defaults` is true. The script contains one commented setting per
+command so machine preferences can be reviewed before running. Disable this pass
+with `-e configure_macos_defaults=false`.
+
 You can also pass either flag directly for one-off runs:
 
 ```sh

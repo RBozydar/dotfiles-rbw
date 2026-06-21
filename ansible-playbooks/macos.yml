@@ -24,3 +24,10 @@
       - packages
       - homebrew
       - macos
+
+  - name: macOS defaults
+    ansible.builtin.include_tasks: tasks/macos-defaults.yml
+    when: configure_macos_defaults | bool
+    tags:
+      - macos
+      - macos-defaults
