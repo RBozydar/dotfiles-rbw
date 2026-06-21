@@ -136,6 +136,7 @@ macos_brew_packages:
   - zoxide
 
 macos_common_brew_casks:
+  - bitwarden
   - chatgpt
   - claude
   - codex
