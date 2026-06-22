@@ -1,0 +1,40 @@
+---
+- name: Ensure Codex home exists
+  ansible.builtin.file:
+    path: "{{ codex_home }}"
+    state: directory
+    mode: "0700"
+  tags:
+    - codex
+
+- name: Ensure Codex pets directory exists
+  ansible.builtin.file:
+    path: "{{ codex_home }}/pets"
+    state: directory
+    mode: "0755"
+  tags:
+    - codex
+    - codex-pets
+
+- name: Symlink shared Codex pets
+  ansible.builtin.file:
+    src: "{{ home_repo }}/codex/pets/{{ item }}"
+    dest: "{{ codex_home }}/pets/{{ item }}"
+    state: link
+    force: yes
+  loop: "{{ codex_shared_pets }}"
+  tags:
+    - codex
+    - codex-pets
+
+- name: Merge shared Codex config settings
+  ansible.builtin.command:
+    argv:
+      - python3
+      - "{{ playbook_dir }}/files/codex/merge-config.py"
+      - "{{ codex_config_path }}"
+  register: codex_config_merge
+  changed_when: codex_config_merge.stdout == "changed"
+  tags:
+    - codex
+    - codex-config

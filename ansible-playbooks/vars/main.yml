@@ -23,6 +23,11 @@ zshrc_home: "{{ user_home }}/.zshrc"
 zshrc_repo: "{{ repo_root }}/home/.zshrc"
 home_repo: "{{ repo_root }}/home"
 manage_legacy_repo_symlink: "{{ repo_root != legacy_repo_root }}"
+codex_home: "{{ lookup('env', 'CODEX_HOME') | default(user_home ~ '/.codex', true) }}"
+codex_config_path: "{{ codex_home }}/config.toml"
+codex_shared_pets:
+  - dotneko
+  - tabbyneko
 
 homebrew_prefix_default: >-
   {{
@@ -57,5 +62,6 @@ enable_gui: false
 enable_nvidia: false
 enable_private_apps: false
 configure_macos_defaults: true
+configure_codex: true
 enable_git_role: true
 enable_security_role: true

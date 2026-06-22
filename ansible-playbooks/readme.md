@@ -53,3 +53,8 @@ ansible-playbook main.yml -e enable_gui=true -e enable_nvidia=false -e enable_pr
 
 The main play targets `localhost`, so inventory `host_vars` are not used for
 the normal local bootstrap path.
+
+Codex setup is enabled by `configure_codex`. It symlinks shared pets into
+`$CODEX_HOME/pets` and merges only the curated shared keys into
+`$CODEX_HOME/config.toml`. Existing Codex config, auth, sessions, caches,
+marketplaces, project trust entries, and machine-local app paths are left alone.

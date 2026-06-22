@@ -90,6 +90,11 @@
     ansible.builtin.include_tasks: tasks/symlinks.yml
     tags:
       - symlinks
+  - name: Codex
+    ansible.builtin.include_tasks: tasks/codex.yml
+    when: configure_codex | bool
+    tags:
+      - codex
   - name: Tmux
     ansible.builtin.include_tasks: tasks/tmux.yml
     tags:
