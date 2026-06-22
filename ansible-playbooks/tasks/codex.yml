@@ -1,5 +1,7 @@
 ---
 - name: Ensure Codex home exists
+  become: "{{ user_task_become | bool }}"
+  become_user: "{{ username }}"
   ansible.builtin.file:
     path: "{{ codex_home }}"
     state: directory
@@ -8,6 +10,8 @@
     - codex
 
 - name: Ensure Codex pets directory exists
+  become: "{{ user_task_become | bool }}"
+  become_user: "{{ username }}"
   ansible.builtin.file:
     path: "{{ codex_home }}/pets"
     state: directory
@@ -17,6 +21,8 @@
     - codex-pets
 
 - name: Symlink shared Codex pets
+  become: "{{ user_task_become | bool }}"
+  become_user: "{{ username }}"
   ansible.builtin.file:
     src: "{{ home_repo }}/codex/pets/{{ item }}"
     dest: "{{ codex_home }}/pets/{{ item }}"
@@ -28,6 +34,8 @@
     - codex-pets
 
 - name: Ensure dotfiles helper directory exists
+  become: "{{ user_task_become | bool }}"
+  become_user: "{{ username }}"
   ansible.builtin.file:
     path: "{{ dotfiles_helper_dir }}"
     state: directory
@@ -37,6 +45,8 @@
     - codex-config
 
 - name: Copy Codex config merge helper
+  become: "{{ user_task_become | bool }}"
+  become_user: "{{ username }}"
   ansible.builtin.copy:
     src: "{{ codex_merge_config_script_source }}"
     dest: "{{ codex_merge_config_script }}"
@@ -46,11 +56,15 @@
     - codex-config
 
 - name: Merge shared Codex config settings
+  become: "{{ user_task_become | bool }}"
+  become_user: "{{ username }}"
   ansible.builtin.command:
     argv:
       - python3
       - "{{ codex_merge_config_script }}"
       - "{{ codex_config_path }}"
+  environment:
+    HOME: "{{ user_home }}"
   register: codex_config_merge
   changed_when: codex_config_merge.stdout == "changed"
   tags:

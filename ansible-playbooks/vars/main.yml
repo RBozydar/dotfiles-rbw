@@ -23,7 +23,7 @@ zshrc_home: "{{ user_home }}/.zshrc"
 zshrc_repo: "{{ repo_root }}/home/.zshrc"
 home_repo: "{{ repo_root }}/home"
 manage_legacy_repo_symlink: "{{ repo_root != legacy_repo_root }}"
-codex_home: "{{ lookup('env', 'CODEX_HOME') | default(user_home ~ '/.codex', true) }}"
+codex_home: "{{ (ansible_env | default({})).CODEX_HOME | default(user_home ~ '/.codex', true) }}"
 codex_config_path: "{{ codex_home }}/config.toml"
 codex_shared_pets:
   - dotneko
@@ -45,12 +45,12 @@ homebrew_prefix_default: >-
     if ansible_system == 'Darwin'
     else '/home/linuxbrew/.linuxbrew'
   }}
-homebrew_prefix: "{{ ansible_env.HOMEBREW_PREFIX | default(homebrew_prefix_default, true) }}"
+homebrew_prefix: "{{ (ansible_env | default({})).HOMEBREW_PREFIX | default(homebrew_prefix_default, true) }}"
 homebrew_bin: "{{ homebrew_prefix }}/bin/brew"
 homebrew_path_env: "{{ homebrew_prefix }}/bin:{{ ansible_env.PATH }}"
 yazi_bin: "{{ homebrew_prefix }}/bin/ya"
 
-miniforge_root: "{{ lookup('env', 'CONDA_HOME') | default(user_home ~ '/miniforge3', true) }}"
+miniforge_root: "{{ (ansible_env | default({})).CONDA_HOME | default(user_home ~ '/miniforge3', true) }}"
 miniforge_platform: "{{ 'MacOSX' if ansible_system == 'Darwin' else 'Linux' }}"
 miniforge_arch: >-
   {{
@@ -69,7 +69,7 @@ miniforge_installer_path: "/tmp/{{ miniforge_installer_filename }}"
 enable_gui: false
 enable_nvidia: false
 enable_private_apps: false
-configure_macos_defaults: true
+configure_macos_defaults: false
 configure_codex: true
 configure_claude: true
 enable_git_role: true

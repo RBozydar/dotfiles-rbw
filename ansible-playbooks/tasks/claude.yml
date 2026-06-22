@@ -1,5 +1,7 @@
 ---
 - name: Ensure Claude home exists
+  become: "{{ user_task_become | bool }}"
+  become_user: "{{ username }}"
   ansible.builtin.file:
     path: "{{ claude_home }}"
     state: directory
@@ -8,6 +10,8 @@
     - claude
 
 - name: Ensure dotfiles helper directory exists
+  become: "{{ user_task_become | bool }}"
+  become_user: "{{ username }}"
   ansible.builtin.file:
     path: "{{ dotfiles_helper_dir }}"
     state: directory
@@ -17,6 +21,8 @@
     - claude-settings
 
 - name: Copy Claude settings merge helper
+  become: "{{ user_task_become | bool }}"
+  become_user: "{{ username }}"
   ansible.builtin.copy:
     src: "{{ claude_merge_settings_script_source }}"
     dest: "{{ claude_merge_settings_script }}"
@@ -26,12 +32,16 @@
     - claude-settings
 
 - name: Merge shared Claude settings
+  become: "{{ user_task_become | bool }}"
+  become_user: "{{ username }}"
   ansible.builtin.command:
     argv:
       - python3
       - "{{ claude_merge_settings_script }}"
       - "{{ claude_shared_settings_path }}"
       - "{{ claude_settings_path }}"
+  environment:
+    HOME: "{{ user_home }}"
   register: claude_settings_merge
   changed_when: claude_settings_merge.stdout == "changed"
   tags:

@@ -73,10 +73,22 @@ def setting_line(key: str, value: str | bool) -> str:
 
 def table_header(line: str) -> tuple[str, bool] | None:
     stripped = line.strip()
-    if stripped.startswith("[[") and stripped.endswith("]]"):
-        return stripped[2:-2].strip(), True
-    if stripped.startswith("[") and stripped.endswith("]"):
-        return stripped[1:-1].strip(), False
+    if stripped.startswith("[["):
+        end = stripped.find("]]", 2)
+        if end == -1:
+            return None
+        suffix = stripped[end + 2 :].strip()
+        if suffix and not suffix.startswith("#"):
+            return None
+        return stripped[2:end].strip(), True
+    if stripped.startswith("["):
+        end = stripped.find("]", 1)
+        if end == -1:
+            return None
+        suffix = stripped[end + 1 :].strip()
+        if suffix and not suffix.startswith("#"):
+            return None
+        return stripped[1:end].strip(), False
     return None
 
 
