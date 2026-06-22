@@ -76,7 +76,7 @@ def merge_hook_list(current: list[Any], desired: list[Any]) -> bool:
                     break
 
             if existing_hook is None:
-                current.append(desired_entry)
+                matching_entries[0]["hooks"].append(desired_hook)
                 changed = True
             else:
                 changed = merge_value(existing_hook, desired_hook) or changed

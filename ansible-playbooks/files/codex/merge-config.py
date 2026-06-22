@@ -71,11 +71,21 @@ def setting_line(key: str, value: str | bool) -> str:
     return f"{key} = {format_value(value)}\n"
 
 
-def section_name(line: str) -> str | None:
+def table_header(line: str) -> tuple[str, bool] | None:
     stripped = line.strip()
-    if stripped.startswith("[[") or not stripped.startswith("[") or not stripped.endswith("]"):
+    if stripped.startswith("[[") and stripped.endswith("]]"):
+        return stripped[2:-2].strip(), True
+    if stripped.startswith("[") and stripped.endswith("]"):
+        return stripped[1:-1].strip(), False
+    return None
+
+
+def section_name(line: str) -> str | None:
+    header = table_header(line)
+    if header is None:
         return None
-    return stripped[1:-1].strip()
+    name, is_array = header
+    return None if is_array else name
 
 
 def key_name(line: str) -> str | None:
@@ -100,15 +110,18 @@ def seed_config() -> list[str]:
 
 
 def section_ranges(lines: list[str]) -> dict[str, tuple[int, int]]:
-    headers: list[tuple[str, int]] = []
+    headers: list[tuple[str, bool, int]] = []
     for index, line in enumerate(lines):
-        name = section_name(line)
-        if name is not None:
-            headers.append((name, index))
+        header = table_header(line)
+        if header is not None:
+            name, is_array = header
+            headers.append((name, is_array, index))
 
     ranges: dict[str, tuple[int, int]] = {}
-    for header_index, (name, start) in enumerate(headers):
-        end = headers[header_index + 1][1] if header_index + 1 < len(headers) else len(lines)
+    for header_index, (name, is_array, start) in enumerate(headers):
+        if is_array:
+            continue
+        end = headers[header_index + 1][2] if header_index + 1 < len(headers) else len(lines)
         ranges.setdefault(name, (start, end))
     return ranges
 
@@ -119,9 +132,12 @@ def update_existing_lines(lines: list[str]) -> tuple[set[str], dict[str, set[str
     current_section: str | None = None
 
     for index, line in enumerate(lines):
-        found_section = section_name(line)
-        if found_section is not None:
-            current_section = found_section
+        found_header = table_header(line)
+        if found_header is not None:
+            found_section, is_array = found_header
+            current_section = None if not is_array else f"array:{found_section}"
+            if not is_array:
+                current_section = found_section
             continue
 
         found_key = key_name(line)
@@ -148,7 +164,7 @@ def insert_top_level_missing(lines: list[str], missing_keys: list[str]) -> None:
     if not missing_keys:
         return
 
-    insert_at = next((index for index, line in enumerate(lines) if section_name(line) is not None), len(lines))
+    insert_at = next((index for index, line in enumerate(lines) if table_header(line) is not None), len(lines))
     new_lines = [setting_line(key, TOP_LEVEL_SETTINGS[key]) for key in missing_keys]
 
     if insert_at > 0 and lines[insert_at - 1].strip():

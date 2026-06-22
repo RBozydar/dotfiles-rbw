@@ -4,7 +4,8 @@
     argv:
       - sh
       - "{{ playbook_dir }}/files/macos/defaults.sh"
-  changed_when: false
+  register: macos_defaults
+  changed_when: macos_defaults.stdout == "changed"
   tags:
     - macos
     - macos-defaults
