@@ -16,14 +16,20 @@ ansible_ssh_user: "{{ lookup('env', 'USER') }}"
 
 username: "{{ lookup('env', 'USER') }}"
 user_home: "{{ lookup('env', 'HOME') }}"
-user_task_become: "{{ (ansible_user_id | default(username)) != username }}"
+target_env: "{{ ansible_facts['env'] | default({}) }}"
+target_system: "{{ ansible_facts['system'] | default('') }}"
+target_architecture: "{{ ansible_facts['architecture'] | default('') }}"
+target_distribution_version: "{{ ansible_facts['distribution_version'] | default('0') }}"
+target_user_id: "{{ ansible_facts['user_id'] | default(username) }}"
+target_path: "{{ target_env.PATH | default('/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin') }}"
+user_task_become: "{{ target_user_id != username }}"
 repo_root: "{{ lookup('env', 'DOTFILES_REPO_ROOT') | default((playbook_dir | dirname), true) }}"
 legacy_repo_root: "{{ user_home }}/repo/dotfiles"
 zshrc_home: "{{ user_home }}/.zshrc"
 zshrc_repo: "{{ repo_root }}/home/.zshrc"
 home_repo: "{{ repo_root }}/home"
 manage_legacy_repo_symlink: "{{ repo_root != legacy_repo_root }}"
-codex_home: "{{ (ansible_env | default({})).CODEX_HOME | default(user_home ~ '/.codex', true) }}"
+codex_home: "{{ target_env.CODEX_HOME | default(user_home ~ '/.codex', true) }}"
 codex_config_path: "{{ codex_home }}/config.toml"
 codex_shared_pets:
   - dotneko
@@ -40,27 +46,27 @@ claude_merge_settings_script: "{{ dotfiles_helper_dir }}/merge-claude-settings.p
 homebrew_prefix_default: >-
   {{
     '/opt/homebrew'
-    if ansible_system == 'Darwin' and ansible_architecture in ['arm64', 'aarch64']
+    if target_system == 'Darwin' and target_architecture in ['arm64', 'aarch64']
     else '/usr/local'
-    if ansible_system == 'Darwin'
+    if target_system == 'Darwin'
     else '/home/linuxbrew/.linuxbrew'
   }}
-homebrew_prefix: "{{ (ansible_env | default({})).HOMEBREW_PREFIX | default(homebrew_prefix_default, true) }}"
+homebrew_prefix: "{{ target_env.HOMEBREW_PREFIX | default(homebrew_prefix_default, true) }}"
 homebrew_bin: "{{ homebrew_prefix }}/bin/brew"
-homebrew_path_env: "{{ homebrew_prefix }}/bin:{{ ansible_env.PATH }}"
+homebrew_path_env: "{{ homebrew_prefix }}/bin:{{ target_path }}"
 yazi_bin: "{{ homebrew_prefix }}/bin/ya"
 
-miniforge_root: "{{ (ansible_env | default({})).CONDA_HOME | default(user_home ~ '/miniforge3', true) }}"
-miniforge_platform: "{{ 'MacOSX' if ansible_system == 'Darwin' else 'Linux' }}"
+miniforge_root: "{{ target_env.CONDA_HOME | default(user_home ~ '/miniforge3', true) }}"
+miniforge_platform: "{{ 'MacOSX' if target_system == 'Darwin' else 'Linux' }}"
 miniforge_arch: >-
   {{
     'x86_64'
-    if ansible_architecture in ['x86_64', 'amd64']
+    if target_architecture in ['x86_64', 'amd64']
     else 'aarch64'
-    if ansible_architecture == 'aarch64'
+    if target_architecture == 'aarch64'
     else 'arm64'
-    if ansible_architecture == 'arm64'
-    else ansible_architecture
+    if target_architecture == 'arm64'
+    else target_architecture
   }}
 miniforge_installer_filename: "Miniforge3-{{ miniforge_platform }}-{{ miniforge_arch }}.sh"
 miniforge_installer_url: "https://github.com/conda-forge/miniforge/releases/latest/download/{{ miniforge_installer_filename }}"
