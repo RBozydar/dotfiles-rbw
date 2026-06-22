@@ -55,6 +55,8 @@ homebrew_prefix: "{{ target_env.HOMEBREW_PREFIX | default(homebrew_prefix_defaul
 homebrew_bin: "{{ homebrew_prefix }}/bin/brew"
 homebrew_path_env: "{{ homebrew_prefix }}/bin:{{ target_path }}"
 yazi_bin: "{{ homebrew_prefix }}/bin/ya"
+fnm_dir: "{{ target_env.FNM_DIR | default(target_env.FNM_PATH | default(user_home ~ '/.local/share/fnm', true), true) }}"
+fnm_path_env: "{{ fnm_dir }}:{{ homebrew_path_env if target_system == 'Darwin' else target_path }}"
 
 miniforge_root: "{{ target_env.CONDA_HOME | default(user_home ~ '/miniforge3', true) }}"
 miniforge_platform: "{{ 'MacOSX' if target_system == 'Darwin' else 'Linux' }}"

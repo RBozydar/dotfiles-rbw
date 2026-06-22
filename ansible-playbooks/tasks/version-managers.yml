@@ -1,27 +1,61 @@
 ---
 # fnm (Fast Node Manager)
-- name: Check if fnm is installed
-  ansible.builtin.stat:
-    path: "{{ user_home }}/.local/share/fnm/fnm"
-  register: fnm_installed
+- name: Locate fnm
+  ansible.builtin.shell:
+    cmd: command -v fnm || true
+  register: fnm_lookup
+  changed_when: false
+  environment:
+    PATH: "{{ fnm_path_env }}"
 
 - name: Install fnm
-  when: not fnm_installed.stat.exists
+  when: fnm_lookup.stdout | trim == ""
   become: "{{ user_task_become | bool }}"
   become_user: "{{ username }}"
   ansible.builtin.shell:
     cmd: curl -fsSL https://fnm.vercel.app/install | bash -s -- --skip-shell
+  environment:
+    FNM_DIR: "{{ fnm_dir }}"
+    FNM_PATH: "{{ fnm_dir }}"
+    PATH: "{{ fnm_path_env }}"
+
+- name: Locate fnm after install
+  ansible.builtin.shell:
+    cmd: command -v fnm || true
+  register: fnm_lookup_after_install
+  changed_when: false
+  environment:
+    PATH: "{{ fnm_path_env }}"
+
+- name: Set fnm binary path
+  ansible.builtin.set_fact:
+    fnm_bin: "{{ fnm_lookup_after_install.stdout | trim }}"
+
+- name: Verify fnm is available
+  ansible.builtin.assert:
+    that:
+      - fnm_bin != ""
+    fail_msg: "fnm was not found on PATH after install. Checked PATH={{ fnm_path_env }}"
 
 - name: Install default Node version via fnm
   become: "{{ user_task_become | bool }}"
   become_user: "{{ username }}"
   ansible.builtin.command:
-    cmd: "{{ user_home }}/.local/share/fnm/fnm install --lts"
+    argv:
+      - "{{ fnm_bin }}"
+      - install
+      - --lts
+  environment:
+    FNM_DIR: "{{ fnm_dir }}"
+    FNM_PATH: "{{ fnm_dir }}"
+    PATH: "{{ fnm_path_env }}"
 
 - name: Get latest installed fnm Node version
+  become: "{{ user_task_become | bool }}"
+  become_user: "{{ username }}"
   ansible.builtin.shell:
     cmd: |
-      node_versions_dir="{{ user_home }}/.local/share/fnm/node-versions"
+      node_versions_dir="{{ fnm_dir }}/node-versions"
       mkdir -p "$node_versions_dir"
       python3 - "$node_versions_dir" <<'PY'
       import re
@@ -43,24 +77,37 @@
       PY
   register: fnm_default_version
   changed_when: false
+  environment:
+    FNM_DIR: "{{ fnm_dir }}"
+    FNM_PATH: "{{ fnm_dir }}"
+    PATH: "{{ fnm_path_env }}"
 
 - name: Set default Node version via fnm
   when: fnm_default_version.stdout != ""
   become: "{{ user_task_become | bool }}"
   become_user: "{{ username }}"
   ansible.builtin.command:
-    cmd: "{{ user_home }}/.local/share/fnm/fnm default {{ fnm_default_version.stdout }}"
+    argv:
+      - "{{ fnm_bin }}"
+      - default
+      - "{{ fnm_default_version.stdout }}"
+  environment:
+    FNM_DIR: "{{ fnm_dir }}"
+    FNM_PATH: "{{ fnm_dir }}"
+    PATH: "{{ fnm_path_env }}"
 
 - name: Install npm global packages
   become: "{{ user_task_become | bool }}"
   become_user: "{{ username }}"
   community.general.npm:
     name: "{{ item }}"
-    executable: "{{ user_home }}/.local/share/fnm/aliases/default/bin/npm"
+    executable: "{{ fnm_dir }}/aliases/default/bin/npm"
     global: true
     state: present
   environment:
-    PATH: "{{ user_home }}/.local/share/fnm/aliases/default/bin:{{ ansible_facts['env']['PATH'] }}"
+    FNM_DIR: "{{ fnm_dir }}"
+    FNM_PATH: "{{ fnm_dir }}"
+    PATH: "{{ fnm_dir }}/aliases/default/bin:{{ fnm_path_env }}"
   loop: "{{ npm_global_packages }}"
 
 # uv (Python package manager)
