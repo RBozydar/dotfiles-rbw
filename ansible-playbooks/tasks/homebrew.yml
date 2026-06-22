@@ -13,17 +13,6 @@
   environment:
     NONINTERACTIVE: "1"
 
-- name: Add Homebrew taps
-  become: "{{ user_task_become | bool }}"
-  become_user: "{{ username }}"
-  community.general.homebrew_tap:
-    name: "{{ item }}"
-    state: present
-  environment:
-    PATH: "{{ homebrew_path_env }}"
-  loop:
-    - jesseduffield/lazydocker
-
 - name: Install Homebrew formulae
   become: "{{ user_task_become | bool }}"
   become_user: "{{ username }}"
@@ -39,6 +28,7 @@
   community.general.homebrew_cask:
     name: "{{ brew_casks }}"
     state: present
+    accept_external_apps: true
   when: enable_gui | bool
   environment:
     PATH: "{{ homebrew_path_env }}"

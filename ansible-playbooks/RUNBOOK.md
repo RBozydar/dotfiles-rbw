@@ -156,6 +156,12 @@ zsh -lic 'echo $SHELL; command -v brew fnm uv bun'
   missing dependency explicitly.
 - Homebrew path wrong in Vagrant or remote runs: use target facts/env, not
   controller `lookup("env")`, for target paths.
+- Existing macOS app outside Homebrew: cask installs use
+  `accept_external_apps` so pre-existing `/Applications/*.app` bundles do not
+  fail a bootstrap run.
+- Homebrew tap trust warnings: do not broadly trust third-party taps from the
+  playbook. Remove obsolete taps when possible, or trust only the specific
+  formula/cask you intentionally installed from that tap.
 - Root-owned files in user home: check `become`, `become_user`, and
   `user_task_become`.
 - Unsupported macOS cask: gate by OS version or architecture instead of letting
