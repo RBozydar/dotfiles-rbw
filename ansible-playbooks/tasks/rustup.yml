@@ -46,11 +46,11 @@
       {{ '' }}
       {%- endif -%}
 
-- name: Install colgrep
+- name: Install or update colgrep
   become: "{{ user_task_become | bool }}"
   become_user: "{{ username }}"
   ansible.builtin.command:
-    argv: "{{ [user_home ~ '/.cargo/bin/cargo', 'install', 'colgrep'] + (['--features', colgrep_cargo_features | trim] if (colgrep_cargo_features | trim) else []) }}"
+    argv: "{{ [user_home ~ '/.cargo/bin/cargo', 'install', '--force', 'colgrep'] + (['--features', colgrep_cargo_features | trim] if (colgrep_cargo_features | trim) else []) }}"
   environment:
     PATH: "{{ user_home }}/.cargo/bin:{{ ansible_facts['env']['PATH'] }}"
 

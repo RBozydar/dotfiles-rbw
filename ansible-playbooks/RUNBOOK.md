@@ -157,6 +157,9 @@ Colgrep is installed with platform-specific Cargo features:
 - Linux without detected NVIDIA runtime: `openblas`
 - Other platforms: Cargo defaults
 
+The playbook uses `cargo install --force colgrep` so an existing older binary
+is replaced with the feature set selected for the current machine.
+
 ## Common Failure Modes
 
 - Missing Galaxy role or collection: install `requirements.yml` or report the
