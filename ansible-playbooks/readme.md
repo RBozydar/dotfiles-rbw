@@ -3,6 +3,9 @@
 These playbooks default to a terminal/server-oriented setup. GUI packages,
 desktop config, and NVIDIA-specific tooling are opt-in.
 
+Agent-specific guidance lives in `AGENTS.md`. Operational commands and common
+failure modes live in `RUNBOOK.md`.
+
 Run the default local bootstrap from this directory:
 
 ```sh
