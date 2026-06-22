@@ -64,3 +64,7 @@ Claude setup is enabled by `configure_claude`. It merges shared settings from
 symlinking the whole file. Existing local Claude settings are preserved; shared
 dict entries are updated, missing list items are appended, and stale local
 entries are not removed.
+
+For agent handoff on other macOS laptops, including how to verify local state
+and split common, private, work, and local-only changes, see
+`../docs/macos-agent-handoff.md`.
