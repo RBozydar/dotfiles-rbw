@@ -9,9 +9,9 @@
         "rawValue": true
       },
       {
-        "id": "3",
-        "type": "context-length",
-        "color": "brightBlack",
+        "id": "e1830ea8-2b52-4f16-854e-f39ff5eea77b",
+        "type": "thinking-effort",
+        "backgroundColor": "bgCyan",
         "rawValue": true
       },
       {
@@ -32,30 +32,35 @@
         "rawValue": false
       },
       {
-        "id": "b6701f59-aaaf-4a8b-a319-66c72763ef72",
-        "type": "block-timer",
-        "backgroundColor": "bgBrightCyan"
-      },
-      {
-        "id": "d2e5ceee-b267-4bd6-aabd-38a2703dca6c",
-        "type": "claude-session-id",
-        "backgroundColor": "bgBlue",
+        "id": "bfed33f7-2137-4f53-a91a-246d2bd18641",
+        "type": "session-cost",
+        "backgroundColor": "bgBrightGreen",
         "rawValue": true
       },
       {
-        "id": "c26dfe01-b913-448c-8c16-ffe89956bcb7",
+        "id": "a50a76f2-2a13-4a35-a297-099101c467d7",
         "type": "current-working-dir",
-        "backgroundColor": "bgBrightWhite",
+        "backgroundColor": "bgBrightYellow",
+        "rawValue": true,
+        "metadata": {
+          "segments": "2"
+        }
+      },
+      {
+        "id": "34a62847-f049-4be3-af3b-ec51d3b4ebab",
+        "type": "total-speed",
+        "backgroundColor": "bgCyan",
         "rawValue": true
       }
     ]
   ],
-  "flexMode": "full-minus-40",
+  "flexMode": "full",
   "compactThreshold": 60,
   "colorLevel": 2,
   "defaultPadding": " ",
   "inheritSeparatorColors": false,
   "globalBold": false,
+  "minimalistMode": false,
   "powerline": {
     "enabled": true,
     "separators": [
@@ -71,6 +76,7 @@
       ""
     ],
     "theme": "tokyonight",
-    "autoAlign": false
+    "autoAlign": true,
+    "continueThemeAcrossLines": false
   }
 }
