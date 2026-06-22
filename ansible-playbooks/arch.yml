@@ -86,7 +86,9 @@
       apply:
         tags:
           - nvidia
-    when: has_nvidia_gpu | default(false) | bool
+    when:
+      - enable_nvidia | bool
+      - has_nvidia_gpu | default(false) | bool
     tags:
       - nvidia
 

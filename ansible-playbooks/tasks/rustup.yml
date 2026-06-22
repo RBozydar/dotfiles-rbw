@@ -6,13 +6,13 @@
 
 - name: Install rustup
   when: not rustup_installed.stat.exists
-  become: yes
+  become: "{{ user_task_become | bool }}"
   become_user: "{{ username }}"
   ansible.builtin.shell:
     cmd: curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain stable
 
 - name: Install cargo-update
-  become: yes
+  become: "{{ user_task_become | bool }}"
   become_user: "{{ username }}"
   ansible.builtin.command:
     cmd: "{{ user_home }}/.cargo/bin/cargo install cargo-update"
@@ -21,30 +21,41 @@
     PATH: "{{ user_home }}/.cargo/bin:{{ ansible_facts['env']['PATH'] }}"
 
 - name: Check if NVIDIA runtime is available for colgrep CUDA build
-  become: yes
+  become: "{{ user_task_become | bool }}"
   become_user: "{{ username }}"
   ansible.builtin.command:
     cmd: nvidia-smi -L
   register: colgrep_nvidia_smi
   changed_when: false
   failed_when: false
-  when: ansible_facts['system'] == 'Linux'
+  when:
+    - ansible_facts['system'] == 'Linux'
+    - enable_nvidia | bool
 
 - name: Set colgrep install arguments
   ansible.builtin.set_fact:
-    colgrep_cargo_install_args: >-
-      colgrep{% if ansible_facts['system'] == 'Linux' and (colgrep_nvidia_smi is defined) and colgrep_nvidia_smi.rc == 0 %} --features cuda{% endif %}
+    colgrep_cargo_features: >-
+      {%- set has_nvidia = enable_nvidia | bool and target_system == 'Linux' and (colgrep_nvidia_smi is defined) and colgrep_nvidia_smi.rc == 0 -%}
+      {%- if target_system == 'Darwin' -%}
+      accelerate,coreml
+      {%- elif target_system == 'Linux' and has_nvidia -%}
+      cuda
+      {%- elif target_system == 'Linux' -%}
+      openblas
+      {%- else -%}
+      {{ '' }}
+      {%- endif -%}
 
-- name: Install colgrep
-  become: yes
+- name: Install or update colgrep
+  become: "{{ user_task_become | bool }}"
   become_user: "{{ username }}"
   ansible.builtin.command:
-    cmd: "{{ user_home }}/.cargo/bin/cargo install {{ colgrep_cargo_install_args }}"
+    argv: "{{ [user_home ~ '/.cargo/bin/cargo', 'install', '--force', 'colgrep'] + (['--features', colgrep_cargo_features | trim] if (colgrep_cargo_features | trim) else []) }}"
   environment:
     PATH: "{{ user_home }}/.cargo/bin:{{ ansible_facts['env']['PATH'] }}"
 
 - name: Set GPU colgrep model
-  become: yes
+  become: "{{ user_task_become | bool }}"
   become_user: "{{ username }}"
   ansible.builtin.command:
     cmd: "{{ user_home }}/.cargo/bin/colgrep set-model lightonai/LateOn-Code"
@@ -52,10 +63,11 @@
     PATH: "{{ user_home }}/.cargo/bin:{{ ansible_facts['env']['PATH'] }}"
   when:
     - ansible_facts['system'] == 'Linux'
+    - enable_nvidia | bool
     - (colgrep_nvidia_smi is defined) and colgrep_nvidia_smi.rc == 0
 
 - name: Set GPU colgrep precision
-  become: yes
+  become: "{{ user_task_become | bool }}"
   become_user: "{{ username }}"
   ansible.builtin.command:
     cmd: "{{ user_home }}/.cargo/bin/colgrep settings --fp32"
@@ -63,10 +75,11 @@
     PATH: "{{ user_home }}/.cargo/bin:{{ ansible_facts['env']['PATH'] }}"
   when:
     - ansible_facts['system'] == 'Linux'
+    - enable_nvidia | bool
     - (colgrep_nvidia_smi is defined) and colgrep_nvidia_smi.rc == 0
 
 - name: Set GPU colgrep pooling
-  become: yes
+  become: "{{ user_task_become | bool }}"
   become_user: "{{ username }}"
   ansible.builtin.command:
     cmd: "{{ user_home }}/.cargo/bin/colgrep settings --pool-factor 1"
@@ -74,4 +87,5 @@
     PATH: "{{ user_home }}/.cargo/bin:{{ ansible_facts['env']['PATH'] }}"
   when:
     - ansible_facts['system'] == 'Linux'
+    - enable_nvidia | bool
     - (colgrep_nvidia_smi is defined) and colgrep_nvidia_smi.rc == 0

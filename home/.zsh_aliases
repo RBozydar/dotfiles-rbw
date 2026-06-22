@@ -1,10 +1,22 @@
 alias reload="source ~/.zshrc"
 alias rr="rm -rf"
 alias restart_deluge="cd ~/repo/how-to-setup-deluge-with-protonvpn-portforward && docker compose down && docker compose up -d"
+
+if (( $+commands[eza] )); then
+  alias ls="eza"
+  alias ll="eza -la --git"
+  alias la="eza -a"
+  alias lt="eza --tree"
+fi
+
+if (( $+commands[bat] )); then
+  alias cat="bat"
+elif (( $+commands[batcat] )); then
+  alias cat="batcat"
+fi
+
 #config aliases
-alias i3config="gedit ~/.config/i3/config"
 alias zshconfig="gedit ~/.zshrc"
-alias polycfg="gedit ~/.config/polybar/config"
 alias yt-dlp="yt-dlp --remux-video mkv --embed-metadata --embed-info-json"
 # apt aliases
 alias install="sudo apt-get -y install"
