@@ -136,10 +136,8 @@ macos_brew_packages:
 
 macos_common_brew_casks:
   - bitwarden
-  - chatgpt
   - claude
   - codex
-  - codexbar
   - firefox
   - font-fira-code
   - ghostty
@@ -147,6 +145,12 @@ macos_common_brew_casks:
   - google-chrome
   - google-drive
   - visual-studio-code
+
+macos_macos14_brew_casks:
+  - codexbar
+
+macos_macos14_arm64_brew_casks:
+  - chatgpt
 
 macos_private_brew_casks:
   - home-assistant
@@ -161,6 +165,19 @@ macos_private_brew_casks:
 macos_brew_casks: >-
   {{
     macos_common_brew_casks
+    + (
+      macos_macos14_brew_casks
+      if ansible_system == 'Darwin'
+      and (ansible_distribution_version | default('0')) is version('14.0', '>=')
+      else []
+    )
+    + (
+      macos_macos14_arm64_brew_casks
+      if ansible_system == 'Darwin'
+      and (ansible_distribution_version | default('0')) is version('14.0', '>=')
+      and ansible_architecture in ['arm64', 'aarch64']
+      else []
+    )
     + (macos_private_brew_casks if enable_private_apps | bool else [])
   }}
 

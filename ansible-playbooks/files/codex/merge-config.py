@@ -175,6 +175,10 @@ def insert_top_level_missing(lines: list[str], missing_keys: list[str]) -> None:
     lines[insert_at:insert_at] = new_lines
 
 
+def needs_line_boundary(lines: list[str], insert_at: int) -> bool:
+    return insert_at > 0 and not lines[insert_at - 1].endswith(("\n", "\r"))
+
+
 def insert_section_missing(lines: list[str], present_by_section: dict[str, set[str]]) -> None:
     ranges = section_ranges(lines)
     sections_to_update = [section for section in SECTION_SETTINGS if section in ranges]
@@ -189,6 +193,8 @@ def insert_section_missing(lines: list[str], present_by_section: dict[str, set[s
 
         _start, end = ranges[section]
         new_lines = [setting_line(key, SECTION_SETTINGS[section][key]) for key in missing]
+        if needs_line_boundary(lines, end):
+            new_lines.insert(0, "\n")
         lines[end:end] = new_lines
 
     for section, settings in SECTION_SETTINGS.items():

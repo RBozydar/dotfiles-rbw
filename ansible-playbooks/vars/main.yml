@@ -45,7 +45,7 @@ homebrew_prefix_default: >-
     if ansible_system == 'Darwin'
     else '/home/linuxbrew/.linuxbrew'
   }}
-homebrew_prefix: "{{ lookup('env', 'HOMEBREW_PREFIX') | default(homebrew_prefix_default, true) }}"
+homebrew_prefix: "{{ ansible_env.HOMEBREW_PREFIX | default(homebrew_prefix_default, true) }}"
 homebrew_bin: "{{ homebrew_prefix }}/bin/brew"
 homebrew_path_env: "{{ homebrew_prefix }}/bin:{{ ansible_env.PATH }}"
 yazi_bin: "{{ homebrew_prefix }}/bin/ya"
