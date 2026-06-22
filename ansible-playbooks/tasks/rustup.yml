@@ -34,14 +34,23 @@
 
 - name: Set colgrep install arguments
   ansible.builtin.set_fact:
-    colgrep_cargo_install_args: >-
-      colgrep{% if enable_nvidia | bool and ansible_facts['system'] == 'Linux' and (colgrep_nvidia_smi is defined) and colgrep_nvidia_smi.rc == 0 %} --features cuda{% endif %}
+    colgrep_cargo_features: >-
+      {%- set has_nvidia = enable_nvidia | bool and target_system == 'Linux' and (colgrep_nvidia_smi is defined) and colgrep_nvidia_smi.rc == 0 -%}
+      {%- if target_system == 'Darwin' -%}
+      accelerate,coreml
+      {%- elif target_system == 'Linux' and has_nvidia -%}
+      cuda
+      {%- elif target_system == 'Linux' -%}
+      openblas
+      {%- else -%}
+      {{ '' }}
+      {%- endif -%}
 
 - name: Install colgrep
   become: "{{ user_task_become | bool }}"
   become_user: "{{ username }}"
   ansible.builtin.command:
-    cmd: "{{ user_home }}/.cargo/bin/cargo install {{ colgrep_cargo_install_args }}"
+    argv: "{{ [user_home ~ '/.cargo/bin/cargo', 'install', 'colgrep'] + (['--features', colgrep_cargo_features | trim] if (colgrep_cargo_features | trim) else []) }}"
   environment:
     PATH: "{{ user_home }}/.cargo/bin:{{ ansible_facts['env']['PATH'] }}"
 

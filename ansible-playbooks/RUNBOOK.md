@@ -150,6 +150,13 @@ For shell startup:
 zsh -lic 'echo $SHELL; command -v brew fnm uv bun'
 ```
 
+Colgrep is installed with platform-specific Cargo features:
+
+- macOS: `accelerate,coreml`
+- Linux with detected NVIDIA runtime and `enable_nvidia=true`: `cuda`
+- Linux without detected NVIDIA runtime: `openblas`
+- Other platforms: Cargo defaults
+
 ## Common Failure Modes
 
 - Missing Galaxy role or collection: install `requirements.yml` or report the
