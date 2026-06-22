@@ -5,20 +5,22 @@
       update_cache: yes
       upgrade: yes
 
-  - name: Ensure arch specific packages are installed
+  - name: Install arch packages
     become: yes
-    ansible.builtin.package:
+    community.general.pacman:
       name: "{{ arch_packages }}"
       state: present
+    tags:
+      - packages
 
-  - name: Create the `aur_builder` user
+  - name: Create the aur_builder user
     become: yes
     ansible.builtin.user:
       name: aur_builder
       create_home: yes
       group: wheel
 
-  - name: Allow the `aur_builder` user to run `sudo pacman` without a password
+  - name: Allow aur_builder to run sudo pacman without a password
     become: yes
     ansible.builtin.lineinfile:
       path: /etc/sudoers.d/11-install-aur_builder
@@ -26,17 +28,86 @@
       create: yes
       validate: 'visudo -cf %s'
 
-  - name: Install aur packages using makepkg if it isn't installed already
+  - name: Remove VS Code OSS (conflicts with proprietary VS Code)
+    become: yes
+    community.general.pacman:
+      name: code
+      state: absent
+    ignore_errors: yes
+
+  - name: Install AUR packages
     kewlfft.aur.aur:
       name: "{{ aur_packages }}"
       use: makepkg
       state: present
     become: yes
     become_user: aur_builder
+    tags:
+      - aur
 
-  - name: Ensure docker users are added to the docker group.
+  - name: Configure NCT6687 fan control support
+    ansible.builtin.include_tasks: tasks/nct6687-arch.yml
+    tags:
+      - hwmon
+      - fans
+
+  - name: Add user to docker group
     become: yes
-    user:
-      name: rbw
+    ansible.builtin.user:
+      name: "{{ username }}"
       groups: docker
       append: true
+
+  - name: Enable and start Docker
+    become: yes
+    ansible.builtin.systemd:
+      name: docker
+      enabled: yes
+      state: started
+    tags:
+      - docker
+
+  - name: Keep Docker bridges unmanaged by NetworkManager
+    become: yes
+    ansible.builtin.copy:
+      src: files/networkmanager/90-unmanage-docker.conf
+      dest: /etc/NetworkManager/conf.d/90-unmanage-docker.conf
+      owner: root
+      group: root
+      mode: '0644'
+    notify: Restart NetworkManager
+    tags:
+      - docker
+      - networkmanager
+
+  - name: NVIDIA CUDA
+    ansible.builtin.include_tasks:
+      file: tasks/nvidia-cuda-arch.yml
+      apply:
+        tags:
+          - nvidia
+    when:
+      - enable_nvidia | bool
+      - has_nvidia_gpu | default(false) | bool
+    tags:
+      - nvidia
+
+  - name: Install yazi piper plugin
+    become: yes
+    become_user: "{{ username }}"
+    ansible.builtin.command:
+      cmd: ya pkg add yazi-rs/plugins:piper
+    register: yazi_plugin_result
+    changed_when: "'already exists' not in yazi_plugin_result.stderr"
+    failed_when: "yazi_plugin_result.rc != 0 and 'already exists' not in yazi_plugin_result.stderr"
+    tags:
+      - yazi
+
+  - name: Install yazi plugins
+    become: yes
+    become_user: "{{ username }}"
+    ansible.builtin.command:
+      cmd: ya pkg install
+    changed_when: true
+    tags:
+      - yazi

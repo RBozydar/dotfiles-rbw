@@ -1,0 +1,274 @@
+---
+# Shell
+- name: Symlink .zshrc
+  ansible.builtin.file:
+    src: "{{ home_repo }}/.zshrc"
+    dest: "{{ user_home }}/.zshrc"
+    state: link
+    force: yes
+
+- name: Symlink .zsh_aliases
+  ansible.builtin.file:
+    src: "{{ home_repo }}/.zsh_aliases"
+    dest: "{{ user_home }}/.zsh_aliases"
+    state: link
+    force: yes
+
+- name: Symlink .zsh_exports
+  ansible.builtin.file:
+    src: "{{ home_repo }}/.zsh_exports"
+    dest: "{{ user_home }}/.zsh_exports"
+    state: link
+    force: yes
+
+- name: Symlink .zsh_plugins.txt
+  ansible.builtin.file:
+    src: "{{ home_repo }}/.zsh_plugins.txt"
+    dest: "{{ user_home }}/.zsh_plugins.txt"
+    state: link
+    force: yes
+
+- name: Symlink .zsh_utils_git-worktree
+  ansible.builtin.file:
+    src: "{{ home_repo }}/utils/git-worktree.zsh"
+    dest: "{{ user_home }}/.zsh_utils_git-worktree"
+    state: link
+    force: yes
+
+# Git
+- name: Symlink .gitconfig
+  ansible.builtin.file:
+    src: "{{ home_repo }}/.gitconfig"
+    dest: "{{ user_home }}/.gitconfig"
+    state: link
+    force: yes
+
+- name: Symlink .gitignore_global
+  ansible.builtin.file:
+    src: "{{ home_repo }}/.gitignore_global"
+    dest: "{{ user_home }}/.gitignore_global"
+    state: link
+    force: yes
+
+# Editors
+- name: Symlink .nanorc
+  ansible.builtin.file:
+    src: "{{ home_repo }}/.nanorc"
+    dest: "{{ user_home }}/.nanorc"
+    state: link
+    force: yes
+
+# Terminal
+- name: Symlink .tmux.conf
+  ansible.builtin.file:
+    src: "{{ home_repo }}/.tmux.conf"
+    dest: "{{ user_home }}/.tmux.conf"
+    state: link
+    force: yes
+
+# App configs
+- name: Remove existing btop config directory
+  ansible.builtin.file:
+    path: "{{ user_home }}/.config/btop"
+    state: absent
+
+- name: Symlink btop config
+  ansible.builtin.file:
+    src: "{{ home_repo }}/config/btop"
+    dest: "{{ user_home }}/.config/btop"
+    state: link
+    force: yes
+
+- name: Ensure gh config directory exists
+  ansible.builtin.file:
+    path: "{{ user_home }}/.config/gh"
+    state: directory
+
+- name: Symlink gh config.yml
+  ansible.builtin.file:
+    src: "{{ home_repo }}/config/gh/config.yml"
+    dest: "{{ user_home }}/.config/gh/config.yml"
+    state: link
+    force: yes
+
+- name: Remove existing pip config directory
+  ansible.builtin.file:
+    path: "{{ user_home }}/.config/pip"
+    state: absent
+
+- name: Symlink pip config
+  ansible.builtin.file:
+    src: "{{ home_repo }}/config/pip"
+    dest: "{{ user_home }}/.config/pip"
+    state: link
+    force: yes
+
+- name: Remove existing htop config directory
+  ansible.builtin.file:
+    path: "{{ user_home }}/.config/htop"
+    state: absent
+
+- name: Symlink htop config
+  ansible.builtin.file:
+    src: "{{ home_repo }}/config/htop"
+    dest: "{{ user_home }}/.config/htop"
+    state: link
+    force: yes
+
+- name: Ensure mc config directory exists
+  ansible.builtin.file:
+    path: "{{ user_home }}/.config/mc"
+    state: directory
+
+- name: Symlink mc ini
+  ansible.builtin.file:
+    src: "{{ home_repo }}/config/mc/ini"
+    dest: "{{ user_home }}/.config/mc/ini"
+    state: link
+    force: yes
+
+- name: Symlink mc panels.ini
+  ansible.builtin.file:
+    src: "{{ home_repo }}/config/mc/panels.ini"
+    dest: "{{ user_home }}/.config/mc/panels.ini"
+    state: link
+    force: yes
+
+- name: Remove existing glow config directory
+  ansible.builtin.file:
+    path: "{{ user_home }}/.config/glow"
+    state: absent
+
+- name: Symlink glow config
+  ansible.builtin.file:
+    src: "{{ home_repo }}/config/glow"
+    dest: "{{ user_home }}/.config/glow"
+    state: link
+    force: yes
+
+- name: Ensure ghostty config directory exists
+  ansible.builtin.file:
+    path: "{{ user_home }}/.config/ghostty"
+    state: directory
+  when: enable_gui | bool
+
+- name: Symlink ghostty config
+  ansible.builtin.file:
+    src: "{{ home_repo }}/config/ghostty/config"
+    dest: "{{ user_home }}/.config/ghostty/config"
+    state: link
+    force: yes
+  when: enable_gui | bool
+
+- name: Remove existing quickshell config directory
+  ansible.builtin.file:
+    path: "{{ user_home }}/.config/quickshell"
+    state: absent
+  when:
+    - enable_gui | bool
+    - ansible_facts['system'] == 'Linux'
+
+- name: Symlink quickshell config
+  ansible.builtin.file:
+    src: "{{ home_repo }}/config/quickshell"
+    dest: "{{ user_home }}/.config/quickshell"
+    state: link
+    force: yes
+  when:
+    - enable_gui | bool
+    - ansible_facts['system'] == 'Linux'
+
+# Yazi
+- name: Ensure yazi config directory exists
+  ansible.builtin.file:
+    path: "{{ user_home }}/.config/yazi"
+    state: directory
+
+- name: Symlink yazi.toml
+  ansible.builtin.file:
+    src: "{{ home_repo }}/config/yazi/yazi.toml"
+    dest: "{{ user_home }}/.config/yazi.toml"
+    state: link
+    force: yes
+
+- name: Symlink yazi package.toml
+  ansible.builtin.file:
+    src: "{{ home_repo }}/config/yazi/package.toml"
+    dest: "{{ user_home }}/.config/yazi/package.toml"
+    state: link
+    force: yes
+
+- name: Remove existing yazi plugins path
+  ansible.builtin.file:
+    path: "{{ user_home }}/.config/yazi/plugins"
+    state: absent
+
+- name: Symlink yazi plugins dir
+  ansible.builtin.file:
+    src: "{{ home_repo }}/config/yazi/plugins"
+    dest: "{{ user_home }}/.config/yazi/plugins"
+    state: link
+    force: yes
+
+# ccstatusline
+- name: Remove existing ccstatusline config directory
+  ansible.builtin.file:
+    path: "{{ user_home }}/.config/ccstatusline"
+    state: absent
+
+- name: Symlink ccstatusline config
+  ansible.builtin.file:
+    src: "{{ home_repo }}/config/ccstatusline"
+    dest: "{{ user_home }}/.config/ccstatusline"
+    state: link
+    force: yes
+
+# Hyprland
+- name: Remove existing hypr config directory
+  ansible.builtin.file:
+    path: "{{ user_home }}/.config/hypr"
+    state: absent
+  when:
+    - enable_gui | bool
+    - ansible_facts['system'] == 'Linux'
+
+- name: Symlink hypr config
+  ansible.builtin.file:
+    src: "{{ home_repo }}/config/hypr"
+    dest: "{{ user_home }}/.config/hypr"
+    state: link
+    force: yes
+  when:
+    - enable_gui | bool
+    - ansible_facts['system'] == 'Linux'
+
+- name: Reload Hyprland config if running in current session
+  ansible.builtin.command: hyprctl reload
+  environment:
+    HYPRLAND_INSTANCE_SIGNATURE: "{{ lookup('env', 'HYPRLAND_INSTANCE_SIGNATURE') }}"
+    XDG_RUNTIME_DIR: "{{ lookup('env', 'XDG_RUNTIME_DIR') }}"
+  when:
+    - enable_gui | bool
+    - ansible_facts['system'] == 'Linux'
+    - lookup('env', 'HYPRLAND_INSTANCE_SIGNATURE') | length > 0
+    - lookup('env', 'XDG_RUNTIME_DIR') | length > 0
+  changed_when: false
+
+# GUI
+- name: Ensure gtk-3.0 config directory exists
+  ansible.builtin.file:
+    path: "{{ user_home }}/.config/gtk-3.0"
+    state: directory
+  when:
+    - enable_gui | bool
+    - ansible_facts['system'] == 'Linux'
+
+- name: Symlink gtk-3.0 settings.ini
+  ansible.builtin.file:
+    src: "{{ home_repo }}/config/gtk-3.0/settings.ini"
+    dest: "{{ user_home }}/.config/gtk-3.0/settings.ini"
+    state: link
+    force: yes
+  when:
+    - enable_gui | bool
+    - ansible_facts['system'] == 'Linux'

@@ -1,33 +1,31 @@
-export PATH=$HOME/bin:/usr/local/bin:$PATH
-export PATH=$HOME/.local/bin:$PATH
-export DAGSTER_HOME=$HOME/repo/wina_julii/dbt/doliovini/winajulii
-export DISPLAY=:0
-export DBT_GCP_SA=/home/rbw/.config/gcp/dolio-bq.json
-export DEFAULT_USER=rbw
-export HF_HOME=/mnt/ml_models
-export PATH=$PATH:/usr/local/go/bin:$HOME/go/bin
+export PATH="$HOME/bin:/usr/local/bin:$PATH"
+export PATH="$HOME/.local/bin:$PATH"
+export PATH="$PATH:/usr/local/go/bin:$HOME/go/bin"
 export ZSH_TMUX_AUTOSTART=true
-export SEARXNG_BASE_URL=https://searxng.local.b47.bozydar.me
-source /home/rbw/.zsh_secrets
 export ENABLE_LSP_TOOL=1
 export CLAUDE_ENABLE_LSP_TOOL=1
+export CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1
+export BUN_INSTALL="$HOME/.bun"
+export PATH="$BUN_INSTALL/bin:$PATH"
+export QLTY_INSTALL="$HOME/.qlty"
+export PATH="$QLTY_INSTALL/bin:$PATH"
+
 # conda
 #  .  ~/miniconda3/etc/profile.d/conda.sh
 #  . /usr/local/anaconda/etc/profile.d/conda.sh
 #  conda activate base
 #  conda zsh completions
-  zstyle ':completion::complete:*' use-cache 1
+zstyle ':completion::complete:*' use-cache 1
 
 # completions
 zstyle ':completion:*' completer _expand _complete _ignored _correct _approximate
 zstyle ':completion:*' matcher-list 'm:{[:lower:]}={[:upper:]} m:{[:lower:][:upper:]}={[:upper:][:lower:]} l:|=* r:|=*' 'm:{[:lower:]}={[:upper:]} r:|[._-]=** r:|=**' '' 'm:{[:lower:][:upper:]}={[:upper:][:lower:]}'
-zstyle :compinstall filename '/home/rbw/.zshrc'
+zstyle :compinstall filename "$HOME/.zshrc"
 
 # export GTK_THEME=Arc-Dark
-export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR/ssh-agent.socket"
-# llama.cpp CUDA build
-export PATH="/mnt/ml_models/llama_cpp_compiled/cuda/bin:$PATH"
-export LD_LIBRARY_PATH="/mnt/ml_models/llama_cpp_compiled/cuda/lib:$LD_LIBRARY_PATH"
+if [ -z "$SSH_AUTH_SOCK" ] && [ -n "$XDG_RUNTIME_DIR" ]; then
+  export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR/ssh-agent.socket"
+fi
 
 function y() {
 	local tmp="$(mktemp -t "yazi-cwd.XXXXXX")" cwd

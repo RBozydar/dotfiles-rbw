@@ -1,0 +1,9 @@
+# One relative path per line, rooted at home/config/quickshell/.
+# These are the only legacy runtime files allowed to import from system/.
+#
+# Requirements enforced by scripts/arch-check.sh:
+# - The file must exist.
+# - The file must contain at least one import that references system/.
+# - The file must contain ARCH-EXCEPTION metadata with adr/path/reason/owner/expiry/ticket.
+#
+# No active legacy-to-system runtime bridges.

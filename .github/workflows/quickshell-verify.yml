@@ -1,0 +1,65 @@
+name: quickshell-verify
+
+on:
+    pull_request:
+        paths:
+            - "home/config/quickshell/**"
+            - ".github/workflows/quickshell-verify.yml"
+    push:
+        branches:
+            - main
+        paths:
+            - "home/config/quickshell/**"
+            - ".github/workflows/quickshell-verify.yml"
+
+jobs:
+    verify:
+        runs-on: ubuntu-latest
+        defaults:
+            run:
+                shell: bash
+                working-directory: home/config/quickshell
+
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+              with:
+                  fetch-depth: 0
+
+            - name: Set up Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: "24"
+                  cache: "npm"
+                  cache-dependency-path: home/config/quickshell/package-lock.json
+
+            - name: Set up uv
+              uses: astral-sh/setup-uv@v5
+
+            - name: Determine review range
+              run: |
+                  if [ "${GITHUB_EVENT_NAME}" = "pull_request" ]; then
+                      base_ref="${{ github.event.pull_request.base.sha }}"
+                      head_ref="${{ github.event.pull_request.head.sha }}"
+                      merge_base="$(git merge-base "$base_ref" "$head_ref")"
+                      echo "REVIEW_BASE_REF=${merge_base}" >> "$GITHUB_ENV"
+                      echo "REVIEW_HEAD_REF=${head_ref}" >> "$GITHUB_ENV"
+                  else
+                      base_ref="${{ github.event.before }}"
+                      if [ -z "$base_ref" ] || printf '%s' "$base_ref" | grep -Eq '^0+$'; then
+                          base_ref="$(git rev-parse "${GITHUB_SHA}^")"
+                      fi
+                      echo "REVIEW_BASE_REF=${base_ref}" >> "$GITHUB_ENV"
+                      echo "REVIEW_HEAD_REF=${GITHUB_SHA}" >> "$GITHUB_ENV"
+                  fi
+
+            - name: Install Qt and shell tooling
+              run: |
+                  sudo apt-get update
+                  sudo apt-get install -y qt6-base-dev-tools qt6-declarative-dev-tools shellcheck shfmt
+
+            - name: Install Node tooling
+              run: npm ci
+
+            - name: Run blocking verification
+              run: make ci-verify

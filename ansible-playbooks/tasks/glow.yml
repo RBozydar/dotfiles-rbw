@@ -1,0 +1,20 @@
+---
+- name: Install Charm keyring
+  become: yes
+  ansible.builtin.shell:
+    cmd: curl -fsSL https://repo.charm.sh/apt/gpg.key | gpg --dearmor -o /etc/apt/keyrings/charm.gpg
+    creates: /etc/apt/keyrings/charm.gpg
+
+- name: Add Charm apt repository
+  become: yes
+  ansible.builtin.apt_repository:
+    repo: "deb [signed-by=/etc/apt/keyrings/charm.gpg] https://repo.charm.sh/apt/ * *"
+    filename: charm
+    state: present
+
+- name: Install glow
+  become: yes
+  ansible.builtin.apt:
+    name: glow
+    state: present
+    update_cache: true

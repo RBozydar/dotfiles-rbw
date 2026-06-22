@@ -1,2 +1,5 @@
 ansible-playbooks/roles
 .DS_Store
+ai_studio_outputs
+home/config/gh/hosts.yml
+.env

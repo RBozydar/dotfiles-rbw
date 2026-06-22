@@ -1,127 +1,350 @@
-base_packages:
-    - git
-    - curl
-    - wget
-    - mc
-    - python3
-    - samba
-    - nmap
-    - meson
-    - scrot
-    - picom
-    - emacs
-    - tmux
-    - rsync
-    - tar
-    - unrar
-    - neofetch
-    - zip
-    - gnome-disk-utility
-    - ntfs-3g
-    - parted
-    - exfat-utils
-    - jq
+base_terminal_packages:
+  - git
+  - curl
+  - wget
+  - zsh
+  - keychain
+  - mc
+  - samba
+  - nmap
+  - meson
+  - tmux
+  - rsync
+  - tar
+  - unrar
+  - zip
+  - ntfs-3g
+  - parted
+  - jq
 
-ubuntu_packages:
-    - build-essential
-    - nfs-kernel-server
-    - nfs-common
-    - ninja-build
-    - openssh-client 
-    - openssh-server
-    - python3-pip
-    - fonts-firacode
+base_gui_packages:
+  - gnome-disk-utility
 
-arch_packages:
-    # audio
-    - alacritty
-    - wireplumber
-    - pipewire
-    - pipewire-alsa
-    - pipewire-pulse
-    - pavucontrol
-    - alsa-utils
-    - playerctl
-    - volumeicon
-    - pamixer
-    # browser
-    - firefox
-    - chromium
-    # deluge
-    - deluge
-    - deluge-gtk
-    # theme
-    - arc-gtk-theme
-    # docker
-    - docker
-    - docker-compose
-    # dev
-    - base-devel
-    - ninja
-    # file sharing
-    - nfs-utils
-    - openssh
-    - python-pip
-    # fonts
-    - ttf-fira-code
-    - ttf-font-awesome
-    - ttf-dejavu
-    - noto-fonts
-    # utils
-    - vlc
-    - tar
-    - rsync
-    # network
-    - wireguard-tools
-    - resolvconf
-    - intel-ucode
-    - wpa_supplicant
-    - networkmanager
-    - network-manager-applet
-    - bluez
-    - bluez-utils
-    - dhcpcdt
-    - bind
-    # ui
-    - gtk3
-    - gtk4
-    - gtk2
-    # secrets
-    - gnome-keyring
-    - libsecret
-    # display
-    - arandr
-    - keychain
-    - nautilus
-    - xorg-xev
-    - iperf3
-    # misc
-    - liquidctl
-    # gpu drivers
-    - nvidia
-    - nvidia-utils
-    - libva-utils
-    - libva-intel-driver
-    - linux-firmware
+base_packages: "{{ base_terminal_packages + (base_gui_packages if enable_gui | bool else []) }}"
 
+ubuntu_terminal_packages:
+  # build
+  - build-essential
+  - cmake
+  - ninja-build
+  - pkg-config
+  - libssl-dev
+  - libomp-dev
+  - libopenblas-dev
+  - unzip
+  # dev
+  - zsh
+  - bat
+  - eza
+  - ffmpeg
+  - pandoc
+  # networking
+  - nfs-kernel-server
+  - nfs-common
+  - openssh-client
+  - openssh-server
+  - wireguard
+  # monitoring
+  - btop
+  - htop
+  - nvtop
+  - ncdu
+  - duf
+  - iftop
+  - iotop
+  - powertop
+  - fio
+  - traceroute
+  - ethtool
+  - iperf3
+  - procps
+  - shellcheck
+  - tree
+  # security
+  - apparmor
+  - apparmor-profiles
+  - bubblewrap
+  - openssl
+  - fail2ban
+  - unattended-upgrades
 
-i3_packages:
-    - i3-gaps
-    - polybar
-    - rofi
-    - picom
-    - dunst
-    - nitrogen
-    - feh
-    - python-pywal
+ubuntu_gui_packages:
+  - fonts-firacode
+  - mesa-utils
 
-aur_packages:
-    - visual-studio-code-bin
-    # curl -sS https://download.spotify.com/debian/pubkey_5E3C45D7B312C643.gpg | gpg --import -
-#     - spotify
-    - httpdirfs
-    - ttf-ms-win11-auto
-    # - dhcpcd-ui
-    - nerd-fonts-inter
-    - moka-icon-theme-git
-    - faba-icon-theme-git\
+ubuntu_packages: "{{ ubuntu_terminal_packages + (ubuntu_gui_packages if enable_gui | bool else []) }}"
+
+brew_packages:
+  - ast-grep
+  - fd
+  - ffmpeg
+  - fzf
+  - imagemagick
+  - jq
+  - lazydocker
+  - lazygit
+  - poppler
+  - resvg
+  - ripgrep
+  - sevenzip
+  - yazi
+  - zoxide
+
+brew_casks:
+  - font-symbols-only-nerd-font
+
+macos_brew_packages:
+  - ast-grep
+  - bat
+  - btop
+  - colima
+  - coreutils
+  - docker
+  - docker-buildx
+  - docker-compose
+  - eza
+  - fd
+  - ffmpeg
+  - fnm
+  - fzf
+  - gh
+  - git
+  - git-delta
+  - glow
+  - go
+  - htop
+  - imagemagick
+  - iperf3
+  - jq
+  - lazydocker
+  - lazygit
+  - mactop
+  - mas
+  - mc
+  - nmap
+  - poppler
+  - resvg
+  - ripgrep
+  - sevenzip
+  - shfmt
+  - shellcheck
+  - tmux
+  - tree
+  - watch
+  - wget
+  - yazi
+  - zoxide
+
+macos_common_brew_casks:
+  - bitwarden
+  - claude
+  - codex
+  - firefox
+  - font-fira-code
+  - ghostty
+  - github
+  - google-chrome
+  - google-drive
+  - visual-studio-code
+
+macos_macos14_brew_casks:
+  - codexbar
+
+macos_macos14_arm64_brew_casks:
+  - chatgpt
+
+macos_private_brew_casks:
+  - home-assistant
+  - iina
+  - moonlight
+  - protonvpn
+  - spotify
+  - transmission
+  - whatsapp
+  - wifiman
+
+macos_brew_casks: >-
+  {{
+    macos_common_brew_casks
+    + (
+      macos_macos14_brew_casks
+      if target_system == 'Darwin'
+      and target_distribution_version is version('14.0', '>=')
+      else []
+    )
+    + (
+      macos_macos14_arm64_brew_casks
+      if target_system == 'Darwin'
+      and target_distribution_version is version('14.0', '>=')
+      and target_architecture in ['arm64', 'aarch64']
+      else []
+    )
+    + (macos_private_brew_casks if enable_private_apps | bool else [])
+  }}
+
+npm_global_packages:
+  - "@anthropic-ai/claude-code"
+  - "@google/gemini-cli"
+  - "@openai/codex"
+
+arch_terminal_packages:
+  # build
+  - acl
+  - base-devel
+  - cmake
+  - ninja
+  - pkgconf
+  - openssl
+  - unzip
+  # shell & dev
+  - zsh
+  - bat
+  - eza
+  - python-pip
+  - ffmpeg
+  - pandoc-cli
+  - tmux
+  # docker
+  - docker
+  - docker-compose
+  # file sharing & networking
+  - nfs-utils
+  - openssh
+  - wireguard-tools
+  - wpa_supplicant
+  - networkmanager
+  - bluez
+  - bluez-utils
+  - dhcpcd
+  - bind
+  # monitoring
+  - btop
+  - htop
+  - nvtop
+  - ncdu
+  - duf
+  - iftop
+  - iotop
+  - powertop
+  - fio
+  - traceroute
+  - ethtool
+  - iperf3
+  - procps-ng
+  - shellcheck
+  - tree
+  # dev tools
+  - github-cli
+  - glow
+  # tools
+  - fd
+  - fzf
+  - ripgrep
+  - zoxide
+  - lazygit
+  - imagemagick
+  - poppler
+  - resvg
+  - yazi
+  # secrets
+  - gnome-keyring
+  - libsecret
+  - keychain
+  # security
+  - fail2ban
+  # system
+  - amd-ucode
+  - linux-firmware
+  - linux-cachyos-headers
+  # misc
+  - bubblewrap
+  # filesystem
+  - httpdirfs
+  - 7zip
+
+arch_gui_packages:
+  # terminal emulator
+  - ghostty
+  # audio / desktop
+  - wireplumber
+  - pipewire
+  - pipewire-alsa
+  - pipewire-pulse
+  - pavucontrol
+  - alsa-utils
+  - playerctl
+  - volumeicon
+  - pamixer
+  # browser
+  - firefox
+  - chromium
+  # torrent
+  - deluge
+  - deluge-gtk
+  # fonts
+  - ttf-fira-code
+  - otf-font-awesome
+  - ttf-nerd-fonts-symbols
+  - ttf-dejavu
+  - noto-fonts
+  # ui & display
+  - gtk2
+  - gtk3
+  - gtk4
+  - arandr
+  - nautilus
+  - thunar
+  - tumbler
+  - gvfs
+  - xorg-xev
+  - mesa-utils
+  - network-manager-applet
+  # hyprland ecosystem
+  - hyprlock
+  - hypridle
+  - hyprpicker
+  - hyprpaper
+  - hyprpolkitagent
+  - hyprsunset
+  - hyprland-qt-support
+  - xdg-desktop-portal-hyprland
+  - wl-clipboard
+  - cliphist
+  - swww
+  - blueman
+  - nwg-displays
+  - nwg-look
+  - quickshell
+  # math / scientific
+  - hypre
+  # media
+  - vlc
+  - liquidctl
+
+arch_nvidia_packages:
+  - nvidia-utils
+  - nvidia-container-toolkit
+  - libva-utils
+  - lact
+
+arch_packages: >-
+  {{
+    arch_terminal_packages
+    + (arch_gui_packages if enable_gui | bool else [])
+    + (arch_nvidia_packages if enable_nvidia | bool else [])
+  }}
+
+arch_terminal_aur_packages:
+  - ast-grep-bin
+  - lazydocker-bin
+  - nct6687d-dkms-git
+
+arch_gui_aur_packages:
+  - visual-studio-code-bin
+  - nerd-fonts-inter
+
+aur_packages: >-
+  {{
+    arch_terminal_aur_packages
+    + (arch_gui_aur_packages if enable_gui | bool else [])
+  }}

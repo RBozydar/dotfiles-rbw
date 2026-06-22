@@ -1,0 +1,15 @@
+---
+- name: Apply macOS defaults
+  become: "{{ user_task_become | bool }}"
+  become_user: "{{ username }}"
+  ansible.builtin.command:
+    argv:
+      - sh
+      - "{{ playbook_dir }}/files/macos/defaults.sh"
+  environment:
+    HOME: "{{ user_home }}"
+  register: macos_defaults
+  changed_when: macos_defaults.stdout == "changed"
+  tags:
+    - macos
+    - macos-defaults

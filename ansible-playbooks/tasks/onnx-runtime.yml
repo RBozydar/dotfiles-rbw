@@ -1,0 +1,85 @@
+---
+- name: Fetch latest ONNX Runtime release metadata
+  ansible.builtin.uri:
+    url: https://api.github.com/repos/microsoft/onnxruntime/releases/latest
+    headers:
+      Accept: application/vnd.github+json
+    return_content: true
+  register: onnxruntime_release
+  changed_when: false
+
+- name: Set ONNX Runtime version
+  ansible.builtin.set_fact:
+    onnxruntime_version: "{{ onnxruntime_release.json.tag_name | regex_replace('^v', '') }}"
+
+- name: Set ONNX Runtime CUDA 13 package facts
+  ansible.builtin.set_fact:
+    onnxruntime_asset_name: "onnxruntime-linux-x64-gpu_cuda13-{{ onnxruntime_version }}.tgz"
+    onnxruntime_archive_dir: "onnxruntime-linux-x64-gpu-{{ onnxruntime_version }}"
+    onnxruntime_download_path: "/tmp/onnxruntime-linux-x64-gpu_cuda13-{{ onnxruntime_version }}.tgz"
+    onnxruntime_extract_dir: "/tmp/onnxruntime-linux-x64-gpu_cuda13-{{ onnxruntime_version }}"
+    onnxruntime_install_dir: "{{ user_home }}/ort_gpu"
+
+- name: Select ONNX Runtime CUDA 13 release asset
+  ansible.builtin.set_fact:
+    onnxruntime_asset: >-
+      {{
+        (
+          onnxruntime_release.json.assets
+          | selectattr('name', 'equalto', onnxruntime_asset_name)
+          | list
+          | first
+        )
+        | default({})
+      }}
+
+- name: Fail if latest ONNX Runtime release has no CUDA 13 Linux x64 asset
+  ansible.builtin.fail:
+    msg: "Latest ONNX Runtime release {{ onnxruntime_version }} does not include {{ onnxruntime_asset_name }}"
+  when: onnxruntime_asset.browser_download_url is not defined
+
+- name: Check installed ONNX Runtime version
+  ansible.builtin.stat:
+    path: "{{ onnxruntime_install_dir }}/VERSION_NUMBER"
+  register: onnxruntime_version_file
+
+- name: Read installed ONNX Runtime version
+  ansible.builtin.slurp:
+    path: "{{ onnxruntime_install_dir }}/VERSION_NUMBER"
+  register: onnxruntime_installed_version_raw
+  when: onnxruntime_version_file.stat.exists
+
+- name: Set installed ONNX Runtime version fact
+  ansible.builtin.set_fact:
+    onnxruntime_installed_version: >-
+      {{
+        (
+          onnxruntime_installed_version_raw.content
+          | b64decode
+          | trim
+        )
+        if onnxruntime_version_file.stat.exists
+        else ''
+      }}
+
+- name: Download latest ONNX Runtime CUDA 13 archive
+  ansible.builtin.get_url:
+    url: "{{ onnxruntime_asset.browser_download_url }}"
+    dest: "{{ onnxruntime_download_path }}"
+    mode: "0644"
+    force: true
+  when: onnxruntime_installed_version != onnxruntime_version
+
+- name: Install latest ONNX Runtime CUDA 13 libraries
+  ansible.builtin.shell:
+    cmd: |
+      set -euo pipefail
+      rm -rf "{{ onnxruntime_extract_dir }}"
+      mkdir -p "{{ onnxruntime_extract_dir }}" "{{ onnxruntime_install_dir }}"
+      tar -xzf "{{ onnxruntime_download_path }}" -C "{{ onnxruntime_extract_dir }}"
+      rm -rf "{{ onnxruntime_install_dir }}"/libonnxruntime* "{{ onnxruntime_install_dir }}"/onnxruntime* "{{ onnxruntime_install_dir }}"/VERSION_NUMBER "{{ onnxruntime_install_dir }}"/cmake "{{ onnxruntime_install_dir }}"/pkgconfig
+      cp -a "{{ onnxruntime_extract_dir }}/{{ onnxruntime_archive_dir }}/lib/." "{{ onnxruntime_install_dir }}/"
+      printf '%s\n' "{{ onnxruntime_version }}" > "{{ onnxruntime_install_dir }}/VERSION_NUMBER"
+    executable: /bin/bash
+  changed_when: true
+  when: onnxruntime_installed_version != onnxruntime_version

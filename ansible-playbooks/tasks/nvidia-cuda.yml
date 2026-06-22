@@ -1,0 +1,62 @@
+---
+# Uses NVIDIA's network repository approach.
+# See: https://developer.nvidia.com/cuda-downloads
+
+- name: Install CUDA keyring package
+  become: yes
+  ansible.builtin.apt:
+    deb: https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/x86_64/cuda-keyring_1.1-1_all.deb
+
+- name: Install CUDA drivers and toolkit
+  become: yes
+  ansible.builtin.apt:
+    name:
+      - cuda-drivers
+      - cuda-toolkit
+    state: present
+    update_cache: true
+
+- name: Detect installed CUDA toolkit major version
+  ansible.builtin.shell:
+    cmd: |
+      dpkg-query -W -f='${Package}\n' \
+        | sed -nE 's/^cuda-toolkit-([0-9]+)([.-][0-9]+)?$/\1/p' \
+        | sort -n \
+        | tail -n1
+  register: cuda_toolkit_major_version
+  changed_when: false
+  failed_when: cuda_toolkit_major_version.stdout | trim == ""
+
+- name: Install cuDNN prerequisites
+  become: yes
+  ansible.builtin.apt:
+    name:
+      - zlib1g
+    state: present
+
+- name: Install cuDNN
+  become: yes
+  ansible.builtin.apt:
+    name: "cudnn9-cuda-{{ cuda_toolkit_major_version.stdout | trim }}"
+    state: present
+
+- name: Install NVIDIA container toolkit keyring
+  become: yes
+  ansible.builtin.shell:
+    cmd: |
+      curl -fsSL https://nvidia.github.io/libnvidia-container/gpgkey | gpg --dearmor -o /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg
+    creates: /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg
+
+- name: Add NVIDIA container toolkit repository
+  become: yes
+  ansible.builtin.apt_repository:
+    repo: "deb [signed-by=/usr/share/keyrings/nvidia-container-toolkit-keyring.gpg] https://nvidia.github.io/libnvidia-container/stable/deb/$(ARCH) /"
+    filename: nvidia-container-toolkit
+    state: present
+
+- name: Install NVIDIA container toolkit
+  become: yes
+  ansible.builtin.apt:
+    name: nvidia-container-toolkit
+    state: present
+    update_cache: true

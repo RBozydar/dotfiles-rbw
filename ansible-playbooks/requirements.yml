@@ -1,12 +1,13 @@
 ---
 roles:
   - src: geerlingguy.docker
+  - src: geerlingguy.git
   # - src: geerlingguy.security
   - src: https://github.com/RBozydar/ansible-role-security
-  - src: andrewrothstein.miniconda
   - src: githubixx.ansible_role_wireguard
-  - src: gantsign.antigen
   - src: gantsign.visual-studio-code
 
 collections:
+  - ansible.posix
   - kewlfft.aur
+  - community.general

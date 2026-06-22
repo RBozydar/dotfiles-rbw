@@ -1,0 +1,35 @@
+# Copy selected entries from this file into ~/.zsh_local on machines that need
+# host-specific paths, credentials, or workstation-only toolchain settings.
+#
+# This file is intentionally not sourced from the repo. The real local overlay
+# lives at ~/.zsh_local and is loaded by home/.zshrc when present.
+
+# Machine identity / workstation defaults
+# export DEFAULT_USER="$USER"
+# export DISPLAY=":0"
+
+# Optional service endpoints and app-specific vars
+# export SEARXNG_BASE_URL="https://searxng.example.com"
+# export HA_URL="http://homeassistant.example.com"
+# export DAGSTER_HOME="$HOME/repo/example/dagster"
+# export DBT_GCP_SA="$HOME/.config/gcp/example.json"
+# export HF_HOME="/mnt/ml_models"
+
+# Google Cloud SDK override if it is not installed at $HOME/google-cloud-sdk
+# export GCLOUD_SDK_HOME="$HOME/google-cloud-sdk"
+
+# Conda override if you want something other than $HOME/miniforge3
+# export CONDA_HOME="$HOME/mambaforge"
+
+# CUDA / local native toolchains
+# export PATH="/usr/local/cuda/bin:$PATH"
+# export LD_LIBRARY_PATH="/usr/local/cuda/lib64:$LD_LIBRARY_PATH"
+# export PATH="/mnt/ml_models/llama_cpp_compiled/cuda/bin:$PATH"
+# export LD_LIBRARY_PATH="/mnt/ml_models/llama_cpp_compiled/cuda/lib:$LD_LIBRARY_PATH"
+# export ORT_DYLIB_PATH="$HOME/ort_gpu/libonnxruntime.so"
+# export LD_LIBRARY_PATH="$HOME/ort_gpu:$LD_LIBRARY_PATH"
+
+# Repo-specific JDKs are better handled with direnv or per-project env, but can
+# live here temporarily if needed.
+# export JAVA_HOME="$HOME/repo/some-project/jdk"
+# export JVM_PATH="$JAVA_HOME/lib/server/libjvm.so"

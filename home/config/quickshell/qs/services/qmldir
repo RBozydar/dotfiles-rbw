@@ -1,0 +1,9 @@
+module qs.services
+singleton Audio 1.0 ../../services/Audio.qml
+singleton Brightness 1.0 ../../services/Brightness.qml
+singleton Connectivity 1.0 ../../services/Connectivity.qml
+singleton Media 1.0 ../../services/Media.qml
+singleton NightMode 1.0 ../../services/NightMode.qml
+singleton Notifications 1.0 ../../services/Notifications.qml
+singleton SystemStats 1.0 ../../services/SystemStats.qml
+singleton Weather 1.0 ../../services/Weather.qml

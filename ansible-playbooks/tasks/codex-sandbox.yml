@@ -1,0 +1,38 @@
+---
+- name: Install Codex sandbox sysctl overrides
+  become: yes
+  ansible.builtin.copy:
+    src: "{{ playbook_dir }}/../misc/etc/sysctl.d/99-codex-sandbox.conf"
+    dest: /etc/sysctl.d/99-codex-sandbox.conf
+    owner: root
+    group: root
+    mode: "0644"
+  register: codex_sandbox_sysctl
+
+- name: Apply Codex sandbox sysctl overrides
+  become: yes
+  ansible.builtin.command: sysctl -p /etc/sysctl.d/99-codex-sandbox.conf
+  when: codex_sandbox_sysctl.changed
+
+- name: Install bwrap AppArmor profile
+  become: yes
+  ansible.builtin.copy:
+    src: /usr/share/apparmor/extra-profiles/bwrap-userns-restrict
+    dest: /etc/apparmor.d/bwrap-userns-restrict
+    remote_src: true
+    owner: root
+    group: root
+    mode: "0644"
+  register: codex_sandbox_bwrap_apparmor
+
+- name: Reload bwrap AppArmor profile
+  become: yes
+  ansible.builtin.command: apparmor_parser -r /etc/apparmor.d/bwrap-userns-restrict
+  when: codex_sandbox_bwrap_apparmor.changed
+
+- name: Reload AppArmor
+  become: yes
+  ansible.builtin.systemd:
+    name: apparmor
+    state: reloaded
+  when: codex_sandbox_bwrap_apparmor.changed

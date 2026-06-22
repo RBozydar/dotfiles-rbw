@@ -1,8 +1,14 @@
 Manual commands
 
+Set the repo root once for the commands below:
+
+```
+export DOTFILES_REPO_ROOT="/absolute/path/to/your/dotfiles-repo"
+```
+
 ```
 sudo cp ~/.config/wallpapers/webb_nebula_2560.png /usr/share/pixmap
-sudo cp ~/repo/dotfiles/misc/etc/lightdm/lightdm-gtk-greeter.conf /etc/lightdm/lightdm-gtk-greeter.conf
+sudo cp "$DOTFILES_REPO_ROOT/misc/etc/lightdm/lightdm-gtk-greeter.conf" /etc/lightdm/lightdm-gtk-greeter.conf
 ```
 
 ### AIO - Liquid CTL
@@ -32,4 +38,18 @@ execute this
 Fix timezone with Windows
 ```
 timedatectl set-local-rtc 1 --adjust-system-clock
+```
+
+### Codex sandbox / bubblewrap
+Managed in `ansible-playbooks/tasks/codex-sandbox.yml`.
+
+Manual equivalent:
+```
+sudo apt update
+sudo apt install apparmor apparmor-profiles
+sudo cp "$DOTFILES_REPO_ROOT/misc/etc/sysctl.d/99-codex-sandbox.conf" /etc/sysctl.d/99-codex-sandbox.conf
+sudo sysctl -p /etc/sysctl.d/99-codex-sandbox.conf
+sudo cp /usr/share/apparmor/extra-profiles/bwrap-userns-restrict /etc/apparmor.d/
+sudo apparmor_parser -r /etc/apparmor.d/bwrap-userns-restrict
+sudo systemctl reload apparmor
 ```

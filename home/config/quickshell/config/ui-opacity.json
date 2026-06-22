@@ -1,0 +1,12 @@
+{
+    "kind": "shell.ui.opacity.config",
+    "version": 1,
+    "global": 1.0,
+    "modules": {
+        "bar.workspace.strip": 0.78,
+        "bar.workspace.button.active": 0.82,
+        "bar.workspace.button.hover": 0.78,
+        "bar.workspace.button.occupied": 0.74,
+        "bar.workspace.special": 0.82
+    }
+}
