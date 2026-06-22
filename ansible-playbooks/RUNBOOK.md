@@ -53,6 +53,18 @@ ansible-playbook main.yml -e enable_gui=true -e enable_nvidia=false -e enable_pr
 ansible-playbook main.yml -e configure_macos_defaults=false
 ```
 
+## Update And Rerun
+
+Pull the latest playbook changes before rerunning a profile:
+
+```sh
+cd /Users/robertwasilewski/repo/dotfiles-rbw/ansible-playbooks
+git pull --ff-only
+ansible-playbook main.yml --extra-vars "@vars/macos-private.yml"
+```
+
+Swap `@vars/macos-private.yml` for the profile that matches the machine.
+
 ## macOS Host Inspection
 
 Before changing macOS package/default lists on a new laptop:
