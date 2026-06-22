@@ -95,6 +95,11 @@
     when: configure_codex | bool
     tags:
       - codex
+  - name: Claude
+    ansible.builtin.include_tasks: tasks/claude.yml
+    when: configure_claude | bool
+    tags:
+      - claude
   - name: Tmux
     ansible.builtin.include_tasks: tasks/tmux.yml
     tags:

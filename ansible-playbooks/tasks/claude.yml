@@ -1,0 +1,21 @@
+---
+- name: Ensure Claude home exists
+  ansible.builtin.file:
+    path: "{{ claude_home }}"
+    state: directory
+    mode: "0700"
+  tags:
+    - claude
+
+- name: Merge shared Claude settings
+  ansible.builtin.command:
+    argv:
+      - python3
+      - "{{ claude_merge_settings_script }}"
+      - "{{ claude_shared_settings_path }}"
+      - "{{ claude_settings_path }}"
+  register: claude_settings_merge
+  changed_when: claude_settings_merge.stdout == "changed"
+  tags:
+    - claude
+    - claude-settings

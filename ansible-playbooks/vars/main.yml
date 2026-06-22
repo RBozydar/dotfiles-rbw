@@ -28,6 +28,10 @@ codex_config_path: "{{ codex_home }}/config.toml"
 codex_shared_pets:
   - dotneko
   - tabbyneko
+claude_home: "{{ user_home }}/.claude"
+claude_settings_path: "{{ claude_home }}/settings.json"
+claude_shared_settings_path: "{{ home_repo }}/config/claude/settings.json"
+claude_merge_settings_script: "{{ playbook_dir }}/files/claude/merge-settings.py"
 
 homebrew_prefix_default: >-
   {{
@@ -63,5 +67,6 @@ enable_nvidia: false
 enable_private_apps: false
 configure_macos_defaults: true
 configure_codex: true
+configure_claude: true
 enable_git_role: true
 enable_security_role: true

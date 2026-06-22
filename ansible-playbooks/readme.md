@@ -58,3 +58,9 @@ Codex setup is enabled by `configure_codex`. It symlinks shared pets into
 `$CODEX_HOME/pets` and merges only the curated shared keys into
 `$CODEX_HOME/config.toml`. Existing Codex config, auth, sessions, caches,
 marketplaces, project trust entries, and machine-local app paths are left alone.
+
+Claude setup is enabled by `configure_claude`. It merges shared settings from
+`home/config/claude/settings.json` into `~/.claude/settings.json` instead of
+symlinking the whole file. Existing local Claude settings are preserved; shared
+dict entries are updated, missing list items are appended, and stale local
+entries are not removed.
