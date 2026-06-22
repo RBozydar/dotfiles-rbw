@@ -118,15 +118,45 @@ def merge_value(current: Any, desired: Any) -> bool:
     return False
 
 
+def expand_directory_marketplace_paths(settings: Any) -> None:
+    if not isinstance(settings, dict):
+        return
+
+    marketplaces = settings.get("extraKnownMarketplaces")
+    if not isinstance(marketplaces, dict):
+        return
+
+    for marketplace in marketplaces.values():
+        if not isinstance(marketplace, dict):
+            continue
+
+        source = marketplace.get("source")
+        if not isinstance(source, dict) or source.get("source") != "directory":
+            continue
+
+        path_value = source.get("path")
+        if isinstance(path_value, str):
+            source["path"] = os.path.expandvars(os.path.expanduser(path_value))
+
+
 def write_atomic(path: Path, content: str, mode: int | None) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
 
-    with tempfile.NamedTemporaryFile("w", encoding="utf-8", dir=path.parent, delete=False) as tmp:
-        tmp.write(content)
-        tmp_path = Path(tmp.name)
+    tmp_path: Path | None = None
+    try:
+        with tempfile.NamedTemporaryFile("w", encoding="utf-8", dir=path.parent, delete=False) as tmp:
+            tmp.write(content)
+            tmp_path = Path(tmp.name)
 
-    os.chmod(tmp_path, mode if mode is not None else 0o600)
-    os.replace(tmp_path, path)
+        os.chmod(tmp_path, mode if mode is not None else 0o600)
+        os.replace(tmp_path, path)
+        tmp_path = None
+    finally:
+        if tmp_path is not None and tmp_path.exists():
+            try:
+                tmp_path.unlink()
+            except OSError:
+                pass
 
 
 def main() -> int:
@@ -138,6 +168,7 @@ def main() -> int:
     target = Path(sys.argv[2]).expanduser()
 
     desired = json.loads(source.read_text(encoding="utf-8"))
+    expand_directory_marketplace_paths(desired)
     target_was_symlink = target.is_symlink()
     existing_mode: int | None = None
 

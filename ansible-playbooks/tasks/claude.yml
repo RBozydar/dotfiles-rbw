@@ -7,6 +7,24 @@
   tags:
     - claude
 
+- name: Ensure dotfiles helper directory exists
+  ansible.builtin.file:
+    path: "{{ dotfiles_helper_dir }}"
+    state: directory
+    mode: "0700"
+  tags:
+    - claude
+    - claude-settings
+
+- name: Copy Claude settings merge helper
+  ansible.builtin.copy:
+    src: "{{ claude_merge_settings_script_source }}"
+    dest: "{{ claude_merge_settings_script }}"
+    mode: "0755"
+  tags:
+    - claude
+    - claude-settings
+
 - name: Merge shared Claude settings
   ansible.builtin.command:
     argv:

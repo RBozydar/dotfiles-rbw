@@ -81,15 +81,23 @@ if [ -f "$CONDA_HOME/etc/profile.d/mamba.sh" ]; then
 fi
 # <<< conda initialize <<<
 
+# Homebrew may not be on PATH yet on fresh macOS/Linuxbrew installs.
+brew_candidates=()
+[ -n "$HOMEBREW_PREFIX" ] && brew_candidates+=("$HOMEBREW_PREFIX/bin/brew")
+brew_candidates+=(/opt/homebrew/bin/brew /usr/local/bin/brew /home/linuxbrew/.linuxbrew/bin/brew)
+for brew_bin in "${brew_candidates[@]}"; do
+  if [ -x "$brew_bin" ]; then
+    eval "$("$brew_bin" shellenv)"
+    break
+  fi
+done
+unset brew_bin brew_candidates
+
 # fnm
 FNM_PATH="${FNM_PATH:-$HOME/.local/share/fnm}"
 if [ -d "$FNM_PATH" ]; then
   export PATH="$FNM_PATH:$PATH"
   eval "$(fnm env --use-on-cd --shell zsh)"
-fi
-
-if command -v brew >/dev/null 2>&1; then
-  eval "$(brew shellenv)"
 fi
 
 if [ -d /opt/cuda ]; then
@@ -112,7 +120,7 @@ if command -v zoxide >/dev/null 2>&1; then
 fi
 
 # Auto-start tmux on SSH login
-if [[ -n "$ZSH_TMUX_AUTOSTART" ]] && [[ -z "$TMUX" ]] && [[ -n "$SSH_CONNECTION" ]]; then
+if [[ "$ZSH_TMUX_AUTOSTART" == true ]] && [[ -z "$TMUX" ]] && [[ -n "$SSH_CONNECTION" ]]; then
   tmux attach-session -t ssh_tmux || tmux new-session -s ssh_tmux
 fi
 

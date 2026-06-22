@@ -177,11 +177,10 @@ def insert_top_level_missing(lines: list[str], missing_keys: list[str]) -> None:
 
 def insert_section_missing(lines: list[str], present_by_section: dict[str, set[str]]) -> None:
     ranges = section_ranges(lines)
+    sections_to_update = [section for section in SECTION_SETTINGS if section in ranges]
+    sections_to_update.sort(key=lambda section: ranges[section][1], reverse=True)
 
-    for section in reversed(SECTION_SETTINGS):
-        if section not in ranges:
-            continue
-
+    for section in sections_to_update:
         missing = [
             key for key in SECTION_SETTINGS[section] if key not in present_by_section.get(section, set())
         ]
@@ -215,12 +214,21 @@ def merge(lines: list[str]) -> list[str]:
 def write_atomic(path: Path, content: str, mode: int | None) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
 
-    with tempfile.NamedTemporaryFile("w", encoding="utf-8", dir=path.parent, delete=False) as tmp:
-        tmp.write(content)
-        tmp_path = Path(tmp.name)
+    tmp_path: Path | None = None
+    try:
+        with tempfile.NamedTemporaryFile("w", encoding="utf-8", dir=path.parent, delete=False) as tmp:
+            tmp.write(content)
+            tmp_path = Path(tmp.name)
 
-    os.chmod(tmp_path, mode if mode is not None else 0o600)
-    os.replace(tmp_path, path)
+        os.chmod(tmp_path, mode if mode is not None else 0o600)
+        os.replace(tmp_path, path)
+        tmp_path = None
+    finally:
+        if tmp_path is not None and tmp_path.exists():
+            try:
+                tmp_path.unlink()
+            except OSError:
+                pass
 
 
 def main() -> int:

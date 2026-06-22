@@ -23,7 +23,7 @@ zstyle ':completion:*' matcher-list 'm:{[:lower:]}={[:upper:]} m:{[:lower:][:upp
 zstyle :compinstall filename "$HOME/.zshrc"
 
 # export GTK_THEME=Arc-Dark
-if [ -n "$XDG_RUNTIME_DIR" ]; then
+if [ -z "$SSH_AUTH_SOCK" ] && [ -n "$XDG_RUNTIME_DIR" ]; then
   export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR/ssh-agent.socket"
 fi
 

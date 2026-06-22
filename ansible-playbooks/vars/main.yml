@@ -28,10 +28,14 @@ codex_config_path: "{{ codex_home }}/config.toml"
 codex_shared_pets:
   - dotneko
   - tabbyneko
+dotfiles_helper_dir: "{{ user_home }}/.local/share/dotfiles-rbw/ansible"
+codex_merge_config_script_source: "{{ playbook_dir }}/files/codex/merge-config.py"
+codex_merge_config_script: "{{ dotfiles_helper_dir }}/merge-codex-config.py"
 claude_home: "{{ user_home }}/.claude"
 claude_settings_path: "{{ claude_home }}/settings.json"
 claude_shared_settings_path: "{{ home_repo }}/config/claude/settings.json"
-claude_merge_settings_script: "{{ playbook_dir }}/files/claude/merge-settings.py"
+claude_merge_settings_script_source: "{{ playbook_dir }}/files/claude/merge-settings.py"
+claude_merge_settings_script: "{{ dotfiles_helper_dir }}/merge-claude-settings.py"
 
 homebrew_prefix_default: >-
   {{

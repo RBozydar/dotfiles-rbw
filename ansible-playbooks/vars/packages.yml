@@ -121,7 +121,6 @@ macos_brew_packages:
   - mas
   - mc
   - nmap
-  - node
   - poppler
   - resvg
   - ripgrep

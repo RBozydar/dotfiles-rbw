@@ -27,11 +27,29 @@
     - codex
     - codex-pets
 
+- name: Ensure dotfiles helper directory exists
+  ansible.builtin.file:
+    path: "{{ dotfiles_helper_dir }}"
+    state: directory
+    mode: "0700"
+  tags:
+    - codex
+    - codex-config
+
+- name: Copy Codex config merge helper
+  ansible.builtin.copy:
+    src: "{{ codex_merge_config_script_source }}"
+    dest: "{{ codex_merge_config_script }}"
+    mode: "0755"
+  tags:
+    - codex
+    - codex-config
+
 - name: Merge shared Codex config settings
   ansible.builtin.command:
     argv:
       - python3
-      - "{{ playbook_dir }}/files/codex/merge-config.py"
+      - "{{ codex_merge_config_script }}"
       - "{{ codex_config_path }}"
   register: codex_config_merge
   changed_when: codex_config_merge.stdout == "changed"

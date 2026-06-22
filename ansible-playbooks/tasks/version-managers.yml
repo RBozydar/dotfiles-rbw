@@ -20,7 +20,27 @@
 
 - name: Get latest installed fnm Node version
   ansible.builtin.shell:
-    cmd: "find {{ user_home }}/.local/share/fnm/node-versions -mindepth 1 -maxdepth 1 -type d -exec basename {} \\; | sort | tail -n1"
+    cmd: |
+      node_versions_dir="{{ user_home }}/.local/share/fnm/node-versions"
+      mkdir -p "$node_versions_dir"
+      python3 - "$node_versions_dir" <<'PY'
+      import re
+      import sys
+      from pathlib import Path
+
+      root = Path(sys.argv[1])
+
+      def version_key(path):
+          parts = []
+          for part in path.name.lstrip("v").split("."):
+              match = re.match(r"\d+", part)
+              parts.append(int(match.group(0)) if match else -1)
+          return tuple(parts)
+
+      versions = [path for path in root.iterdir() if path.is_dir()]
+      if versions:
+          print(max(versions, key=version_key).name)
+      PY
   register: fnm_default_version
   changed_when: false
 
