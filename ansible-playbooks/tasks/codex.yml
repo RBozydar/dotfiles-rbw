@@ -20,6 +20,67 @@
     - codex
     - codex-pets
 
+- name: Check shared Codex pet destinations
+  become: "{{ user_task_become | bool }}"
+  become_user: "{{ username }}"
+  ansible.builtin.stat:
+    path: "{{ codex_home }}/pets/{{ item }}"
+    follow: false
+  register: codex_pet_destinations
+  loop: "{{ codex_shared_pets }}"
+  tags:
+    - codex
+    - codex-pets
+
+- name: Compare existing Codex pet directories with shared copies
+  become: "{{ user_task_become | bool }}"
+  become_user: "{{ username }}"
+  ansible.builtin.command:
+    argv:
+      - diff
+      - -qr
+      - "{{ home_repo }}/codex/pets/{{ item.item }}"
+      - "{{ codex_home }}/pets/{{ item.item }}"
+  register: codex_pet_directory_diffs
+  changed_when: false
+  failed_when: false
+  loop: "{{ codex_pet_destinations.results }}"
+  when:
+    - item.stat.exists | default(false)
+    - item.stat.isdir | default(false)
+    - not (item.stat.islnk | default(false))
+  tags:
+    - codex
+    - codex-pets
+
+- name: Fail on divergent Codex pet directories
+  ansible.builtin.fail:
+    msg: >-
+      {{ codex_home }}/pets/{{ item.item.item }} already exists as a directory
+      and differs from {{ home_repo }}/codex/pets/{{ item.item.item }}.
+      Move it aside or copy the local changes into the repo before rerunning.
+  loop: "{{ codex_pet_directory_diffs.results | default([]) }}"
+  when:
+    - not (item.skipped | default(false))
+    - item.rc != 0
+  tags:
+    - codex
+    - codex-pets
+
+- name: Remove identical existing Codex pet directories before symlink
+  become: "{{ user_task_become | bool }}"
+  become_user: "{{ username }}"
+  ansible.builtin.file:
+    path: "{{ codex_home }}/pets/{{ item.item.item }}"
+    state: absent
+  loop: "{{ codex_pet_directory_diffs.results | default([]) }}"
+  when:
+    - not (item.skipped | default(false))
+    - item.rc == 0
+  tags:
+    - codex
+    - codex-pets
+
 - name: Symlink shared Codex pets
   become: "{{ user_task_become | bool }}"
   become_user: "{{ username }}"
