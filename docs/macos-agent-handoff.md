@@ -51,8 +51,8 @@ Use this split when adding another laptop setup:
 
 - Common terminal tooling for all Macs belongs in `macos_brew_packages`.
 - Common GUI apps that are acceptable on work and private Macs belong in `macos_common_brew_casks`.
+- Work-only but non-secret apps belong in `macos_work_brew_casks` and are gated by `enable_work_apps`.
 - Personal apps belong in `macos_private_brew_casks` and are gated by `enable_private_apps`.
-- Work-only but non-secret apps should get a separate work-gated variable/profile before being added.
 - Host-only paths, SDK roots, experimental env vars, and machine quirks belong in `~/.zsh_local`.
 - Secrets, tokens, internal endpoints, and credentials belong in `~/.zsh_secrets` or the app's own secure storage.
 - Linux desktop packages stay behind `enable_gui`; NVIDIA tooling stays behind `enable_nvidia`.

@@ -34,7 +34,7 @@ Linux workstation with GUI and NVIDIA stack:
 ansible-playbook main.yml --extra-vars "@vars/workstation.yml"
 ```
 
-Work Mac with common GUI apps and no personal/private apps:
+Work Mac with common GUI apps and work-only apps, but no personal/private apps:
 
 ```sh
 ansible-playbook main.yml --extra-vars "@vars/macos-work.yml"

@@ -74,6 +74,8 @@ ubuntu_gui_packages:
 
 ubuntu_packages: "{{ ubuntu_terminal_packages + (ubuntu_gui_packages if enable_gui | bool else []) }}"
 
+brew_taps: []
+
 brew_packages:
   - ast-grep
   - fd
@@ -93,6 +95,9 @@ brew_packages:
 brew_casks:
   - font-symbols-only-nerd-font
 
+macos_brew_taps:
+  - oven-sh/bun
+
 macos_brew_packages:
   - ast-grep
   - bat
@@ -101,7 +106,9 @@ macos_brew_packages:
   - coreutils
   - docker
   - docker-buildx
+  - docker-completion
   - docker-compose
+  - duckdb
   - eza
   - fd
   - ffmpeg
@@ -116,23 +123,34 @@ macos_brew_packages:
   - imagemagick
   - iperf3
   - jq
+  - kubernetes-cli
   - lazydocker
   - lazygit
+  - libomp
   - mactop
   - mas
-  - mc
+  - maven
+  - meson
+  - midnight-commander
   - nmap
+  - oven-sh/bun/bun
   - poppler
+  - pyenv
+  - pyenv-virtualenv
   - resvg
   - ripgrep
   - sevenzip
+  - shared-mime-info
   - shfmt
   - shellcheck
   - tmux
   - tree
+  - uv
   - watch
   - wget
+  - yarn
   - yazi
+  - yq
   - zoxide
 
 macos_common_brew_casks:
@@ -145,6 +163,7 @@ macos_common_brew_casks:
   - github
   - google-chrome
   - google-drive
+  - obsidian
   - visual-studio-code
 
 macos_macos14_brew_casks:
@@ -152,6 +171,9 @@ macos_macos14_brew_casks:
 
 macos_macos14_arm64_brew_casks:
   - chatgpt
+
+macos_work_brew_casks:
+  - gcloud-cli
 
 macos_private_brew_casks:
   - home-assistant
@@ -179,13 +201,27 @@ macos_brew_casks: >-
       and target_architecture in ['arm64', 'aarch64']
       else []
     )
+    + (macos_work_brew_casks if enable_work_apps | bool else [])
     + (macos_private_brew_casks if enable_private_apps | bool else [])
   }}
 
 npm_global_packages:
   - "@anthropic-ai/claude-code"
+  - "@earendil-works/pi-coding-agent"
   - "@google/gemini-cli"
   - "@openai/codex"
+  - "@vscode/vsce"
+  - opencode-ai
+
+uv_tools:
+  - package: claude-monitor
+    executable: claude-monitor
+  - package: harbor
+    executable: harbor
+  - package: llama-benchy
+    executable: llama-benchy
+  - package: pyright
+    executable: pyright
 
 arch_terminal_packages:
   # build

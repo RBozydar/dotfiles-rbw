@@ -31,6 +31,20 @@ function y() {
 	local tmp="$(mktemp -t "yazi-cwd.XXXXXX")" cwd
 	command yazi "$@" --cwd-file="$tmp"
 	IFS= read -r -d '' cwd < "$tmp"
-	[ "$cwd" != "$PWD" ] && [ -d "$cwd" ] && builtin cd -- "$cwd"
+	[ -n "$cwd" ] && [ "$cwd" != "$PWD" ] && [ -d "$cwd" ] && builtin cd -- "$cwd"
 	rm -f -- "$tmp"
+}
+
+setup-testcontainers-colima() {
+  local colima_addr
+
+  colima_addr="$(colima ls -j 2>/dev/null | jq -r '.address // empty')"
+  if [[ -z "$colima_addr" ]]; then
+    echo "ERROR: Could not determine Colima address." >&2
+    return 1
+  fi
+
+  export DOCKER_HOST="unix://${HOME}/.colima/default/docker.sock"
+  export TESTCONTAINERS_HOST_OVERRIDE="$colima_addr"
+  export TC_HOST="$colima_addr"
 }

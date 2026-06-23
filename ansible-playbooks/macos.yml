@@ -18,6 +18,7 @@
   - name: Homebrew
     ansible.builtin.include_tasks: tasks/homebrew.yml
     vars:
+      brew_taps: "{{ macos_brew_taps }}"
       brew_packages: "{{ macos_brew_packages }}"
       brew_casks: "{{ macos_brew_casks }}"
     tags:

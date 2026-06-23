@@ -111,26 +111,64 @@
   loop: "{{ npm_global_packages }}"
 
 # uv (Python package manager)
-- name: Check if uv is installed
-  ansible.builtin.stat:
-    path: "{{ user_home }}/.local/bin/uv"
-  register: uv_installed
+- name: Locate uv
+  ansible.builtin.shell:
+    cmd: command -v uv || true
+  register: uv_lookup
+  changed_when: false
+  environment:
+    PATH: "{{ homebrew_path_env if target_system == 'Darwin' else target_path }}"
 
 - name: Install uv
-  when: not uv_installed.stat.exists
+  when: uv_lookup.stdout | trim == ""
   become: "{{ user_task_become | bool }}"
   become_user: "{{ username }}"
   ansible.builtin.shell:
     cmd: curl -LsSf https://astral.sh/uv/install.sh | sh
 
+- name: Locate uv after install
+  ansible.builtin.shell:
+    cmd: command -v uv || true
+  register: uv_lookup_after_install
+  changed_when: false
+  environment:
+    PATH: "{{ user_home }}/.local/bin:{{ homebrew_path_env if target_system == 'Darwin' else target_path }}"
+
+- name: Set uv binary path
+  ansible.builtin.set_fact:
+    uv_bin: "{{ uv_lookup_after_install.stdout | trim }}"
+
+- name: Verify uv is available
+  ansible.builtin.assert:
+    that:
+      - uv_bin != ""
+    fail_msg: "uv was not found on PATH after install."
+
+- name: Install uv tools
+  become: "{{ user_task_become | bool }}"
+  become_user: "{{ username }}"
+  ansible.builtin.command:
+    argv:
+      - "{{ uv_bin }}"
+      - tool
+      - install
+      - "{{ item.package }}"
+    creates: "{{ user_home }}/.local/bin/{{ item.executable }}"
+  environment:
+    PATH: "{{ user_home }}/.local/bin:{{ homebrew_path_env if target_system == 'Darwin' else target_path }}"
+  loop: "{{ uv_tools }}"
+
 # bun
-- name: Check if bun is installed
-  ansible.builtin.stat:
-    path: "{{ user_home }}/.bun/bin/bun"
-  register: bun_installed
+- name: Locate bun
+  ansible.builtin.shell:
+    cmd: command -v bun || true
+  register: bun_lookup
+  changed_when: false
+  environment:
+    PATH: "{{ homebrew_path_env if target_system == 'Darwin' else target_path }}"
 
 - name: Install bun
-  when: not bun_installed.stat.exists
+  when: bun_lookup.stdout | trim == ""
   become: "{{ user_task_become | bool }}"
   become_user: "{{ username }}"
   ansible.builtin.shell:

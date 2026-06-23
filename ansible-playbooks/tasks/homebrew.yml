@@ -13,6 +13,16 @@
   environment:
     NONINTERACTIVE: "1"
 
+- name: Tap Homebrew repositories
+  become: "{{ user_task_become | bool }}"
+  become_user: "{{ username }}"
+  community.general.homebrew_tap:
+    name: "{{ brew_taps }}"
+    state: present
+  when: brew_taps | default([]) | length > 0
+  environment:
+    PATH: "{{ homebrew_path_env }}"
+
 - name: Install Homebrew formulae
   become: "{{ user_task_become | bool }}"
   become_user: "{{ username }}"

@@ -45,7 +45,13 @@ source "$HOME/.zsh_utils_git-worktree"
 # Clear any inherited value so the context segment is always shown.
 unset DEFAULT_USER
 
-GCLOUD_SDK_HOME="${GCLOUD_SDK_HOME:-$HOME/google-cloud-sdk}"
+if [ -z "$GCLOUD_SDK_HOME" ]; then
+  if [ -n "$HOMEBREW_PREFIX" ] && [ -d "$HOMEBREW_PREFIX/share/google-cloud-sdk" ]; then
+    GCLOUD_SDK_HOME="$HOMEBREW_PREFIX/share/google-cloud-sdk"
+  else
+    GCLOUD_SDK_HOME="$HOME/google-cloud-sdk"
+  fi
+fi
 
 ## The next line updates PATH for the Google Cloud SDK.
 if [ -f "$GCLOUD_SDK_HOME/path.zsh.inc" ]; then . "$GCLOUD_SDK_HOME/path.zsh.inc"; fi
@@ -97,7 +103,19 @@ unset brew_bin brew_candidates
 FNM_PATH="${FNM_PATH:-$HOME/.local/share/fnm}"
 if [ -d "$FNM_PATH" ]; then
   export PATH="$FNM_PATH:$PATH"
-  eval "$(fnm env --use-on-cd --shell zsh)"
+  eval "$(fnm env --use-on-cd --shell zsh --version-file-strategy=recursive)"
+fi
+
+if command -v pyenv >/dev/null 2>&1; then
+  export PYENV_ROOT="${PYENV_ROOT:-$HOME/.pyenv}"
+  eval "$(pyenv init --no-rehash - zsh)"
+  if command -v pyenv-virtualenv-init >/dev/null 2>&1; then
+    eval "$(pyenv virtualenv-init -)"
+  fi
+fi
+
+if [ -d "$HOME/.opencode/bin" ]; then
+  export PATH="$HOME/.opencode/bin:$PATH"
 fi
 
 if [ -d /opt/cuda ]; then

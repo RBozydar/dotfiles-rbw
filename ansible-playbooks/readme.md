@@ -24,14 +24,15 @@ The workstation vars currently enable:
 - `enable_gui`
 - `enable_nvidia`
 
-Run a work Mac profile when the machine should get GUI apps/config but no
-personal apps:
+Run a work Mac profile when the machine should get GUI apps/config plus
+work-only apps, but no personal apps:
 
 ```sh
 ansible-playbook main.yml --extra-vars "@vars/macos-work.yml"
 ```
 
-Run a private Mac profile when the machine should also get personal GUI apps:
+Run a private Mac profile when the machine should get common apps plus personal
+GUI apps:
 
 ```sh
 ansible-playbook main.yml --extra-vars "@vars/macos-private.yml"

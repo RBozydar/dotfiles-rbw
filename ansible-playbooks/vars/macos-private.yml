@@ -1,5 +1,6 @@
 ---
 enable_gui: true
 enable_nvidia: false
+enable_work_apps: false
 enable_private_apps: true
 configure_macos_defaults: true

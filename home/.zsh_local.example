@@ -15,6 +15,19 @@
 # export DBT_GCP_SA="$HOME/.config/gcp/example.json"
 # export HF_HOME="/mnt/ml_models"
 
+# Work or project defaults. Keep the values local because they can point at
+# employer projects, local repo layouts, or machine-specific certificates.
+# export GOOGLE_CLOUD_PROJECT=""
+# export GOOGLE_CLOUD_LOCATION=""
+# export GOOGLE_GENAI_USE_VERTEXAI="true"
+# export GAIA_DAGS_PATH="$HOME/repo/gaia-dags"
+# export DATA_HELIOS_PATH="$HOME/repo/data-helios"
+# export CONFIG_FILE="$HOME/repo/example/local.yml"
+# export LOGGING_CONFIG_FILE="$HOME/repo/example/local.logging.yml"
+# export PRESTO_CA_BUNDLE="$HOME/zscaler-root-ca.pem"
+# export NODE_EXTRA_CA_CERTS="/Library/Application Support/ClaudeCode/ZscalerRoot.pem"
+# export TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE="/var/run/docker.sock"
+
 # Google Cloud SDK override if it is not installed at $HOME/google-cloud-sdk
 # export GCLOUD_SDK_HOME="$HOME/google-cloud-sdk"
 

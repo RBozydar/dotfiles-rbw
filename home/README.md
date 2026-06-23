@@ -48,7 +48,7 @@ generated automatically from `~/.zsh_plugins.txt` when needed.
 On a new machine:
 
 ```sh
-cp "$DOTFILES_REPO_ROOT/home/.zsh_local.example" ~/.zsh_local
+cp -n "$DOTFILES_REPO_ROOT/home/.zsh_local.example" ~/.zsh_local
 ```
 
 Then edit `~/.zsh_local` and uncomment only the variables that apply to that
