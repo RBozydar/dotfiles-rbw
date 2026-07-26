@@ -9,7 +9,7 @@ export BUN_INSTALL="$HOME/.bun"
 export PATH="$BUN_INSTALL/bin:$PATH"
 export QLTY_INSTALL="$HOME/.qlty"
 export PATH="$QLTY_INSTALL/bin:$PATH"
-
+export EDITOR=nano
 # conda
 #  .  ~/miniconda3/etc/profile.d/conda.sh
 #  . /usr/local/anaconda/etc/profile.d/conda.sh
@@ -35,16 +35,40 @@ function y() {
 	rm -f -- "$tmp"
 }
 
-setup-testcontainers-colima() {
-  local colima_addr
+with-testcontainers-colima() {
+  local sock="${HOME}/.colima/default/docker.sock"
 
-  colima_addr="$(colima ls -j 2>/dev/null | jq -r '.address // empty')"
-  if [[ -z "$colima_addr" ]]; then
-    echo "ERROR: Could not determine Colima address." >&2
+  if (( $# == 0 )); then
+    echo "Usage: with-testcontainers-colima <command> [args...]" >&2
+    return 2
+  fi
+
+  if [[ ! -S "$sock" ]]; then
+    echo "ERROR: Colima Docker socket not found: $sock" >&2
     return 1
   fi
 
-  export DOCKER_HOST="unix://${HOME}/.colima/default/docker.sock"
-  export TESTCONTAINERS_HOST_OVERRIDE="$colima_addr"
-  export TC_HOST="$colima_addr"
+  env \
+    -u TESTCONTAINERS_HOST_OVERRIDE \
+    -u TC_HOST \
+    DOCKER_HOST="unix://${sock}" \
+    TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE=/var/run/docker.sock \
+    "$@"
 }
+
+setup-testcontainers-colima() {
+  local sock="${HOME}/.colima/default/docker.sock"
+
+  if [[ ! -S "$sock" ]]; then
+    echo "ERROR: Colima Docker socket not found: $sock" >&2
+    return 1
+  fi
+
+  export DOCKER_HOST="unix://${sock}"
+  export TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE=/var/run/docker.sock
+  unset TESTCONTAINERS_HOST_OVERRIDE
+  unset TC_HOST
+}
+
+export LLMG_API_KEY=""
+export PI_CACHE_RETENTION=long

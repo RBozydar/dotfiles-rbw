@@ -78,6 +78,7 @@ brew_taps: []
 
 brew_packages:
   - ast-grep
+  - duckdb
   - fd
   - ffmpeg
   - fzf
@@ -95,10 +96,20 @@ brew_packages:
 brew_casks:
   - font-symbols-only-nerd-font
 
-macos_brew_taps:
+macos_common_brew_taps:
   - oven-sh/bun
 
-macos_brew_packages:
+macos_work_brew_taps:
+  - jundot/omlx
+  - openclaw/tap
+
+macos_brew_taps: >-
+  {{
+    macos_common_brew_taps
+    + (macos_work_brew_taps if enable_work_apps | bool else [])
+  }}
+
+macos_common_brew_packages:
   - ast-grep
   - bat
   - btop
@@ -153,6 +164,18 @@ macos_brew_packages:
   - yq
   - zoxide
 
+macos_work_brew_packages:
+  - jundot/omlx/omlx
+  - openclaw/tap/gogcli
+  - postgresql@18
+  - rust
+
+macos_brew_packages: >-
+  {{
+    macos_common_brew_packages
+    + (macos_work_brew_packages if enable_work_apps | bool else [])
+  }}
+
 macos_common_brew_casks:
   - bitwarden
   - claude
@@ -162,7 +185,7 @@ macos_common_brew_casks:
   - ghostty
   - github
   - google-chrome
-  - google-drive
+  # - google-drive
   - obsidian
   - visual-studio-code
 

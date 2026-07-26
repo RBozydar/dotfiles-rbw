@@ -82,6 +82,7 @@
       - version-managers
   - name: Miniforge3
     ansible.builtin.include_tasks: tasks/miniforge.yml
+    when: enable_miniforge | bool
     tags:
       - miniforge
 

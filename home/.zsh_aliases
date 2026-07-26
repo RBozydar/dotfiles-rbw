@@ -10,14 +10,14 @@ alias taskmaster="task-master"
 if (( $+commands[eza] )); then
   alias ls="eza"
   alias ll="eza -la --git"
-  alias la="eza -a"
+  alias la="eza -lA -F"
   alias lt="eza --tree"
 fi
 
 if (( $+commands[bat] )); then
-  alias cat="bat"
+  alias cat="bat -pp"
 elif (( $+commands[batcat] )); then
-  alias cat="batcat"
+  alias cat="batcat -pp"
 fi
 
 #config aliases

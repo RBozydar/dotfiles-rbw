@@ -88,7 +88,9 @@ changes:
 
 - Homebrew is loaded via `brew shellenv` if `brew` is installed.
 - Google Cloud SDK defaults to `$HOME/google-cloud-sdk`.
-- Conda defaults to `$HOME/miniforge3`, with a fallback to `$HOME/mambaforge`.
+- Conda is only initialized when it is installed. The macOS private profile
+  installs Miniforge; the work profile keeps conda out of the baseline.
+- Pyenv is the default repo-level Python environment manager for work repos.
 - CUDA is auto-detected from `/opt/cuda` or `/usr/local/cuda`.
 
 ## What not to put in global shell files

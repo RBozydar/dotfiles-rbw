@@ -49,7 +49,9 @@ changes and do not want to touch macOS defaults yet.
 
 Use this split when adding another laptop setup:
 
-- Common terminal tooling for all Macs belongs in `macos_brew_packages`.
+- Common terminal tooling for all Macs belongs in `macos_common_brew_packages`.
+- Work-only terminal tooling belongs in `macos_work_brew_packages` or
+  `macos_work_brew_taps` and is gated by `enable_work_apps`.
 - Common GUI apps that are acceptable on work and private Macs belong in `macos_common_brew_casks`.
 - Work-only but non-secret apps belong in `macos_work_brew_casks` and are gated by `enable_work_apps`.
 - Personal apps belong in `macos_private_brew_casks` and are gated by `enable_private_apps`.
@@ -59,6 +61,50 @@ Use this split when adding another laptop setup:
 
 Do not add macOS GUI apps to the default/server path. These playbooks are also
 used on servers.
+
+## Python Environment Policy
+
+Use pyenv and pyenv-virtualenv for repo-specific work environments. The work Mac
+profile installs pyenv, pyenv-virtualenv, and the company Poetry version
+`2.4.1`. When Poetry exists, the playbook configures
+`virtualenvs.create=false` so it follows the active environment instead of
+creating per-project Poetry virtualenvs.
+
+Use Miniforge/conda only for private-machine workflows. The work Mac profile
+sets `enable_miniforge=false`; the private Mac profile enables it. If conda is
+installed manually, keep auto-activation disabled so stale `CONDA_DEFAULT_ENV`
+does not mask pyenv in shells or prompts.
+
+For Poetry repos, the reliable workflow is:
+
+```sh
+cd ~/repo/<repo>
+pyenv local <env>
+pyenv activate <env>
+poetry install --all-groups --all-extras
+poetry run python -c 'import sys; print(sys.executable)'
+```
+
+`pyenv local <env>` selects the interpreter through `.python-version`.
+`pyenv activate <env>` also sets `VIRTUAL_ENV`, which Poetry can require when
+`virtualenvs.create=false`. If `poetry run python` does not point at the pyenv
+environment, remove the stale Poetry project env and activate the pyenv env
+before reinstalling.
+
+## Harness State Archive
+
+Use the repo scripts when moving agent session state between Macs:
+
+```sh
+utils/migration-backup-harness-state.sh
+utils/migration-restore-harness-state.sh ~/repo/migration-archives/harness-state-YYYYMMDD-HHMMSS.zip
+utils/migration-restore-harness-state.sh --apply ~/repo/migration-archives/harness-state-YYYYMMDD-HHMMSS.zip
+```
+
+The archive includes Codex, Claude, OpenCode, Pi, shared agent config, and shell
+history paths while excluding files whose names look like auth, tokens,
+credentials, secrets, or private keys. The restore script is dry-run by default
+and does not restore system-level app configs automatically.
 
 ## macOS Defaults
 

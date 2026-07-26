@@ -158,6 +158,62 @@
     PATH: "{{ user_home }}/.local/bin:{{ homebrew_path_env if target_system == 'Darwin' else target_path }}"
   loop: "{{ uv_tools }}"
 
+- name: Check Poetry version
+  ansible.builtin.command:
+    argv:
+      - "{{ user_home }}/.local/bin/poetry"
+      - --version
+  register: poetry_version_check
+  changed_when: false
+  failed_when: false
+  environment:
+    PATH: "{{ user_home }}/.local/bin:{{ homebrew_path_env if target_system == 'Darwin' else target_path }}"
+  when: enable_work_apps | bool
+
+- name: Install work Poetry version
+  become: "{{ user_task_become | bool }}"
+  become_user: "{{ username }}"
+  ansible.builtin.command:
+    argv:
+      - "{{ uv_bin }}"
+      - tool
+      - install
+      - --force
+      - "poetry=={{ poetry_version }}"
+  environment:
+    PATH: "{{ user_home }}/.local/bin:{{ homebrew_path_env if target_system == 'Darwin' else target_path }}"
+  when:
+    - enable_work_apps | bool
+    - poetry_version_check.rc != 0 or ("version " ~ poetry_version) not in poetry_version_check.stdout
+
+- name: Check Poetry virtualenv creation config
+  ansible.builtin.command:
+    argv:
+      - "{{ user_home }}/.local/bin/poetry"
+      - config
+      - virtualenvs.create
+  register: poetry_virtualenvs_create_check
+  changed_when: false
+  failed_when: false
+  environment:
+    PATH: "{{ user_home }}/.local/bin:{{ homebrew_path_env if target_system == 'Darwin' else target_path }}"
+  when: poetry_virtualenvs_create is defined
+
+- name: Configure Poetry to use active Python environments
+  become: "{{ user_task_become | bool }}"
+  become_user: "{{ username }}"
+  ansible.builtin.command:
+    argv:
+      - "{{ user_home }}/.local/bin/poetry"
+      - config
+      - virtualenvs.create
+      - "{{ poetry_virtualenvs_create | string | lower }}"
+  environment:
+    PATH: "{{ user_home }}/.local/bin:{{ homebrew_path_env if target_system == 'Darwin' else target_path }}"
+  when:
+    - poetry_virtualenvs_create_check.rc == 0
+    - poetry_virtualenvs_create_check.stdout | trim != (poetry_virtualenvs_create | string | lower)
+
 # bun
 - name: Locate bun
   ansible.builtin.shell:

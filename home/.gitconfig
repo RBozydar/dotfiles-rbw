@@ -1,5 +1,5 @@
 [user]
-        email = wasilewski.robert@gmail.com
+	email = robert.wasilewski@revolut.com
         name = Robert Wasilewski
 
 [credential]
@@ -19,3 +19,5 @@ user = RBozydar
 [credential "https://gist.github.com"]
 	helper = 
 	helper = !/usr/bin/env gh auth git-credential
+[pull]
+	rebase = false

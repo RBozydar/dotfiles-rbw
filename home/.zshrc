@@ -109,9 +109,53 @@ fi
 if command -v pyenv >/dev/null 2>&1; then
   export PYENV_ROOT="${PYENV_ROOT:-$HOME/.pyenv}"
   eval "$(pyenv init --no-rehash - zsh)"
+  # Let agnoster own the Python env display instead of pyenv-virtualenv
+  # prepending raw "(env)" text to PS1.
+  export PYENV_VIRTUALENV_DISABLE_PROMPT=1
+  export VIRTUAL_ENV_DISABLE_PROMPT=1
   if command -v pyenv-virtualenv-init >/dev/null 2>&1; then
     eval "$(pyenv virtualenv-init -)"
   fi
+fi
+
+# Show active/local pyenv virtualenvs in agnoster's Python segment.
+if typeset -f prompt_segment >/dev/null 2>&1; then
+  _agnoster_pyenv_env_name() {
+    local version_name
+
+    if [[ -n "${PYENV_VERSION:-}" ]]; then
+      version_name="${PYENV_VERSION%%:*}"
+    elif [[ -n "${VIRTUAL_ENV:-}" && -n "${PYENV_ROOT:-}" && "$VIRTUAL_ENV" == "$PYENV_ROOT"/versions/* ]]; then
+      version_name="${VIRTUAL_ENV##*/envs/}"
+      version_name="${version_name:t}"
+    elif (( $+commands[pyenv] )); then
+      version_name="$(pyenv version-name 2>/dev/null)" || return 1
+      version_name="${version_name%%:*}"
+    else
+      return 1
+    fi
+
+    [[ -z "$version_name" || "$version_name" == system ]] && return 1
+    [[ "$version_name" == */envs/* ]] && version_name="${version_name##*/envs/}"
+    [[ "$version_name" =~ '^[0-9]+([.][0-9]+)*$' ]] && return 1
+    print -r -- "$version_name"
+  }
+
+  prompt_virtualenv() {
+    local python_env
+
+    if python_env="$(_agnoster_pyenv_env_name)"; then
+      :
+    elif [[ -n "${CONDA_DEFAULT_ENV:-}" ]]; then
+      python_env="$CONDA_DEFAULT_ENV"
+    elif [[ -n "${VIRTUAL_ENV:-}" ]]; then
+      python_env="${VIRTUAL_ENV:t}"
+    else
+      return
+    fi
+
+    prompt_segment magenta "$CURRENT_FG" "🐍 ${python_env:gs/%/%%}"
+  }
 fi
 
 if [ -d "$HOME/.opencode/bin" ]; then
@@ -147,3 +191,49 @@ fi
 
 # hf download
 hfdl() { local repo="$1"; shift; hf download "$repo" --local-dir "./${repo##*/}" "$@"; }
+
+
+
+
+# >>> Revolut OpenCode telemetry >>>
+# Managed by Jamf for Revolut OpenCode. Do not edit inside this block.
+export OPENCODE_ENABLE_TELEMETRY=1
+export OPENCODE_OTLP_ENDPOINT="https://robocop.revolut.com"
+export OPENCODE_OTLP_PROTOCOL="http/protobuf"
+export OPENCODE_RESOURCE_ATTRIBUTES="service.name=opencode,ai.tool.vendor=sst,ai.tool.name=opencode,deployment.environment=prod,data_stream.dataset=ai_tools.opencode,data_stream.namespace=default,ai.client.host.name=$(hostname -s 2>/dev/null || hostname),user.email=${USER}@revolut.com"
+# <<< Revolut OpenCode telemetry <<<
+
+# >>> Revolut OpenCode provider API keys >>>
+# Managed by Jamf for Revolut OpenCode. Do not edit inside this block.
+load_together_ai_coding_api_key_0() {
+  if [[ -z "${TOGETHER_AI_CODING_API_KEY:-}" ]]; then
+    local provider_key
+    provider_key="$(/usr/bin/security find-generic-password -s 'together-ai-coding-api-key' -w /Library/Keychains/System.keychain 2>/dev/null)" || return 1
+    export TOGETHER_AI_CODING_API_KEY="$provider_key"
+  fi
+}
+load_together_ai_coding_api_key_0 >/dev/null 2>&1
+unset -f load_together_ai_coding_api_key_0 2>/dev/null || true
+
+load_fireworks_non_coding_api_key_0() {
+  if [[ -z "${FIREWORKS_NON_CODING_API_KEY:-}" ]]; then
+    local provider_key
+    provider_key="$(/usr/bin/security find-generic-password -s 'fireworks-non-coding-api-key' -w /Library/Keychains/System.keychain 2>/dev/null)" || return 1
+    export FIREWORKS_NON_CODING_API_KEY="$provider_key"
+  fi
+}
+load_fireworks_non_coding_api_key_0 >/dev/null 2>&1
+unset -f load_fireworks_non_coding_api_key_0 2>/dev/null || true
+
+# <<< Revolut OpenCode provider API keys <<<
+
+# temp test
+#export OPENCODE_ENABLE_TELEMETRY=1
+#export OPENCODE_OTLP_ENDPOINT=http://127.0.0.1:4318
+#export OPENCODE_OTLP_PROTOCOL=http/protobuf
+#export OPENCODE_OTLP_METRICS_INTERVAL=5000
+#export OPENCODE_OTLP_LOGS_INTERVAL=1000
+
+confluence() {
+  /Users/robert.wasilewski/.pyenv/versions/py-conf/bin/confluence "$@"
+}

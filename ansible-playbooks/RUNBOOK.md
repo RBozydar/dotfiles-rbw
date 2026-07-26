@@ -4,7 +4,33 @@ Use this runbook when applying or changing the playbooks.
 
 ## Setup
 
-Install Ansible requirements before full syntax or check-mode runs:
+On a fresh Mac, install Ansible first, then install this playbook's collection
+requirements:
+
+```sh
+python3 -m pip install --user ansible-core
+export PATH="$(python3 -m site --user-base)/bin:/opt/homebrew/bin:/usr/local/bin:$PATH"
+ansible-galaxy install -r requirements.yml
+```
+
+From a brand-new machine, the full bootstrap is:
+
+```sh
+mkdir -p ~/repo
+git clone git@github.com:RBozydar/dotfiles-rbw.git ~/repo/dotfiles-rbw
+cd ~/repo/dotfiles-rbw
+git checkout revolut
+cd ansible-playbooks
+python3 -m pip install --user ansible-core
+export PATH="$(python3 -m site --user-base)/bin:/opt/homebrew/bin:/usr/local/bin:$PATH"
+ansible-galaxy install -r requirements.yml
+ansible-playbook main.yml --extra-vars "@vars/macos-work.yml"
+```
+
+Swap `@vars/macos-work.yml` for `@vars/macos-private.yml` on a private Mac.
+
+Install Ansible requirements before full syntax or check-mode runs on a machine
+where Ansible is already available:
 
 ```sh
 ansible-galaxy install -r requirements.yml
@@ -58,7 +84,7 @@ ansible-playbook main.yml -e configure_macos_defaults=false
 Pull the latest playbook changes before rerunning a profile:
 
 ```sh
-cd /Users/robertwasilewski/repo/dotfiles-rbw/ansible-playbooks
+cd /Users/robert.wasilewski/repo/dotfiles-rbw/ansible-playbooks
 git pull --ff-only
 ansible-playbook main.yml --extra-vars "@vars/macos-private.yml"
 ```

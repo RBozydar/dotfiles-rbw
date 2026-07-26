@@ -81,5 +81,8 @@ enable_private_apps: false
 configure_macos_defaults: false
 configure_codex: true
 configure_claude: true
+poetry_virtualenvs_create: false
+poetry_version: "2.4.1"
+enable_miniforge: true
 enable_git_role: true
 enable_security_role: true
