@@ -3,6 +3,24 @@ set -euo pipefail
 
 apply=false
 archive_path=""
+rsync_args=(
+  -rltpE
+  --exclude='.git/'
+  --exclude='.tmp/'
+  --exclude='tmp/'
+  --exclude='cache/'
+  --exclude='ipc/'
+  --exclude='log/'
+  --exclude='logs_*.sqlite*'
+  --exclude='*.sock'
+  --exclude='*.socket'
+  --exclude='node_repl/active_execs/'
+  --exclude='mcp-oauth-locks/'
+  --exclude='process_manager/'
+  --exclude='snapshot/'
+  --exclude='bin/'
+  --exclude='node_modules/'
+)
 
 usage() {
   cat <<'EOF'
@@ -57,7 +75,7 @@ cleanup() {
 trap cleanup EXIT
 
 unzip -q "$archive_path" -d "$tmp"
-archive_root="$(find "$tmp" -maxdepth 1 -type d -name 'harness-state-*' | head -n 1 || true)"
+archive_root="$(find "$tmp" -mindepth 1 -maxdepth 1 -type d -name 'harness-state-*' -exec test -d '{}/home' ';' -print | head -n 1 || true)"
 if [[ -z "$archive_root" ]]; then
   echo "ERROR: archive does not contain harness-state-* root directory" >&2
   exit 1
@@ -73,11 +91,11 @@ backup_one() {
   local dest="$backup_root/$rel"
   if [[ -d "$src" ]]; then
     mkdir -p "$dest"
-    rsync -aE "$src/" "$dest/"
+    rsync "${rsync_args[@]}" "$src/" "$dest/"
     echo "backed up dir:  $src -> $dest"
   elif [[ -f "$src" || -L "$src" ]]; then
     mkdir -p "$(dirname "$dest")"
-    rsync -aE "$src" "$dest"
+    rsync "${rsync_args[@]}" "$src" "$dest"
     echo "backed up file: $src -> $dest"
   fi
 }
@@ -104,7 +122,6 @@ if [[ "$apply" != true ]]; then
 else
   mkdir -p "$backup_root"
   backup_one ".codex"
-  backup_one "Library/Application Support/Codex"
   backup_one ".claude"
   backup_one ".claude.json"
   backup_one ".config/opencode"
@@ -117,7 +134,7 @@ else
   backup_one ".histfile"
   backup_one ".zsh_history"
 
-  rsync -aE "$home_payload/" "$HOME/"
+  rsync "${rsync_args[@]}" "$home_payload/" "$HOME/"
   echo
   echo "Restored home payload into $HOME"
   echo "Existing destinations were backed up under $backup_root"

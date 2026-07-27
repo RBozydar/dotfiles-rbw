@@ -8,6 +8,7 @@ stage="$(mktemp -d "${TMPDIR:-/tmp}/${archive_name}.XXXXXX")"
 payload="${stage}/${archive_name}"
 manifest="${payload}/MANIFEST.txt"
 excludes="${stage}/rsync-excludes.txt"
+rsync_args=(-rltpE --exclude-from="$excludes")
 
 cleanup() {
   rm -rf "$stage"
@@ -19,6 +20,7 @@ mkdir -p "$payload" "$archive_root"
 cat >"$excludes" <<'EOF'
 auth.json
 auth*.json
+*auth*.json
 *auth-token*
 *token*
 *tokens*
@@ -34,6 +36,21 @@ cookies*
 Cookies
 Login Data
 Network Persistent State
+.git/
+.tmp/
+tmp/
+cache/
+ipc/
+log/
+logs_*.sqlite*
+*.sock
+*.socket
+node_repl/active_execs/
+mcp-oauth-locks/
+process_manager/
+snapshot/
+bin/
+node_modules/
 EOF
 
 note() {
@@ -45,7 +62,7 @@ copy_dir() {
   dest="${payload}/${rel}"
   if [[ -d "$src" && -r "$src" ]]; then
     mkdir -p "$dest"
-    rsync -aE --exclude-from="$excludes" "$src/" "$dest/"
+    rsync "${rsync_args[@]}" "$src/" "$dest/"
     note "included dir:  $src -> $rel"
   elif [[ -e "$src" ]]; then
     note "skipped unreadable dir: $src"
@@ -55,11 +72,12 @@ copy_dir() {
 }
 
 copy_file() {
-  local src="$1" rel="$2" dest
+  local src="$1" rel="$2" dest dest_dir
   dest="${payload}/${rel}"
+  dest_dir="$(dirname "$dest")"
   if [[ -f "$src" && -r "$src" ]]; then
-    mkdir -p "$(dirname "$dest")"
-    rsync -aE --exclude-from="$excludes" "$src" "$dest"
+    mkdir -p "$dest_dir"
+    rsync "${rsync_args[@]}" "$src" "$dest_dir/"
     note "included file: $src -> $rel"
   elif [[ -e "$src" ]]; then
     note "skipped unreadable file: $src"
@@ -86,7 +104,6 @@ Included paths:
 EOF
 
 copy_dir "$HOME/.codex" "home/.codex"
-copy_dir "$HOME/Library/Application Support/Codex" "home/Library/Application Support/Codex"
 copy_dir "$HOME/.claude" "home/.claude"
 copy_file "$HOME/.claude.json" "home/.claude.json"
 copy_dir "$HOME/.config/opencode" "home/.config/opencode"
@@ -99,8 +116,6 @@ copy_dir "$HOME/.roo" "home/.roo"
 copy_file "$HOME/.histfile" "home/.histfile"
 copy_file "$HOME/.zsh_history" "home/.zsh_history"
 
-copy_dir "/Library/Application Support/opencode" "system/Library/Application Support/opencode"
-copy_dir "/Library/Application Support/ClaudeCode" "system/Library/Application Support/ClaudeCode"
 
 archive_path="${archive_root}/${archive_name}.zip"
 (
